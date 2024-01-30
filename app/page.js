@@ -188,11 +188,16 @@ export default function Home() {
   };
   return (
     <main
-      style={{ padding: "20px 10px 10px 10px" }}
+      style={{ padding: "0px 10px 10px 10px" }}
       className="bg-tremor-background"
     >
-      <Title>Dashboard</Title>
-      <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
+      <div
+        className="sticky-top bg-tremor-background"
+        style={{ padding: "16px 0px 16px 0px" }}
+      >
+        <Title>Dashboard</Title>
+        <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
+      </div>
 
       <TabGroup className="mt-6">
         <TabList>

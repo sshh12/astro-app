@@ -31,3 +31,15 @@ body {
     text-wrap: balance;
   }
 }
+
+.sticky-top {
+  position: sticky;
+  top: 0; /* Adjust this value as needed */
+  z-index: 10; /* Ensure it stays above other content */
+}
+
+/* Add a hover effect */
+.sticky-top:hover {
+  background-color: #f0f0f0; /* Change the background color on hover */
+  /* Add other hover styles if needed */
+}
