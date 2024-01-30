@@ -187,7 +187,10 @@ export default function Home() {
     yAxisWidth: 60,
   };
   return (
-    <main style={{ padding: "20px 10px 10px 10px", backgroundColor: "#fff" }}>
+    <main
+      style={{ padding: "20px 10px 10px 10px" }}
+      className="bg-tremor-background"
+    >
       <Title>Dashboard</Title>
       <Text>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</Text>
 
