@@ -31,6 +31,7 @@ import {
   Text,
   Title,
 } from "@tremor/react";
+import LineChartExample from "./test-chart.js";
 
 const kpiData = [
   {
@@ -251,16 +252,11 @@ export default function Home() {
                   </div>
                   {/* web */}
                   <div className="mt-8 hidden sm:block">
-                    <AreaChart {...areaChartArgs} />
+                    <LineChartExample />
                   </div>
                   {/* mobile */}
                   <div className="mt-8 sm:hidden">
-                    <AreaChart
-                      {...areaChartArgs}
-                      startEndOnly={true}
-                      showGradient={false}
-                      showYAxis={false}
-                    />
+                    <LineChartExample />
                   </div>
                 </>
               </Card>
