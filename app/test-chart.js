@@ -27,7 +27,11 @@ const chartdata = [
     "Export Growth Rate": 1.88,
     "Import Growth Rate": 1.67,
   },
-  //...
+  {
+    year: 1975,
+    "Export Growth Rate": 1.88,
+    "Import Growth Rate": 1.67,
+  },
 ];
 
 const valueFormatter = (number) =>

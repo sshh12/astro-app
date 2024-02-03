@@ -98,7 +98,7 @@ export default function SkyPage() {
         <Metric>{currentTime}</Metric>
       </div>
 
-      <div className="pb-10">
+      <div className="pb-6">
         <LineChartExample />
       </div>
 

@@ -171,15 +171,15 @@ const LineChart2 = React.forwardRef((props, ref) => {
             />
             <XAxis
               padding={{ left: paddingValue, right: paddingValue }}
-              hide={!showXAxis}
+              hide={true}
               dataKey={index}
               interval={startEndOnly ? "preserveStartEnd" : intervalType}
               tick={{ transform: "translate(0, 6)" }}
-              ticks={
-                startEndOnly
-                  ? [data[0][index], data[data.length - 1][index]]
-                  : undefined
-              }
+                ticks={
+                  startEndOnly
+                    ? [data[0][index], data[data.length - 1][index]]
+                    : undefined
+                }
               fill=""
               stroke=""
               className={tremorTwMerge(
@@ -252,25 +252,6 @@ const LineChart2 = React.forwardRef((props, ref) => {
               position={{ y: 0 }}
             />
 
-            {showLegend ? (
-              <Legend
-                verticalAlign="top"
-                height={legendHeight}
-                content={({ payload }) =>
-                  ChartLegend(
-                    { payload },
-                    categoryColors,
-                    setLegendHeight,
-                    activeLegend,
-                    hasOnValueChange
-                      ? (clickedLegendItem) =>
-                          onCategoryClick(clickedLegendItem)
-                      : undefined,
-                    enableLegendSlider
-                  )
-                }
-              />
-            ) : null}
             {categories.map((category) => (
               <Line
                 className={tremorTwMerge(
