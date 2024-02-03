@@ -14,9 +14,9 @@ import {
   Icon,
 } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
+import { useNav } from "../nav";
 
-import LineChartExample from "../test-chart.js";
+import SkyChart from "../components/sky-chart";
 
 const skyData = [
   {
@@ -41,6 +41,42 @@ const skyData = [
   },
 ];
 
+const chartdata = [
+  {
+    year: 1970,
+    "Export Growth Rate": 2.04,
+    "Import Growth Rate": 1.53,
+  },
+  {
+    year: 1971,
+    "Export Growth Rate": 1.96,
+    "Import Growth Rate": 1.58,
+  },
+  {
+    year: 1972,
+    "Export Growth Rate": 1.96,
+    "Import Growth Rate": 1.61,
+  },
+  {
+    year: 1973,
+    "Export Growth Rate": 1.93,
+    "Import Growth Rate": 1.61,
+  },
+  {
+    year: 1974,
+    "Export Growth Rate": 1.88,
+    "Import Growth Rate": 1.67,
+  },
+  {
+    year: 1975,
+    "Export Growth Rate": 1.88,
+    "Import Growth Rate": 1.67,
+  },
+];
+
+const valueFormatter = (number) =>
+  `$ ${new Intl.NumberFormat("us").format(number).toString()}`;
+
 function formatTime(date) {
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
@@ -49,6 +85,8 @@ function formatTime(date) {
 }
 
 export default function SkyPage({ title = "Sky Atlas" }) {
+  const { page, setPage } = useNav();
+
   const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
 
   useEffect(() => {
@@ -89,9 +127,12 @@ export default function SkyPage({ title = "Sky Atlas" }) {
           <Title>Sky Atlas</Title>
           <Subtitle>{currentTime}</Subtitle>
         </div>
-        <Link to="/search" state="forward">
-          <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
-        </Link>
+
+        <Button
+          onClick={() => setPage("/sky/search")}
+          color="slate-800"
+          icon={MagnifyingGlassIcon}
+        ></Button>
       </div>
 
       <div className="bg-slate-800" style={{ padding: "0px 10px 0px 12px" }}>
@@ -100,7 +141,17 @@ export default function SkyPage({ title = "Sky Atlas" }) {
       </div>
 
       <div className="pb-6">
-        <LineChartExample />
+        <SkyChart
+          className="mt-6"
+          data={chartdata}
+          index="year"
+          categories={["Export Growth Rate", "Import Growth Rate"]}
+          colors={["emerald", "gray"]}
+          valueFormatter={valueFormatter}
+          yAxisWidth={40}
+          showGradient={false}
+          showYAxis={false}
+        />
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>

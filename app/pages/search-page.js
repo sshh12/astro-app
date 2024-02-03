@@ -14,9 +14,6 @@ import {
   Icon,
 } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
-import { useLocation, Link } from "react-router-dom";
-
-import LineChartExample from "../test-chart.js";
 
 const skyData = [
   {
@@ -80,9 +77,7 @@ export default function SearchPage({ title = "Search" }) {
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}
       >
-        <Link to="/">
-          <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
-        </Link>
+        <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
         <div
           style={{
             opacity: Math.min(1.0, scrollPosition / 60),

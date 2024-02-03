@@ -32,16 +32,22 @@ body {
   }
 }
 
+body,
+html {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
 .sticky-top {
   position: sticky;
-  top: 0; /* Adjust this value as needed */
-  z-index: 10; /* Ensure it stays above other content */
+  top: 0;
+  z-index: 10;
 }
 
 .tabs-bottom-group {
   position: fixed;
-  bottom: 0; /* Adjust this value as needed */
-  z-index: 10; /* Ensure it stays above other content */
+  bottom: 0;
+  z-index: 12;
 }
 
 .tabs-bottom {
@@ -69,5 +75,20 @@ body {
 }
 .slide-left-exit-active {
   transform: translateX(-100%);
+  transition: transform 300ms ease-in-out;
+}
+
+.slide-right-enter {
+  transform: translateX(-100%);
+}
+.slide-right-enter-active {
+  transform: translateX(0);
+  transition: transform 300ms ease-in-out;
+}
+.slide-right-exit {
+  transform: translateX(0);
+}
+.slide-right-exit-active {
+  transform: translateX(100%);
   transition: transform 300ms ease-in-out;
 }

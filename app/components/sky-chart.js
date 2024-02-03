@@ -3,9 +3,8 @@ import React, { Fragment, useState } from "react";
 import {
   CartesianGrid,
   Dot,
-  Legend,
   Line,
-  LineChart as ReChartsLineChart2,
+  LineChart as ReChartsLineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,7 +12,6 @@ import {
   ReferenceArea,
 } from "recharts";
 
-import ChartLegend from "@tremor/react/dist/components/chart-elements/common/ChartLegend";
 import ChartTooltip from "@tremor/react/dist/components/chart-elements/common/ChartTooltip";
 import NoData from "@tremor/react/dist/components/chart-elements/common/NoData";
 import {
@@ -27,7 +25,7 @@ import { tremorTwMerge } from "@tremor/react/dist/lib/tremorTwMerge";
 import { getColorClassNames } from "@tremor/react/dist/lib/utils";
 import { themeColorRange, colorPalette } from "@tremor/react/dist/lib/theme";
 
-const LineChart2 = React.forwardRef((props, ref) => {
+const SkyChart = React.forwardRef((props, ref) => {
   const {
     data = [],
     categories = [],
@@ -125,7 +123,7 @@ const LineChart2 = React.forwardRef((props, ref) => {
     >
       <ResponsiveContainer className="h-full w-full">
         {data?.length ? (
-          <ReChartsLineChart2
+          <ReChartsLineChart
             data={data}
             onClick={
               hasOnValueChange && (activeLegend || activeDot)
@@ -175,11 +173,11 @@ const LineChart2 = React.forwardRef((props, ref) => {
               dataKey={index}
               interval={startEndOnly ? "preserveStartEnd" : intervalType}
               tick={{ transform: "translate(0, 6)" }}
-                ticks={
-                  startEndOnly
-                    ? [data[0][index], data[data.length - 1][index]]
-                    : undefined
-                }
+              ticks={
+                startEndOnly
+                  ? [data[0][index], data[data.length - 1][index]]
+                  : undefined
+              }
               fill=""
               stroke=""
               className={tremorTwMerge(
@@ -378,7 +376,7 @@ const LineChart2 = React.forwardRef((props, ref) => {
                   />
                 ))
               : null}
-          </ReChartsLineChart2>
+          </ReChartsLineChart>
         ) : (
           <NoData noDataText={noDataText} />
         )}
@@ -387,6 +385,6 @@ const LineChart2 = React.forwardRef((props, ref) => {
   );
 });
 
-LineChart2.displayName = "LineChart2";
+SkyChart.displayName = "SkyChart";
 
-export default LineChart2;
+export default SkyChart;

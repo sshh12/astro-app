@@ -1,50 +1,38 @@
 "use client";
 
-import React from "react";
-import {
-  BrowserRouter,
-  Route,
-  useLocation,
-  Routes,
-  Outlet,
-} from "react-router-dom";
-import { StaticRouter } from "react-router-dom/server";
+import React, { useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import Tabs from "./components/tabs";
 
+import Tabs from "./components/tabs";
 import SkyPage from "./pages/sky-page";
 import SearchPage from "./pages/search-page";
+import { NavContext, controlNav, useNav } from "./nav";
 
-const Router = typeof window !== "undefined" ? BrowserRouter : StaticRouter;
-
-function Layout() {
-  const location = useLocation();
+export function App() {
+  const { page, pageTransition } = useNav();
   return (
     <main className="bg-slate-800">
-      <TransitionGroup>
-        <CSSTransition
-          key={location.key}
-          classNames={location.state == "forward" ? "slide-left" : ""}
-          timeout={300}
-        >
-          <Outlet />
-        </CSSTransition>
-      </TransitionGroup>
+      <div>
+        <TransitionGroup>
+          <CSSTransition key={page} classNames={pageTransition} timeout={300}>
+            <div>
+              {page === "/sky" && <SkyPage title={"Sky Atlas"} />}
+              {page === "/test" && <SkyPage title={"Imaging"} />}
+              {page === "/sky/search" && <SearchPage />}
+            </div>
+          </CSSTransition>
+        </TransitionGroup>
+      </div>
       <Tabs />
     </main>
   );
 }
 
-export default function App() {
+export default function WrappedApp() {
+  const navProps = controlNav();
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<SkyPage title={"Sky Atlas"} />} />
-          <Route path="test" element={<SkyPage title={"Imaging"} />} />
-          <Route path="search" element={<SearchPage />} />
-        </Route>
-      </Routes>
-    </Router>
+    <NavContext.Provider value={navProps}>
+      <App />
+    </NavContext.Provider>
   );
 }
