@@ -38,8 +38,21 @@ body {
   z-index: 10; /* Ensure it stays above other content */
 }
 
-/* Add a hover effect */
-.sticky-top:hover {
-  background-color: #f0f0f0; /* Change the background color on hover */
-  /* Add other hover styles if needed */
+.sticky-bottom {
+  position: fixed;
+  bottom: 0; /* Adjust this value as needed */
+  z-index: 10; /* Ensure it stays above other content */
+}
+
+.span-center {
+  height: 5rem;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 0;
+}
+
+.span-center span {
+  margin: auto;
 }
