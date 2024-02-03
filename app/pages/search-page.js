@@ -14,7 +14,7 @@ import {
   Icon,
 } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 import LineChartExample from "../test-chart.js";
 
@@ -48,7 +48,7 @@ function formatTime(date) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-export default function SkyPage({ title = "Sky Atlas" }) {
+export default function SearchPage({ title = "Search" }) {
   const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
 
   useEffect(() => {
@@ -80,6 +80,9 @@ export default function SkyPage({ title = "Sky Atlas" }) {
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}
       >
+        <Link to="/">
+          <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
+        </Link>
         <div
           style={{
             opacity: Math.min(1.0, scrollPosition / 60),
@@ -89,21 +92,12 @@ export default function SkyPage({ title = "Sky Atlas" }) {
           <Title>Sky Atlas</Title>
           <Subtitle>{currentTime}</Subtitle>
         </div>
-        <Link to="/search" state="forward">
-          <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
-        </Link>
       </div>
 
       <div className="bg-slate-800" style={{ padding: "0px 10px 0px 12px" }}>
         <Title>{title}</Title>
         <Metric>{currentTime}</Metric>
       </div>
-
-      <div className="pb-6">
-        <LineChartExample />
-      </div>
-
-      <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
       <div className="mt-5 ml-2 mr-2">
         <Title>Favorites</Title>
