@@ -7,7 +7,7 @@ import SkyPage from "./pages/sky-page";
 import SkyObjectPage from "./pages/sky-object-page";
 import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
-import { NavContext, controlNav, useNav } from "./nav";
+import { NavContext, useNavControl, useNav } from "./nav";
 
 export function App() {
   const { page, pageTransition } = useNav();
@@ -31,7 +31,7 @@ export function App() {
 }
 
 export default function WrappedApp() {
-  const navProps = controlNav();
+  const navProps = useNavControl();
   return (
     <NavContext.Provider value={navProps}>
       <App />

@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 
 export const NavContext = React.createContext({});
 
-export function controlNav() {
+export function useNavControl() {
   const [page, _setPage] = useState("/sky");
   const [pageTransition, setPageTransition] = useState("");
   const setPage = (newPage) => {
