@@ -8,11 +8,14 @@ import {
   Routes,
   Outlet,
 } from "react-router-dom";
+import { StaticRouter } from "react-router-dom/server";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import Tabs from "./components/tabs";
 
 import SkyPage from "./pages/sky-page";
 import SearchPage from "./pages/search-page";
+
+const Router = typeof window !== "undefined" ? BrowserRouter : StaticRouter;
 
 function Layout() {
   const location = useLocation();
@@ -34,7 +37,7 @@ function Layout() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<SkyPage title={"Sky Atlas"} />} />
@@ -42,6 +45,6 @@ export default function App() {
           <Route path="search" element={<SearchPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
