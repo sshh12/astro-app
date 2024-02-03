@@ -7,17 +7,16 @@ import {
   Flex,
   Grid,
   Metric,
-  ProgressBar,
   Text,
   Title,
   Button,
   Subtitle,
-  Divider,
   Icon,
 } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
 
 import LineChartExample from "../test-chart.js";
+
 
 const skyData = [
   {
@@ -49,8 +48,8 @@ function formatTime(date) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-export default function SkyPage() {
-  const [currentTime, setCurrentTime] = useState("");
+export default function SkyPage({ title = "Sky Atlas" }) {
+  const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -76,84 +75,86 @@ export default function SkyPage() {
   }, []);
 
   return (
-    <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
-      <div
-        className="sticky-top bg-slate-800 flex items-center justify-between w-full"
-        style={{ padding: "8px 10px 8px 12px" }}
-      >
+    
+      <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
         <div
-          style={{
-            opacity: Math.min(1.0, scrollPosition / 60),
-            transition: "opacity 0.5s",
-          }}
+          className="sticky-top bg-slate-800 flex items-center justify-between w-full"
+          style={{ padding: "8px 10px 8px 12px" }}
         >
-          <Title>Sky Atlas</Title>
-          <Subtitle>{currentTime}</Subtitle>
+          <div
+            style={{
+              opacity: Math.min(1.0, scrollPosition / 60),
+              transition: "opacity 0.5s",
+            }}
+          >
+            <Title>Sky Atlas</Title>
+            <Subtitle>{currentTime}</Subtitle>
+          </div>
+          <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
         </div>
-        <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
-      </div>
 
-      <div className="bg-slate-800" style={{ padding: "0px 10px 0px 12px" }}>
-        <Title>Sky Atlas</Title>
-        <Metric>{currentTime}</Metric>
-      </div>
+        <div className="bg-slate-800" style={{ padding: "0px 10px 0px 12px" }}>
+          <Title>{title}</Title>
+          <Metric>{currentTime}</Metric>
+        </div>
 
-      <div className="pb-6">
-        <LineChartExample />
-      </div>
+        <div className="pb-6">
+          <LineChartExample />
+        </div>
 
-      <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
+        <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      <div className="mt-5 ml-2 mr-2">
-        <Title>Favorites</Title>
-      </div>
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {skyData.concat(skyData).map((item) => (
-          <Card key={item.title}>
-            <Flex alignItems="start">
-              <div className="truncate">
-                <Text color="white">{item.title}</Text>
-              </div>
-              <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
-            </Flex>
-            <Flex className="mt-4 space-x-2">
-              <div>
-                <Text className="truncate">RA 07.34.54</Text>
-                <Text className="truncate">DEC 12.54.45</Text>
-                <Text className="truncate">T+20m</Text>
-              </div>
+        <div className="mt-5 ml-2 mr-2">
+          <Title>Favorites</Title>
+        </div>
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          {skyData.concat(skyData).map((item) => (
+            <Card key={item.title}>
+              <Flex alignItems="start">
+                <div className="truncate">
+                  <Text color="white">{item.title}</Text>
+                </div>
+                <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
+              </Flex>
+              <Flex className="mt-4 space-x-2">
+                <div>
+                  <Text className="truncate">RA 07.34.54</Text>
+                  <Text className="truncate">DEC 12.54.45</Text>
+                  <Text className="truncate">T+20m</Text>
+                </div>
+              </Flex>
+            </Card>
+          ))}
+        </Grid>
+
+        <div className="mt-5 ml-2 mr-2">
+          <Title>Lists</Title>
+        </div>
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          <Card>
+            <Flex className="space-x-6">
+              <Text color="white">Nebulas</Text>
+              <Icon
+                icon={ListBulletIcon}
+                color="violet"
+                variant="solid"
+                size="lg"
+              />
             </Flex>
           </Card>
-        ))}
-      </Grid>
-
-      <div className="mt-5 ml-2 mr-2">
-        <Title>Lists</Title>
+          <Card>
+            <Flex className="space-x-6">
+              <Text color="white">Galaxies</Text>
+              <Icon
+                icon={ListBulletIcon}
+                color="green"
+                variant="solid"
+                size="lg"
+              />
+            </Flex>
+          </Card>
+        </Grid>
       </div>
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        <Card>
-          <Flex className="space-x-6">
-            <Text color="white">Nebulas</Text>
-            <Icon
-              icon={ListBulletIcon}
-              color="violet"
-              variant="solid"
-              size="lg"
-            />
-          </Flex>
-        </Card>
-        <Card>
-          <Flex className="space-x-6">
-            <Text color="white">Galaxies</Text>
-            <Icon
-              icon={ListBulletIcon}
-              color="green"
-              variant="solid"
-              size="lg"
-            />
-          </Flex>
-        </Card>
-      </Grid>
-    </div>
+      
   );
 }
