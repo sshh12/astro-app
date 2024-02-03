@@ -1,22 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
 
-import {
-  BadgeDelta,
-  Card,
-  Flex,
-  Grid,
-  Metric,
-  Text,
-  Title,
-  Button,
-  Subtitle,
-  Icon,
-} from "@tremor/react";
+import React, { useState, useEffect } from "react";
+import { BadgeDelta, Card, Flex, Grid, Text, Title, Icon } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
-
 import SkyChart from "../components/sky-chart";
+import StickyHeader from "../components/sticky-header";
 
 const skyData = [
   {
@@ -84,7 +73,7 @@ function formatTime(date) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-export default function SkyPage({ title = "Sky Atlas" }) {
+export default function SkyPage() {
   const { page, setPage } = useNav();
 
   const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
@@ -98,47 +87,15 @@ export default function SkyPage({ title = "Sky Atlas" }) {
     return () => clearInterval(intervalId);
   }, []);
 
-  const [scrollPosition, setScrollPosition] = useState(0);
-
-  const handleScroll = () => {
-    const position = window.pageYOffset;
-    setScrollPosition(position);
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
-      <div
-        className="sticky-top bg-slate-800 flex items-center justify-between w-full"
-        style={{ padding: "8px 10px 8px 12px" }}
-      >
-        <div
-          style={{
-            opacity: Math.min(1.0, scrollPosition / 60),
-            transition: "opacity 0.5s",
-          }}
-        >
-          <Title>Sky Atlas</Title>
-          <Subtitle>{currentTime}</Subtitle>
-        </div>
-
-        <Button
-          onClick={() => setPage("/sky/search")}
-          color="slate-800"
-          icon={MagnifyingGlassIcon}
-        ></Button>
-      </div>
-
-      <div className="bg-slate-800" style={{ padding: "0px 10px 0px 12px" }}>
-        <Title>{title}</Title>
-        <Metric>{currentTime}</Metric>
-      </div>
+      <StickyHeader
+        title="Sky Atlas"
+        subtitle={currentTime}
+        bigSubtitle={true}
+        rightIcon={MagnifyingGlassIcon}
+        rightIconOnClick={() => setPage("/sky/search")}
+      />
 
       <div className="pb-6">
         <SkyChart
@@ -161,7 +118,7 @@ export default function SkyPage({ title = "Sky Atlas" }) {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {skyData.concat(skyData).map((item) => (
-          <Card key={item.title}>
+          <Card key={item.title} onClick={() => setPage("/sky/object")}>
             <Flex alignItems="start">
               <div className="truncate">
                 <Text color="white">{item.title}</Text>

@@ -1,19 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
 
+import React from "react";
 import {
   BadgeDelta,
   Card,
   Flex,
   Grid,
-  Metric,
   Text,
   Title,
-  Button,
-  Subtitle,
-  Icon,
+  Select,
+  SelectItem,
 } from "@tremor/react";
-import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
+import {
+  AdjustmentsVerticalIcon,
+  ArrowUturnLeftIcon,
+} from "@heroicons/react/24/solid";
+import { useNav } from "../nav";
+import StickyHeader from "../components/sticky-header";
+import BadgeIconRound from "../components/badge-icon-round";
 
 const skyData = [
   {
@@ -38,64 +42,44 @@ const skyData = [
   },
 ];
 
-function formatTime(date) {
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
-}
-
-export default function SearchPage({ title = "Search" }) {
-  const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTime(formatTime(new Date()));
-    }, 1000);
-
-    // Clear interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const [scrollPosition, setScrollPosition] = useState(0);
-
-  const handleScroll = () => {
-    const position = window.pageYOffset;
-    setScrollPosition(position);
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+export default function SearchPage() {
+  const { setPage } = useNav();
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
-      <div
-        className="sticky-top bg-slate-800 flex items-center justify-between w-full"
-        style={{ padding: "8px 10px 8px 12px" }}
-      >
-        <Button color="slate-800" icon={MagnifyingGlassIcon}></Button>
-        <div
-          style={{
-            opacity: Math.min(1.0, scrollPosition / 60),
-            transition: "opacity 0.5s",
-          }}
-        >
-          <Title>Sky Atlas</Title>
-          <Subtitle>{currentTime}</Subtitle>
-        </div>
-      </div>
+      <StickyHeader
+        title=""
+        subtitle={""}
+        leftIcon={ArrowUturnLeftIcon}
+        leftIconOnClick={() => setPage("/sky")}
+        search={true}
+      />
 
-      <div className="bg-slate-800" style={{ padding: "0px 10px 0px 12px" }}>
-        <Title>{title}</Title>
-        <Metric>{currentTime}</Metric>
-      </div>
+      <Card>
+        <Flex alignItems="start">
+          <div className="truncate">
+            <Text color="white">Filters</Text>
+          </div>
+          <BadgeIconRound icon={AdjustmentsVerticalIcon} />
+        </Flex>
+        <div className="max-w-sm mx-auto space-y-6 mt-3">
+          <Select placeholder={"Object Type"}>
+            <SelectItem value="1">Kilometers</SelectItem>
+            <SelectItem value="2">Meters</SelectItem>
+            <SelectItem value="3">Miles</SelectItem>
+            <SelectItem value="4">Nautical Miles</SelectItem>
+          </Select>
+          <Select placeholder={"Constellation"}>
+            <SelectItem value="1">Kilometers</SelectItem>
+            <SelectItem value="2">Meters</SelectItem>
+            <SelectItem value="3">Miles</SelectItem>
+            <SelectItem value="4">Nautical Miles</SelectItem>
+          </Select>
+        </div>
+      </Card>
 
       <div className="mt-5 ml-2 mr-2">
-        <Title>Favorites</Title>
+        <Title>Results</Title>
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {skyData.concat(skyData).map((item) => (
@@ -115,34 +99,6 @@ export default function SearchPage({ title = "Search" }) {
             </Flex>
           </Card>
         ))}
-      </Grid>
-
-      <div className="mt-5 ml-2 mr-2">
-        <Title>Lists</Title>
-      </div>
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        <Card>
-          <Flex className="space-x-6">
-            <Text color="white">Nebulas</Text>
-            <Icon
-              icon={ListBulletIcon}
-              color="violet"
-              variant="solid"
-              size="lg"
-            />
-          </Flex>
-        </Card>
-        <Card>
-          <Flex className="space-x-6">
-            <Text color="white">Galaxies</Text>
-            <Icon
-              icon={ListBulletIcon}
-              color="green"
-              variant="solid"
-              size="lg"
-            />
-          </Flex>
-        </Card>
       </Grid>
     </div>
   );

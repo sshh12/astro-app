@@ -16,6 +16,7 @@ export function controlNav() {
       setPageTransition("");
     }
     console.log(page, "->", newPage);
+    window.scrollTo(0, 0);
     _setPage(newPage);
   };
   return { page: page, setPage: setPage, pageTransition: pageTransition };

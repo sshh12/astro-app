@@ -36,6 +36,11 @@ body,
 html {
   min-height: 100vh;
   overflow-x: hidden;
+  background-color: #1e293b;
+}
+
+body {
+  background: fixed;
 }
 
 .sticky-top {

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-
 import Tabs from "./components/tabs";
 import SkyPage from "./pages/sky-page";
+import SkyObjectPage from "./pages/sky-object-page";
+import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
 import { NavContext, controlNav, useNav } from "./nav";
 
@@ -16,9 +17,10 @@ export function App() {
         <TransitionGroup>
           <CSSTransition key={page} classNames={pageTransition} timeout={300}>
             <div>
-              {page === "/sky" && <SkyPage title={"Sky Atlas"} />}
-              {page === "/test" && <SkyPage title={"Imaging"} />}
+              {page === "/sky" && <SkyPage />}
+              {page === "/profile" && <ProfilePage />}
               {page === "/sky/search" && <SearchPage />}
+              {page === "/sky/object" && <SkyObjectPage />}
             </div>
           </CSSTransition>
         </TransitionGroup>
