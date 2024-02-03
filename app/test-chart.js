@@ -35,19 +35,16 @@ const valueFormatter = (number) =>
 
 export default function LineChartExample() {
   return (
-    <Card>
-      <Title>Export/Import Growth Rates (1970 to 2021)</Title>
-      <LineChart2
-        className="mt-6"
-        data={chartdata}
-        index="year"
-        categories={["Export Growth Rate", "Import Growth Rate"]}
-        colors={["emerald", "gray"]}
-        valueFormatter={valueFormatter}
-        yAxisWidth={40}
-        showGradient={false}
-        showYAxis={false}
-      />
-    </Card>
+    <LineChart2
+      className="mt-6"
+      data={chartdata}
+      index="year"
+      categories={["Export Growth Rate", "Import Growth Rate"]}
+      colors={["emerald", "gray"]}
+      valueFormatter={valueFormatter}
+      yAxisWidth={40}
+      showGradient={false}
+      showYAxis={false}
+    />
   );
 }

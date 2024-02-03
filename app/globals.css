@@ -38,13 +38,13 @@ body {
   z-index: 10; /* Ensure it stays above other content */
 }
 
-.sticky-bottom {
+.tabs-bottom-group {
   position: fixed;
   bottom: 0; /* Adjust this value as needed */
   z-index: 10; /* Ensure it stays above other content */
 }
 
-.span-center {
+.tabs-bottom {
   height: 5rem;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -53,6 +53,6 @@ body {
   border-radius: 0;
 }
 
-.span-center span {
+.tabs-bottom span {
   margin: auto;
 }
