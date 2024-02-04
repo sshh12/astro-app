@@ -11,8 +11,10 @@ import { NavContext, useNavControl, useNav } from "./nav";
 
 export function App() {
   const { page, pageTransition } = useNav();
-  useEffect(() => {
-    const serviceWorkerRegistration = import("./serviceWorkerRegistration");
+  useEffect(async () => {
+    const serviceWorkerRegistration = await import(
+      "./serviceWorkerRegistration"
+    );
     window.temp = serviceWorkerRegistration;
     serviceWorkerRegistration.register();
   }, []);
