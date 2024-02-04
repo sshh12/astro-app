@@ -18,6 +18,7 @@ const serviceWorkerRegistration = dynamic(
 export function App() {
   const { page, pageTransition } = useNav();
   useEffect(() => {
+    window.temp = serviceWorkerRegistration;
     serviceWorkerRegistration.register();
   }, []);
   return (
