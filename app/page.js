@@ -8,16 +8,11 @@ import SkyObjectPage from "./pages/sky-object-page";
 import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
 import { NavContext, useNavControl, useNav } from "./nav";
-import dynamic from "next/dynamic";
-
-const serviceWorkerRegistration = dynamic(
-  () => import("./serviceWorkerRegistration"),
-  { ssr: false }
-);
 
 export function App() {
   const { page, pageTransition } = useNav();
   useEffect(() => {
+    const serviceWorkerRegistration = import("./serviceWorkerRegistration");
     window.temp = serviceWorkerRegistration;
     serviceWorkerRegistration.register();
   }, []);
