@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PlusCircleIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import { PlusIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
@@ -52,7 +52,7 @@ export default function SkyObjectPage() {
         subtitle={"Bodes Galaxy"}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
-        rightIcon={PlusCircleIcon}
+        rightIcon={PlusIcon}
         rightIconOnClick={() => void 0}
       />
 

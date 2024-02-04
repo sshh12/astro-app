@@ -23,7 +23,7 @@ workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 // are fulfilled with your index.html shell. Learn more at
 // https://developers.google.com/web/fundamentals/architecture/app-shell
 const fileExtensionRegexp = new RegExp("/[^/?]+\\.[^/]+$");
-registerRoute(
+workbox.routing.registerRoute(
   // Return false to exempt requests from being fulfilled by index.html.
   ({ request, url }) => {
     // If this isn't a navigation, skip.
@@ -41,5 +41,5 @@ registerRoute(
 
     return true;
   },
-  workbox.routing.createHandlerBoundToURL("/index.html")
+  workbox.precaching.createHandlerBoundToURL("/index.html")
 );
