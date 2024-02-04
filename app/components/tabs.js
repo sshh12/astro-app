@@ -12,7 +12,10 @@ export default function Tabs() {
   const { page, setPage } = useNav();
   return (
     <TabGroup className="tabs-bottom-group">
-      <TabList className="flex w-full tabs-bottom" variant="solid">
+      <TabList
+        className="flex w-full tabs-bottom justify-center"
+        variant="solid"
+      >
         {TABS.map((tab) => (
           <Tab
             key={tab.path}

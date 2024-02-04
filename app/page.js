@@ -16,12 +16,12 @@ export function App() {
       <div>
         <TransitionGroup>
           <CSSTransition key={page} classNames={pageTransition} timeout={300}>
-            <div>
+            <>
               {page === "/sky" && <SkyPage />}
               {page === "/profile" && <ProfilePage />}
               {page === "/sky/search" && <SearchPage />}
               {page === "/sky/object" && <SkyObjectPage />}
-            </div>
+            </>
           </CSSTransition>
         </TransitionGroup>
       </div>

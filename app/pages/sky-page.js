@@ -118,7 +118,11 @@ export default function SkyPage() {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {skyData.concat(skyData).map((item) => (
-          <Card key={item.title} onClick={() => setPage("/sky/object")}>
+          <Card
+            className="cursor-pointer"
+            key={item.title}
+            onClick={() => setPage("/sky/object")}
+          >
             <Flex alignItems="start">
               <div className="truncate">
                 <Text color="white">{item.title}</Text>
