@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import Tabs from "./components/tabs";
 import SkyPage from "./pages/sky-page";
@@ -8,9 +8,18 @@ import SkyObjectPage from "./pages/sky-object-page";
 import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
 import { NavContext, useNavControl, useNav } from "./nav";
+import dynamic from "next/dynamic";
+
+const serviceWorkerRegistration = dynamic(
+  () => import("./serviceWorkerRegistration"),
+  { ssr: false }
+);
 
 export function App() {
   const { page, pageTransition } = useNav();
+  useEffect(() => {
+    serviceWorkerRegistration.register();
+  }, []);
   return (
     <main className="bg-slate-800">
       <div>

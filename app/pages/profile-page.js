@@ -3,9 +3,10 @@
 import React from "react";
 import { Card, Flex, Grid, Text } from "@tremor/react";
 import {
-  UserMinusIcon,
+  UserPlusIcon,
   MapPinIcon,
   UserCircleIcon,
+  FlagIcon,
 } from "@heroicons/react/24/solid";
 import BadgeIconRound from "../components/badge-icon-round";
 import StickyHeader from "../components/sticky-header";
@@ -16,7 +17,7 @@ export default function ProfilePage() {
       <StickyHeader
         title="Profile"
         subtitle="@sshh12"
-        rightIcon={UserMinusIcon}
+        rightIcon={UserPlusIcon}
       />
 
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
@@ -46,6 +47,21 @@ export default function ProfilePage() {
               <Text className="truncate">LAT 37.7762735</Text>
               <Text className="truncate">LNG -122.4332375</Text>
               <Text className="truncate">TZ US/Eastern</Text>
+            </div>
+          </Flex>
+        </Card>
+        <Card>
+          <Flex alignItems="start">
+            <div className="truncate">
+              <Text color="white">Feedback</Text>
+            </div>
+            <BadgeIconRound icon={FlagIcon} color={"purple"} />
+          </Flex>
+          <Flex className="mt-4 space-x-2">
+            <div>
+              <Text className="truncate">
+                Share feedback or submit a feature request.
+              </Text>
             </div>
           </Flex>
         </Card>

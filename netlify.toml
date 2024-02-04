@@ -3,6 +3,11 @@
   to = "/index.html"
   status = 200
 
+[[redirects]]
+  from = "/service-worker.js"
+  to = "/service-worker.js"
+  status = 200
+
 [build]
   command = "npm run build"
   publish = "out/"
