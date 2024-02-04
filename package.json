@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npm run build-sw",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build-sw": "workbox injectManifest workbox-config.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
@@ -16,7 +17,9 @@
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-transition-group": "^4.4.5"
+    "react-transition-group": "^4.4.5",
+    "workbox-build": "^7.0.0",
+    "workbox-cli": "^7.0.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
