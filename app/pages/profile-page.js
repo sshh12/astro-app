@@ -29,7 +29,8 @@ export default function ProfilePage() {
           </Flex>
           <Flex className="mt-4 space-x-2">
             <div>
-              <Text className="truncate">test@example.com</Text>
+              <Text className="truncate">@sshh12</Text>
+              <Text className="truncate">********</Text>
             </div>
           </Flex>
         </Card>
@@ -44,6 +45,7 @@ export default function ProfilePage() {
             <div>
               <Text className="truncate">LAT 37.7762735</Text>
               <Text className="truncate">LNG -122.4332375</Text>
+              <Text className="truncate">TZ US/Eastern</Text>
             </div>
           </Flex>
         </Card>

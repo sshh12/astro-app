@@ -52,7 +52,11 @@ export default function StickyHeader({
           <Subtitle>{subtitle}</Subtitle>
         </div>
         {search && (
-          <TextInput icon={MagnifyingGlassIcon} placeholder="Search..." />
+          <TextInput
+            className="py-1"
+            icon={MagnifyingGlassIcon}
+            placeholder="Search..."
+          />
         )}
 
         {rightIcon && (

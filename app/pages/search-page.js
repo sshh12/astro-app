@@ -55,7 +55,7 @@ export default function SearchPage() {
         search={true}
       />
 
-      <Card>
+      <Card className="rounded-none">
         <Flex alignItems="start">
           <div className="truncate">
             <Text color="white">Filters</Text>
