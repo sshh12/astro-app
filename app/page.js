@@ -11,13 +11,6 @@ import { NavContext, useNavControl, useNav } from "./nav";
 
 export function App() {
   const { page, pageTransition } = useNav();
-  useEffect(async () => {
-    const serviceWorkerRegistration = await import(
-      "./serviceWorkerRegistration"
-    );
-    window.temp = serviceWorkerRegistration;
-    serviceWorkerRegistration.register();
-  }, []);
   return (
     <main className="bg-slate-800">
       <div>
@@ -38,6 +31,13 @@ export function App() {
 }
 
 export default function WrappedApp() {
+  useEffect(async () => {
+    const serviceWorkerRegistration = await import(
+      "./serviceWorkerRegistration"
+    );
+    window.temp = serviceWorkerRegistration;
+    serviceWorkerRegistration.register();
+  }, []);
   const navProps = useNavControl();
   return (
     <NavContext.Provider value={navProps}>
