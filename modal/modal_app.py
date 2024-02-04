@@ -1,4 +1,5 @@
 from typing import Any
+import json
 
 import modal
 from pydantic import BaseModel
@@ -8,6 +9,17 @@ from modal_base import image_base, stub
 class BackendArgs(BaseModel):
     func: str
     args: Any
+
+
+"""
+fetch("https://sshh12--astro-app-backend.modal.run/", {
+    method: "POST", 
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({func: "test", args: {}})
+}).then(resp => resp.text()).then(console.log)
+"""
 
 
 @stub.function(
@@ -25,4 +37,4 @@ async def backend(args: BackendArgs):
     # if user is None:
     #     raise RuntimeError()
 
-    return {"result": "success"}
+    return json.dumps({"result": "success", "args": repr(args)})
