@@ -31,12 +31,10 @@ export function App() {
 }
 
 export default function WrappedApp() {
-  useEffect(async () => {
-    const serviceWorkerRegistration = await import(
-      "./serviceWorkerRegistration"
+  useEffect(() => {
+    import("./serviceWorkerRegistration").then((serviceWorkerRegistration) =>
+      serviceWorkerRegistration.register()
     );
-    window.temp = serviceWorkerRegistration;
-    serviceWorkerRegistration.register();
   }, []);
   const navProps = useNavControl();
   return (
