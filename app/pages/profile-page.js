@@ -31,7 +31,6 @@ export default function ProfilePage() {
           <Flex className="mt-4 space-x-2">
             <div>
               <Text className="truncate">@sshh12</Text>
-              <Text className="truncate">********</Text>
             </div>
           </Flex>
         </Card>

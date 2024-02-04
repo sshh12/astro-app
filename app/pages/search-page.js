@@ -55,7 +55,7 @@ export default function SearchPage() {
         search={true}
       />
 
-      <Card className="rounded-none">
+      <Card className="rounded-none" style={{ borderRadius: "0" }}>
         <Flex alignItems="start">
           <div className="truncate">
             <Text color="white">Filters</Text>

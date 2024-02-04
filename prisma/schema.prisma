@@ -1,0 +1,14 @@
+generator pyclient {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              BigInt @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+}
