@@ -4,7 +4,7 @@ import datetime as dt
 import pytz
 
 from skyfield import almanac
-from skyfield.api import N, W, wgs84, load
+from skyfield.api import N, W, wgs84, load, Star
 
 TIME_RESOLUTION_MINS = 10
 
@@ -48,6 +48,8 @@ def get_resp():
     loc = wgs84.latlon(40.8939 * N, 83.8917 * W)
     earth = eph["earth"]
     moon = eph["moon"]
+    sun = eph["sun"]
+    star = Star(ra_hours=(2, 31, 49.09456), dec_degrees=(89, 15, 50.7923))
     loc_place = earth + loc
 
     f = almanac.dark_twilight_day(eph, loc)
@@ -78,11 +80,17 @@ def get_resp():
         t = ts.from_datetime(cur)
         loc_time = loc_place.at(t)
         m = loc_time.observe(moon).apparent()
+        s = loc_time.observe(sun).apparent()
+        st = loc_time.observe(star).apparent()
         m_alt = m.altaz()[0].degrees
+        s_alt = s.altaz()[0].degrees
+        st_alt = st.altaz()[0].degrees
         if cur_state < len(states) - 1 and cur >= checkpoints[states[cur_state + 1]]:
             cur_state += 1
         resp["time_state"].append(cur_state)
         resp["time"].append(int(cur.timestamp() * 1000))
         resp["moon_alt"].append(round(m_alt, 2))
+        resp["sun_alt"].append(round(s_alt, 2))
+        resp["star_alt"].append(round(st_alt, 2))
         cur += dt.timedelta(minutes=TIME_RESOLUTION_MINS)
     return resp

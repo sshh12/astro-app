@@ -23,9 +23,11 @@ import {
 import { BaseColors } from "@tremor/react/dist/lib/constants";
 import { tremorTwMerge } from "@tremor/react/dist/lib/tremorTwMerge";
 import { getColorClassNames } from "@tremor/react/dist/lib/utils";
-import { themeColorRange, colorPalette } from "@tremor/react/dist/lib/theme";
+import { colorPalette } from "@tremor/react/dist/lib/theme";
 
-const skyValueFormatter = (number) => `${number}°`;
+const altValueFormatter = (number) => `${number}°`;
+
+const TEN_MINS = 1000 * 60 * 10;
 
 function minMaxIdx(arr, value) {
   let first = arr.indexOf(value);
@@ -37,11 +39,9 @@ const SkyChart = React.forwardRef((props, ref) => {
   const {
     times,
     timeStates,
-    skyData = [],
-    categories = [],
+    objects = [],
     index = "time",
-    colors = themeColorRange,
-    valueFormatter = skyValueFormatter,
+    valueFormatter = altValueFormatter,
     startEndOnly = false,
     showXAxis = true,
     showYAxis = true,
@@ -66,6 +66,9 @@ const SkyChart = React.forwardRef((props, ref) => {
     tickGap = 5,
     ...other
   } = props;
+
+  const categories = objects.map((object) => object.name);
+  const colors = objects.map((object) => object.color);
   const CustomTooltip = customTooltip;
   const paddingValue = !showXAxis && !showYAxis ? 0 : 20;
   const [activeDot, setActiveDot] = useState(undefined);
@@ -77,10 +80,13 @@ const SkyChart = React.forwardRef((props, ref) => {
 
   const data = [];
   for (let i = 0; i < times.length; i++) {
-    data.push({
+    const row = {
       time: times[i],
-      moon: skyData.moon_alt[i] > 0 ? skyData.moon_alt[i] : null,
-    });
+    };
+    for (let object of objects) {
+      row[object.name] = object.alt[i] > 0 ? object.alt[i] : null;
+    }
+    data.push(row);
   }
 
   function onDotClick(itemData, event) {
@@ -132,12 +138,10 @@ const SkyChart = React.forwardRef((props, ref) => {
   }
 
   const nowX =
-    1000 *
-    60 *
-    10 *
+    TEN_MINS *
     Math.floor(
       Math.min(Math.max(+Date.now(), times[10]), times[times.length - 10]) /
-        (1000 * 60 * 10)
+        TEN_MINS
     );
 
   return (
@@ -164,7 +168,7 @@ const SkyChart = React.forwardRef((props, ref) => {
               strokeDasharray="1 5"
               horizontal={true}
               vertical={false}
-              verticalPoints={[0, 30, 60, 90]}
+              verticalPoints={[30, 60]}
             />
             <ReferenceLine x={nowX} stroke="#434c5e" label="" strokeWidth={3} />
             <ReferenceArea
@@ -257,7 +261,9 @@ const SkyChart = React.forwardRef((props, ref) => {
                       <ChartTooltip
                         active={active}
                         payload={payload}
-                        label={new Date(label).toLocaleTimeString()}
+                        label={new Date(label).toLocaleTimeString("en-US", {
+                          timeZone: "US/Eastern",
+                        })}
                         valueFormatter={valueFormatter}
                         categoryColors={categoryColors}
                       />

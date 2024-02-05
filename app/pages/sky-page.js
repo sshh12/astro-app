@@ -81,20 +81,15 @@ export default function SkyPage() {
             className="mt-6"
             times={chartData.time}
             timeStates={chartData.time_state}
-            skyData={chartData}
-            categories={["moon"]}
-            colors={["emerald", "gray"]}
+            objects={[
+              { name: "Moon", alt: chartData.moon_alt, color: "gray" },
+              { name: "Sun", alt: chartData.sun_alt, color: "yellow" },
+              { name: "Polaris", alt: chartData.star_alt, color: "blue" },
+            ]}
           />
         )}
         {!chartData && (
-          <SkyChart
-            className="mt-6"
-            times={[]}
-            timeStates={[]}
-            skyData={[]}
-            categories={["moon"]}
-            colors={["emerald", "gray"]}
-          />
+          <SkyChart className="mt-6" times={[]} timeStates={[]} objects={[]} />
         )}
       </div>
 

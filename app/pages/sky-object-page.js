@@ -57,7 +57,7 @@ export default function SkyObjectPage() {
       />
 
       <div className="pb-6">
-        <SkyChart
+        {/* <SkyChart
           className="mt-6"
           data={chartdata}
           index="year"
@@ -67,7 +67,7 @@ export default function SkyObjectPage() {
           yAxisWidth={40}
           showGradient={false}
           showYAxis={false}
-        />
+        /> */}
       </div>
     </div>
   );
