@@ -30,42 +30,6 @@ const skyData = [
   },
 ];
 
-const chartdata = [
-  {
-    year: 1970,
-    "Export Growth Rate": 2.04,
-    "Import Growth Rate": 1.53,
-  },
-  {
-    year: 1971,
-    "Export Growth Rate": 1.96,
-    "Import Growth Rate": 1.58,
-  },
-  {
-    year: 1972,
-    "Export Growth Rate": 1.96,
-    "Import Growth Rate": 1.61,
-  },
-  {
-    year: 1973,
-    "Export Growth Rate": 1.93,
-    "Import Growth Rate": 1.61,
-  },
-  {
-    year: 1974,
-    "Export Growth Rate": 1.88,
-    "Import Growth Rate": 1.67,
-  },
-  {
-    year: 1975,
-    "Export Growth Rate": 1.88,
-    "Import Growth Rate": 1.67,
-  },
-];
-
-const valueFormatter = (number) =>
-  `$ ${new Intl.NumberFormat("us").format(number).toString()}`;
-
 function formatTime(date) {
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
@@ -77,6 +41,7 @@ export default function SkyPage() {
   const { page, setPage } = useNav();
 
   const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
+  const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -85,6 +50,19 @@ export default function SkyPage() {
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    fetch("https://sshh12--astro-app-backend.modal.run/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ func: "test", args: {} }),
+    })
+      .catch((err) => console.error(err))
+      .then((resp) => resp.json())
+      .then(setChartData);
   }, []);
 
   return (
@@ -98,17 +76,26 @@ export default function SkyPage() {
       />
 
       <div className="pb-6">
-        <SkyChart
-          className="mt-6"
-          data={chartdata}
-          index="year"
-          categories={["Export Growth Rate", "Import Growth Rate"]}
-          colors={["emerald", "gray"]}
-          valueFormatter={valueFormatter}
-          yAxisWidth={40}
-          showGradient={false}
-          showYAxis={false}
-        />
+        {chartData && (
+          <SkyChart
+            className="mt-6"
+            times={chartData.time}
+            timeStates={chartData.time_state}
+            skyData={chartData}
+            categories={["moon"]}
+            colors={["emerald", "gray"]}
+          />
+        )}
+        {!chartData && (
+          <SkyChart
+            className="mt-6"
+            times={[]}
+            timeStates={[]}
+            skyData={[]}
+            categories={["moon"]}
+            colors={["emerald", "gray"]}
+          />
+        )}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
@@ -117,7 +104,7 @@ export default function SkyPage() {
         <Title>Favorites</Title>
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {skyData.concat(skyData).map((item) => (
+        {skyData.map((item) => (
           <Card
             className="cursor-pointer"
             key={item.title}

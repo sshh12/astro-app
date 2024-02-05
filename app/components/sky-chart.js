@@ -10,13 +10,13 @@ import {
   XAxis,
   YAxis,
   ReferenceArea,
+  ReferenceLine,
 } from "recharts";
 
 import ChartTooltip from "@tremor/react/dist/components/chart-elements/common/ChartTooltip";
 import NoData from "@tremor/react/dist/components/chart-elements/common/NoData";
 import {
   constructCategoryColors,
-  getYAxisDomain,
   hasOnlyOneValueForThisKey,
 } from "@tremor/react/dist/components/chart-elements/common/utils";
 
@@ -25,25 +25,34 @@ import { tremorTwMerge } from "@tremor/react/dist/lib/tremorTwMerge";
 import { getColorClassNames } from "@tremor/react/dist/lib/utils";
 import { themeColorRange, colorPalette } from "@tremor/react/dist/lib/theme";
 
+const skyValueFormatter = (number) => `${number}°`;
+
+function minMaxIdx(arr, value) {
+  let first = arr.indexOf(value);
+  let last = arr.lastIndexOf(value);
+  return [first, last];
+}
+
 const SkyChart = React.forwardRef((props, ref) => {
   const {
-    data = [],
+    times,
+    timeStates,
+    skyData = [],
     categories = [],
-    index,
+    index = "time",
     colors = themeColorRange,
-    valueFormatter = defaultValueFormatter,
+    valueFormatter = skyValueFormatter,
     startEndOnly = false,
     showXAxis = true,
     showYAxis = true,
-    yAxisWidth = 56,
+    yAxisWidth = 40,
     intervalType = "equidistantPreserveStart",
     animationDuration = 900,
     showAnimation = false,
     showTooltip = true,
-    showLegend = true,
     showGridLines = true,
     autoMinValue = false,
-    curveType = "linear",
+    curveType = "monotone",
     minValue,
     maxValue,
     connectNulls = false,
@@ -59,13 +68,20 @@ const SkyChart = React.forwardRef((props, ref) => {
   } = props;
   const CustomTooltip = customTooltip;
   const paddingValue = !showXAxis && !showYAxis ? 0 : 20;
-  const [legendHeight, setLegendHeight] = useState(60);
   const [activeDot, setActiveDot] = useState(undefined);
   const [activeLegend, setActiveLegend] = useState(undefined);
   const categoryColors = constructCategoryColors(categories, colors);
 
-  const yAxisDomain = getYAxisDomain(autoMinValue, minValue, maxValue);
+  const yAxisDomain = [0, 90];
   const hasOnValueChange = !!onValueChange;
+
+  const data = [];
+  for (let i = 0; i < times.length; i++) {
+    data.push({
+      time: times[i],
+      moon: skyData.moon_alt[i] > 0 ? skyData.moon_alt[i] : null,
+    });
+  }
 
   function onDotClick(itemData, event) {
     event.stopPropagation();
@@ -115,6 +131,15 @@ const SkyChart = React.forwardRef((props, ref) => {
     setActiveDot(undefined);
   }
 
+  const nowX =
+    1000 *
+    60 *
+    10 *
+    Math.floor(
+      Math.min(Math.max(+Date.now(), times[10]), times[times.length - 10]) /
+        (1000 * 60 * 10)
+    );
+
   return (
     <div
       ref={ref}
@@ -135,37 +160,30 @@ const SkyChart = React.forwardRef((props, ref) => {
                 : undefined
             }
           >
-            {showGridLines ? (
-              <CartesianGrid
-                className={tremorTwMerge(
-                  // common
-                  "stroke-1",
-                  // light
-                  "stroke-tremor-border",
-                  // dark
-                  "dark:stroke-dark-tremor-border"
-                )}
-                horizontal={true}
-                vertical={false}
-              />
-            ) : null}
+            <CartesianGrid
+              strokeDasharray="1 5"
+              horizontal={true}
+              vertical={false}
+              verticalPoints={[0, 30, 60, 90]}
+            />
+            <ReferenceLine x={nowX} stroke="#434c5e" label="" strokeWidth={3} />
             <ReferenceArea
-              x1={1972}
-              x2={1973}
+              x1={times[minMaxIdx(timeStates, 0)[1]]}
+              x2={times[minMaxIdx(timeStates, 3)[0]]}
               strokeOpacity={0}
-              fill="rgba(0, 0, 0, 0.1)"
+              fill="rgba(0, 0, 0, 0.2)"
             />
             <ReferenceArea
-              x1={1971}
-              x2={1972}
+              x1={times[minMaxIdx(timeStates, 3)[0]]}
+              x2={times[minMaxIdx(timeStates, 4)[1]]}
               strokeOpacity={0}
-              fill="rgba(0, 0, 0, 0.4)"
+              fill="rgba(0, 0, 0, 0.5)"
             />
             <ReferenceArea
-              x1={1973}
-              x2={1974}
+              x1={times[minMaxIdx(timeStates, 4)[1]]}
+              x2={times[minMaxIdx(timeStates, 7)[0]]}
               strokeOpacity={0}
-              fill="rgba(0, 0, 0, 0.4)"
+              fill="rgba(0, 0, 0, 0.2)"
             />
             <XAxis
               padding={{ left: paddingValue, right: paddingValue }}
@@ -197,14 +215,15 @@ const SkyChart = React.forwardRef((props, ref) => {
             />
             <YAxis
               width={yAxisWidth}
-              hide={!showYAxis}
-              axisLine={false}
-              tickLine={false}
+              hide={true}
+              axisLine={true}
+              tickLine={true}
               type="number"
               domain={yAxisDomain}
               tick={{ transform: "translate(-3, 0)" }}
-              fill=""
-              stroke=""
+              ticks={[0, 30, 60, 90]}
+              fill="#fff000"
+              stroke="#fff"
               className={tremorTwMerge(
                 // common
                 "text-tremor-label",
@@ -238,7 +257,7 @@ const SkyChart = React.forwardRef((props, ref) => {
                       <ChartTooltip
                         active={active}
                         payload={payload}
-                        label={label}
+                        label={new Date(label).toLocaleTimeString()}
                         valueFormatter={valueFormatter}
                         categoryColors={categoryColors}
                       />
@@ -249,7 +268,6 @@ const SkyChart = React.forwardRef((props, ref) => {
               }
               position={{ y: 0 }}
             />
-
             {categories.map((category) => (
               <Line
                 className={tremorTwMerge(
