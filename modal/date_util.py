@@ -50,6 +50,7 @@ def get_resp():
     moon = eph["moon"]
     sun = eph["sun"]
     star = Star(ra_hours=(2, 31, 49.09456), dec_degrees=(89, 15, 50.7923))
+    star2 = Star(ra_hours=(1, 33, 50.8965749232), dec_degrees=(30, 39, 36.630403128))
     loc_place = earth + loc
 
     f = almanac.dark_twilight_day(eph, loc)
@@ -82,9 +83,11 @@ def get_resp():
         m = loc_time.observe(moon).apparent()
         s = loc_time.observe(sun).apparent()
         st = loc_time.observe(star).apparent()
+        st2 = loc_time.observe(star2).apparent()
         m_alt = m.altaz()[0].degrees
         s_alt = s.altaz()[0].degrees
         st_alt = st.altaz()[0].degrees
+        st2_alt = st2.altaz()[0].degrees
         if cur_state < len(states) - 1 and cur >= checkpoints[states[cur_state + 1]]:
             cur_state += 1
         resp["time_state"].append(cur_state)
@@ -92,5 +95,6 @@ def get_resp():
         resp["moon_alt"].append(round(m_alt, 2))
         resp["sun_alt"].append(round(s_alt, 2))
         resp["star_alt"].append(round(st_alt, 2))
+        resp["star2_alt"].append(round(st2_alt, 2))
         cur += dt.timedelta(minutes=TIME_RESOLUTION_MINS)
     return resp

@@ -85,6 +85,7 @@ export default function SkyPage() {
               { name: "Moon", alt: chartData.moon_alt, color: "gray" },
               { name: "Sun", alt: chartData.sun_alt, color: "yellow" },
               { name: "Polaris", alt: chartData.star_alt, color: "blue" },
+              { name: "M33", alt: chartData.star2_alt, color: "green" },
             ]}
           />
         )}
