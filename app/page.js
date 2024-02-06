@@ -8,6 +8,7 @@ import SkyObjectPage from "./pages/sky-object-page";
 import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
 import { NavContext, useNavControl, useNav } from "./nav";
+import { APIContext, useAPIControl } from "./api";
 
 export function App() {
   const { page, pageTransition } = useNav();
@@ -37,9 +38,12 @@ export default function WrappedApp() {
     );
   }, []);
   const navProps = useNavControl();
+  const apiProps = useAPIControl();
   return (
     <NavContext.Provider value={navProps}>
-      <App />
+      <APIContext.Provider value={apiProps}>
+        <App />
+      </APIContext.Provider>
     </NavContext.Provider>
   );
 }

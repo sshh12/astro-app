@@ -52,19 +52,6 @@ export default function SkyPage() {
     return () => clearInterval(intervalId);
   }, []);
 
-  useEffect(() => {
-    fetch("https://sshh12--astro-app-backend.modal.run/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ func: "test", args: {} }),
-    })
-      .catch((err) => console.error(err))
-      .then((resp) => resp.json())
-      .then(setChartData);
-  }, []);
-
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader

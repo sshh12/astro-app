@@ -10,13 +10,15 @@ import {
 } from "@heroicons/react/24/solid";
 import BadgeIconRound from "../components/badge-icon-round";
 import StickyHeader from "../components/sticky-header";
+import { useAPI } from "../api";
 
 export default function ProfilePage() {
+  const { ready, user } = useAPI();
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Profile"
-        subtitle="@sshh12"
+        subtitle={ready ? "@" + user.name : ""}
         rightIcon={UserPlusIcon}
       />
 
@@ -30,7 +32,7 @@ export default function ProfilePage() {
           </Flex>
           <Flex className="mt-4 space-x-2">
             <div>
-              <Text className="truncate">@sshh12</Text>
+              <Text className="truncate">{ready ? "@" + user.name : ""}</Text>
             </div>
           </Flex>
         </Card>

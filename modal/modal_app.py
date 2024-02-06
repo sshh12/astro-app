@@ -7,25 +7,23 @@ from fastapi import Response
 from modal_base import image_base, stub
 
 import context
-import date_util
+import methods
 
 
 class BackendArgs(BaseModel):
     func: str
-    apiKey: str
+    api_key: str
     args: Dict
 
 
 @stub.function(
-    secret=modal.Secret.from_name("astro-app-secret"),
+    secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
 )
 @modal.web_endpoint(method="POST")
 async def backend(args: BackendArgs):
 
-    async with context.Context(args.apiKey) as ctx:
-        pass
+    async with context.Context(args.api_key) as ctx:
+        result = await methods.METHODS[args.func](ctx, **args.args)
 
-    return Response(
-        content=json.dumps(dict(date_util.get_resp())), media_type="application/json"
-    )
+    return Response(content=json.dumps(result), media_type="application/json")
