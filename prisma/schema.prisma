@@ -1,6 +1,7 @@
 generator pyclient {
-  provider             = "prisma-client-py"
-  recursive_type_depth = 5
+  provider                    = "prisma-client-py"
+  recursive_type_depth        = 5
+  enable_experimental_decimal = true
 }
 
 datasource db {
@@ -9,6 +10,68 @@ datasource db {
 }
 
 model User {
-  id              BigInt @id @default(autoincrement())
-  createdAt       DateTime @default(now())
+  id        BigInt   @id @default(autoincrement())
+  name      String   @unique
+  apiKey    String
+  createdAt DateTime @default(now())
+
+  lists   ListsOnUsers[]
+  objects SpaceObjectsOnUsers[]
+}
+
+enum SpaceObjectType {
+  SOLAR_SYSTEM_OBJECT
+  STAR_OBJECT
+}
+
+model SpaceObject {
+  id        BigInt   @id @default(autoincrement())
+  name      String
+  searchKey String
+  createdAt DateTime @default(now())
+
+  ra             Decimal?
+  dec            Decimal?
+  solarSystemKey String?
+  type           SpaceObjectType
+
+  lists SpaceObjectsOnLists[]
+  users SpaceObjectsOnUsers[]
+}
+
+model List {
+  id    BigInt @id @default(autoincrement())
+  title String
+
+  users   ListsOnUsers[]
+  objects SpaceObjectsOnLists[]
+}
+
+model ListsOnUsers {
+  listId  BigInt
+  userId  BigInt
+  User    User    @relation(fields: [userId], references: [id])
+  List    List    @relation(fields: [listId], references: [id])
+  canEdit Boolean @default(false)
+
+  @@id([listId, userId])
+}
+
+model SpaceObjectsOnLists {
+  listId        BigInt
+  spaceObjectId BigInt
+  List          List        @relation(fields: [listId], references: [id])
+  SpaceObject   SpaceObject @relation(fields: [spaceObjectId], references: [id])
+
+  @@id([listId, spaceObjectId])
+}
+
+model SpaceObjectsOnUsers {
+  userId        BigInt
+  spaceObjectId BigInt
+  User          User        @relation(fields: [userId], references: [id])
+  SpaceObject   SpaceObject @relation(fields: [spaceObjectId], references: [id])
+  nickname      String?
+
+  @@id([userId, spaceObjectId])
 }
