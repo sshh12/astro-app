@@ -47,7 +47,7 @@ export default function SkyPage() {
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Sky Atlas"
-        subtitle={currentTime}
+        subtitle={ready ? currentTime : "Loading..."}
         bigSubtitle={true}
         rightIcon={MagnifyingGlassIcon}
         rightIconOnClick={() => setPage("/sky/search")}
