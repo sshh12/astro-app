@@ -39,6 +39,7 @@ const SkyChart = React.forwardRef((props, ref) => {
   const {
     times,
     timeStates,
+    timezone,
     objects = [],
     index = "time",
     valueFormatter = altValueFormatter,
@@ -262,7 +263,7 @@ const SkyChart = React.forwardRef((props, ref) => {
                         active={active}
                         payload={payload}
                         label={new Date(label).toLocaleTimeString("en-US", {
-                          timeZone: "US/Eastern",
+                          timeZone: timezone,
                         })}
                         valueFormatter={valueFormatter}
                         categoryColors={categoryColors}

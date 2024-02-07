@@ -8,19 +8,17 @@ import { useAPI } from "../api";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
 
-function formatTime(date) {
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
+function getTime(tz) {
+  return new Date().toLocaleTimeString("en-US", {
+    timeZone: tz,
+  });
 }
 
 export default function SkyPage() {
-  const { page, setPage } = useNav();
+  const { setPage } = useNav();
   const { ready, user } = useAPI();
 
-  const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
-  const [chartData, setChartData] = useState(null);
+  const [currentTime, setCurrentTime] = useState();
 
   let favListObjects = [];
   if (ready) {
@@ -35,13 +33,14 @@ export default function SkyPage() {
   }
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTime(formatTime(new Date()));
-    }, 1000);
-
-    // Clear interval on component unmount
+    let intervalId;
+    if (ready) {
+      intervalId = setInterval(() => {
+        setCurrentTime(getTime(user.timezone));
+      }, 1000);
+    }
     return () => clearInterval(intervalId);
-  }, []);
+  }, [ready, user]);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -59,6 +58,7 @@ export default function SkyPage() {
             className="mt-6"
             times={user.orbits.time}
             timeStates={user.orbits.time_state}
+            timezone={user.timezone}
             objects={favListObjects.map((obj) => ({
               alt: user.orbits.objects[obj.id].alt,
               name: obj.name,
