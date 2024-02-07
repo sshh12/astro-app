@@ -27,11 +27,23 @@ def _gen_name() -> str:
     return "astro-" + "".join(random.choice(alphabet) for _ in range(8))
 
 
+def _user_to_dict(user: models.User) -> dict:
+    return {
+        "name": user.name,
+        "timezone": user.timezone,
+        "lat": user.lat,
+        "lon": user.lon,
+    }
+
+
 async def _create_user(prisma: Prisma) -> models.User:
     new_user = await prisma.user.create(
         data={
             "name": _gen_name(),
             "apiKey": _gen_api_key(),
+            "timezone": "America/Los_Angeles",
+            "lat": 34.11833,
+            "lon": 118.300333,
         },
     )
     return new_user
@@ -40,9 +52,9 @@ async def _create_user(prisma: Prisma) -> models.User:
 @method(require_login=False)
 async def create_user(ctx: context.Context) -> dict:
     user = await _create_user(ctx.prisma)
-    return {"api_key": user.apiKey, "name": user.name}
+    return {"api_key": user.apiKey, **_user_to_dict(user)}
 
 
 @method()
 async def get_user(ctx: context.Context) -> dict:
-    return {"name": ctx.user.name}
+    return {**_user_to_dict(ctx.user)}

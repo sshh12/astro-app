@@ -14,6 +14,9 @@ model User {
   name      String   @unique
   apiKey    String
   createdAt DateTime @default(now())
+  timezone  String
+  lat       Decimal?
+  lon       Decimal?
 
   lists   ListsOnUsers[]
   objects SpaceObjectsOnUsers[]
@@ -26,7 +29,7 @@ enum SpaceObjectType {
 
 model SpaceObject {
   id        BigInt   @id @default(autoincrement())
-  name      String
+  name      String   @unique
   searchKey String
   createdAt DateTime @default(now())
 
@@ -40,8 +43,9 @@ model SpaceObject {
 }
 
 model List {
-  id    BigInt @id @default(autoincrement())
-  title String
+  id             BigInt  @id @default(autoincrement())
+  title          String
+  commonTemplate Boolean @default(false)
 
   users   ListsOnUsers[]
   objects SpaceObjectsOnLists[]
