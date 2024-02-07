@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 from collections import defaultdict
 import datetime as dt
 import pytz
@@ -38,19 +38,22 @@ def round_datetime(dt_obj) -> Tuple:
     return dt_obj + dt.timedelta(0, rounding - seconds, -dt_obj.microsecond)
 
 
-def get_resp():
+def space_object_to_observables(eph, object):
+    # star = Star(ra_hours=(2, 31, 49.09456), dec_degrees=(89, 15, 50.7923))
+    return eph[object.solarSystemKey.replace("jupiter", "jupiter barycenter")]
+
+
+def get_orbit_calculations(objects: List):
     zone = pytz.timezone("US/Eastern")
     most_recent_noon, next_noon = get_todays_noons()
+
     ts = load.timescale()
     t0 = ts.from_datetime(most_recent_noon)
     t1 = ts.from_datetime(next_noon)
+
     eph = load("de421.bsp")
     loc = wgs84.latlon(40.8939 * N, 83.8917 * W)
     earth = eph["earth"]
-    moon = eph["moon"]
-    sun = eph["sun"]
-    star = Star(ra_hours=(2, 31, 49.09456), dec_degrees=(89, 15, 50.7923))
-    star2 = Star(ra_hours=(1, 33, 50.8965749232), dec_degrees=(30, 39, 36.630403128))
     loc_place = earth + loc
 
     f = almanac.dark_twilight_day(eph, loc)
@@ -74,27 +77,31 @@ def get_resp():
     end = round_datetime(checkpoints["Day+"]) + dt.timedelta(
         minutes=TIME_RESOLUTION_MINS * 3
     )
+
+    observables = {
+        object.id: space_object_to_observables(eph, object) for object in objects
+    }
+
     cur = start
     cur_state = 0
-    resp = defaultdict(list)
+    resp = {
+        "time_state": [],
+        "time": [],
+        "objects": {o.id: {"alt": []} for o in objects},
+    }
     while cur <= end:
         t = ts.from_datetime(cur)
         loc_time = loc_place.at(t)
-        m = loc_time.observe(moon).apparent()
-        s = loc_time.observe(sun).apparent()
-        st = loc_time.observe(star).apparent()
-        st2 = loc_time.observe(star2).apparent()
-        m_alt = m.altaz()[0].degrees
-        s_alt = s.altaz()[0].degrees
-        st_alt = st.altaz()[0].degrees
-        st2_alt = st2.altaz()[0].degrees
         if cur_state < len(states) - 1 and cur >= checkpoints[states[cur_state + 1]]:
             cur_state += 1
+
         resp["time_state"].append(cur_state)
         resp["time"].append(int(cur.timestamp() * 1000))
-        resp["moon_alt"].append(round(m_alt, 2))
-        resp["sun_alt"].append(round(s_alt, 2))
-        resp["star_alt"].append(round(st_alt, 2))
-        resp["star2_alt"].append(round(st2_alt, 2))
+
+        for oid, observable in observables.items():
+            alt = loc_time.observe(observable).apparent().altaz()[0].degrees
+            resp["objects"][oid]["alt"].append(round(alt, 2))
+
         cur += dt.timedelta(minutes=TIME_RESOLUTION_MINS)
+
     return resp

@@ -1,4 +1,27 @@
-from prisma import Prisma
+from prisma import Prisma, models
+
+
+async def fetch_user(prisma: Prisma, api_key: str) -> models.User:
+    user = await prisma.user.find_first(
+        where={"apiKey": api_key},
+        include={
+            "lists": {
+                "include": {
+                    "List": {
+                        "include": {
+                            "objects": {
+                                "include": {
+                                    "SpaceObject": True,
+                                }
+                            }
+                        },
+                    },
+                },
+            },
+            "objects": True,
+        },
+    )
+    return user
 
 
 class Context:
@@ -8,7 +31,7 @@ class Context:
 
     async def __aenter__(self):
         await self.prisma.connect()
-        self.user = await self.prisma.user.find_first(where={"apiKey": self.api_key})
+        self.user = await fetch_user(self.prisma, self.api_key)
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

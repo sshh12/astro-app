@@ -1,6 +1,9 @@
+from typing import List
 from prisma import Prisma, models
 import context
 import random
+
+import space_util
 
 METHODS = {}
 
@@ -27,13 +30,47 @@ def _gen_name() -> str:
     return "astro-" + "".join(random.choice(alphabet) for _ in range(8))
 
 
+def _space_object_to_dict(obj: models.SpaceObject) -> dict:
+    return {
+        "id": str(obj.id),
+        "name": obj.name,
+        "searchKey": obj.searchKey,
+        "solarSystemKey": obj.solarSystemKey,
+        "type": obj.type,
+    }
+
+
+def _list_to_dict(list: models.List) -> dict:
+    return {
+        "id": str(list.id),
+        "title": list.title,
+        "objects": [_space_object_to_dict(obj.SpaceObject) for obj in list.objects],
+    }
+
+
+def _get_favorite_objects(user: models.User) -> List:
+    fav_list = next(
+        (list.List for list in user.lists if list.List.title == "Favorites"), None
+    )
+    fav_list_objects = [obj.SpaceObject for obj in fav_list.objects]
+    return fav_list_objects
+
+
 def _user_to_dict(user: models.User) -> dict:
     return {
+        "id": str(user.id),
         "name": user.name,
         "timezone": user.timezone,
-        "lat": user.lat,
-        "lon": user.lon,
+        "lat": float(user.lat),
+        "lon": float(user.lon),
+        "lists": [_list_to_dict(list.List) for list in user.lists],
     }
+
+
+async def _add_user_to_list(
+    prisma: Prisma, user: models.User, list: models.List
+) -> models.List:
+    await prisma.listsonusers.create({"userId": user.id, "listId": list.id})
 
 
 async def _create_user(prisma: Prisma) -> models.User:
@@ -42,19 +79,31 @@ async def _create_user(prisma: Prisma) -> models.User:
             "name": _gen_name(),
             "apiKey": _gen_api_key(),
             "timezone": "America/Los_Angeles",
-            "lat": 34.11833,
+            "lat": 34.118330,
             "lon": 118.300333,
         },
     )
+    default_lists = await prisma.list.find_many(
+        where={
+            "commonTemplate": True,
+        }
+    )
+    for list_ in default_lists:
+        await _add_user_to_list(prisma, new_user, list_)
     return new_user
 
 
 @method(require_login=False)
 async def create_user(ctx: context.Context) -> dict:
     user = await _create_user(ctx.prisma)
-    return {"api_key": user.apiKey, **_user_to_dict(user)}
+    user = await context.fetch_user(ctx.prisma, user.apiKey)
+    fav_objects = _get_favorite_objects(user)
+    orbits = space_util.get_orbit_calculations(fav_objects)
+    return {"api_key": user.apiKey, **_user_to_dict(user), "orbits": orbits}
 
 
 @method()
 async def get_user(ctx: context.Context) -> dict:
-    return {**_user_to_dict(ctx.user)}
+    fav_objects = _get_favorite_objects(ctx.user)
+    orbits = space_util.get_orbit_calculations(fav_objects)
+    return {**_user_to_dict(ctx.user), "orbits": orbits}

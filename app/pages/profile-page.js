@@ -18,7 +18,7 @@ export default function ProfilePage() {
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Profile"
-        subtitle={ready ? "@" + user.name : ""}
+        subtitle={ready ? "@" + user.name : "Loading..."}
         rightIcon={UserPlusIcon}
       />
 
@@ -32,7 +32,9 @@ export default function ProfilePage() {
           </Flex>
           <Flex className="mt-4 space-x-2">
             <div>
-              <Text className="truncate">{ready ? "@" + user.name : ""}</Text>
+              <Text className="truncate">
+                {ready ? "@" + user.name : "..."}
+              </Text>
             </div>
           </Flex>
         </Card>
@@ -45,9 +47,9 @@ export default function ProfilePage() {
           </Flex>
           <Flex className="mt-4 space-x-2">
             <div>
-              <Text className="truncate">LAT 37.7762735</Text>
-              <Text className="truncate">LNG -122.4332375</Text>
-              <Text className="truncate">TZ US/Eastern</Text>
+              <Text className="truncate">LAT {ready && user.lat}</Text>
+              <Text className="truncate">LNG {ready && user.lon}</Text>
+              <Text className="truncate">TZ {ready && user.timezone}</Text>
             </div>
           </Flex>
         </Card>

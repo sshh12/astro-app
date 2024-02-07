@@ -4,31 +4,9 @@ import React, { useState, useEffect } from "react";
 import { BadgeDelta, Card, Flex, Grid, Text, Title, Icon } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
+import { useAPI } from "../api";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
-
-const skyData = [
-  {
-    title: "M81",
-    delta: "14°",
-    deltaType: "moderateIncrease",
-  },
-  {
-    title: "M33",
-    delta: "23°",
-    deltaType: "increase",
-  },
-  {
-    title: "M86",
-    delta: "-10°",
-    deltaType: "moderateDecrease",
-  },
-  {
-    title: "M91",
-    delta: "5°",
-    deltaType: "unchanged",
-  },
-];
 
 function formatTime(date) {
   const hours = date.getHours().toString().padStart(2, "0");
@@ -39,9 +17,22 @@ function formatTime(date) {
 
 export default function SkyPage() {
   const { page, setPage } = useNav();
+  const { ready, user } = useAPI();
 
   const [currentTime, setCurrentTime] = useState(formatTime(new Date()));
   const [chartData, setChartData] = useState(null);
+
+  let favListObjects = [];
+  if (ready) {
+    favListObjects = user.lists.find(
+      (list) => list.title === "Favorites"
+    ).objects;
+  }
+
+  let lists = [];
+  if (ready) {
+    lists = user.lists.filter((list) => list.title !== "Favorites");
+  }
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -63,20 +54,19 @@ export default function SkyPage() {
       />
 
       <div className="pb-6">
-        {chartData && (
+        {ready && (
           <SkyChart
             className="mt-6"
-            times={chartData.time}
-            timeStates={chartData.time_state}
-            objects={[
-              { name: "Moon", alt: chartData.moon_alt, color: "gray" },
-              { name: "Sun", alt: chartData.sun_alt, color: "yellow" },
-              { name: "Polaris", alt: chartData.star_alt, color: "blue" },
-              { name: "M33", alt: chartData.star2_alt, color: "green" },
-            ]}
+            times={user.orbits.time}
+            timeStates={user.orbits.time_state}
+            objects={favListObjects.map((obj) => ({
+              alt: user.orbits.objects[obj.id].alt,
+              name: obj.name,
+              color: "red",
+            }))}
           />
         )}
-        {!chartData && (
+        {!ready && (
           <SkyChart className="mt-6" times={[]} timeStates={[]} objects={[]} />
         )}
       </div>
@@ -87,17 +77,17 @@ export default function SkyPage() {
         <Title>Favorites</Title>
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {skyData.map((item) => (
+        {favListObjects.map((obj) => (
           <Card
             className="cursor-pointer"
-            key={item.title}
+            key={obj.id}
             onClick={() => setPage("/sky/object")}
           >
             <Flex alignItems="start">
               <div className="truncate">
-                <Text color="white">{item.title}</Text>
+                <Text color="white">{obj.name}</Text>
               </div>
-              <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
+              <BadgeDelta deltaType={"moderateIncrease"}>{"10°"}</BadgeDelta>
             </Flex>
             <Flex className="mt-4 space-x-2">
               <div>
@@ -114,28 +104,19 @@ export default function SkyPage() {
         <Title>Lists</Title>
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        <Card>
-          <Flex className="space-x-6">
-            <Text color="white">Nebulas</Text>
-            <Icon
-              icon={ListBulletIcon}
-              color="violet"
-              variant="solid"
-              size="lg"
-            />
-          </Flex>
-        </Card>
-        <Card>
-          <Flex className="space-x-6">
-            <Text color="white">Galaxies</Text>
-            <Icon
-              icon={ListBulletIcon}
-              color="green"
-              variant="solid"
-              size="lg"
-            />
-          </Flex>
-        </Card>
+        {lists.map((list) => (
+          <Card key={list.id}>
+            <Flex className="space-x-6">
+              <Text color="white">{list.title}</Text>
+              <Icon
+                icon={ListBulletIcon}
+                color="violet"
+                variant="solid"
+                size="lg"
+              />
+            </Flex>
+          </Card>
+        ))}
       </Grid>
     </div>
   );
