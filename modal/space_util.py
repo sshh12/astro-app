@@ -4,7 +4,7 @@ import datetime as dt
 import pytz
 
 from skyfield import almanac
-from skyfield.api import N, W, wgs84, load, Star
+from skyfield.api import N, W, wgs84, load, Star, Angle
 
 TIME_RESOLUTION_MINS = 10
 
@@ -39,8 +39,9 @@ def round_datetime(dt_obj) -> Tuple:
 
 
 def space_object_to_observables(eph, object):
-    # star = Star(ra_hours=(2, 31, 49.09456), dec_degrees=(89, 15, 50.7923))
-    return eph[object.solarSystemKey.replace("jupiter", "jupiter barycenter")]
+    if object.solarSystemKey is not None:
+        return eph[object.solarSystemKey.replace("jupiter", "jupiter barycenter")]
+    return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
 
 
 def get_orbit_calculations(objects: List):

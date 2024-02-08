@@ -1,8 +1,12 @@
 from typing import List
 from prisma import Prisma, models
+from prisma.enums import SpaceObjectType
 import context
 import random
+import aiohttp
+import re
 
+from skyfield.api import Angle
 import space_util
 
 METHODS = {}
@@ -91,6 +95,49 @@ async def _create_user(prisma: Prisma) -> models.User:
     for list_ in default_lists:
         await _add_user_to_list(prisma, new_user, list_)
     return new_user
+
+
+async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObject:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"https://simbad.cds.unistra.fr/simbad/sim-basic?Ident={term}&submit=SIMBAD+search&output.format=ASCII"
+        ) as response:
+            output = await response.text()
+    title = re.search(r"Object ([\s\S]+?)  ---", output).group(1).strip()
+    icrs_match = re.search(
+        r"ICRS,ep=J2000,eq=2000\): (\d+) (\d+) ([\d\.]+)  ([\d+\-]+) (\d+) ([\d\.]+)",
+        output,
+    )
+    idents_blob = re.search(r"Identifiers \(\d+\):([\s\S]+)\nB", output).group(1)
+    idents = [val.strip() for val in idents_blob.strip().split("   ") if val.strip()]
+    ra = Angle(
+        hours=(
+            float(icrs_match.group(1)),
+            float(icrs_match.group(2)),
+            float(icrs_match.group(3)),
+        )
+    ).hours
+    dec = Angle(
+        degrees=(
+            float(icrs_match.group(4)),
+            float(icrs_match.group(5)),
+            float(icrs_match.group(6)),
+        )
+    ).degrees
+
+    obj = await prisma.spaceobject.find_first(where={"name": title})
+    if not obj:
+        await prisma.spaceobject.create(
+            data={
+                "name": title,
+                "searchKey": "|".join(idents).lower().replace(" ", ""),
+                "solarSystemKey": None,
+                "type": SpaceObjectType.STAR_OBJECT,
+                "ra": ra,
+                "dec": dec,
+            },
+        )
+    return obj
 
 
 @method(require_login=False)

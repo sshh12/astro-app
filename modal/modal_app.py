@@ -19,6 +19,7 @@ class BackendArgs(BaseModel):
 @stub.function(
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
+    container_idle_timeout=300,
 )
 @modal.web_endpoint(method="POST")
 async def backend(args: BackendArgs):

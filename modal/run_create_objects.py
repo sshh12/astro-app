@@ -4,19 +4,23 @@ import argparse
 from prisma import Prisma
 from prisma.enums import SpaceObjectType
 
-# fix barycenter issue
+import methods
+
+
 SOLAR_SYSTEM = {
     "sun": "Sun",
     "mercury": "Mercury",
     "venus": "Venus",
     "mars": "Mars",
-    "jupiter": "Jupiter",
+    "jupiter barycenter": "Jupiter",
     "saturn": "Saturn",
     "uranus": "Uranus",
     "neptune": "Neptune",
     "pluto": "Pluto",
     "moon": "Moon",
 }
+
+DEEP_SPACE = {"Polaris", "M 31", "M 42"}
 
 
 async def create_list(prisma: Prisma, title: str, items: List):
@@ -58,7 +62,10 @@ async def main():
         except Exception:
             continue
 
-    await create_list(prisma, "Favorites", ["Sun", "Moon", "Jupiter"])
+    for obj_name in DEEP_SPACE:
+        await methods.query_and_import_simbad(prisma, obj_name)
+
+    await create_list(prisma, "Favorites", ["Sun", "Moon", "Jupiter", "M 31", "M 42"])
     await create_list(prisma, "Beginner Objects", ["Moon"])
 
     await prisma.disconnect()

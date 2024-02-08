@@ -46,6 +46,9 @@ async def main(args):
     #     },
     # )
     # print(_user_to_dict(user))
+    # from methods import query_and_import_simbad
+
+    # print(await query_and_import_simbad(prisma, "Polaris"))
 
     await prisma.disconnect()
 
