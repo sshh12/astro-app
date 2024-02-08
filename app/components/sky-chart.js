@@ -25,15 +25,11 @@ import { tremorTwMerge } from "@tremor/react/dist/lib/tremorTwMerge";
 import { getColorClassNames } from "@tremor/react/dist/lib/utils";
 import { colorPalette } from "@tremor/react/dist/lib/theme";
 
+import { minMaxIdx, useTimestamp } from "../utils";
+
 const altValueFormatter = (number) => `${number}°`;
 
 const TEN_MINS = 1000 * 60 * 10;
-
-function minMaxIdx(arr, value) {
-  let first = arr.indexOf(value);
-  let last = arr.lastIndexOf(value);
-  return [first, last];
-}
 
 const SkyChart = React.forwardRef((props, ref) => {
   const {
@@ -78,6 +74,7 @@ const SkyChart = React.forwardRef((props, ref) => {
 
   const yAxisDomain = [0, 90];
   const hasOnValueChange = !!onValueChange;
+  const { ts } = useTimestamp();
 
   const data = [];
   for (let i = 0; i < times.length; i++) {
@@ -141,7 +138,7 @@ const SkyChart = React.forwardRef((props, ref) => {
   const nowX =
     TEN_MINS *
     Math.floor(
-      Math.min(Math.max(+Date.now(), times[10]), times[times.length - 10]) /
+      Math.min(Math.max(ts, times[0]), times[times.length - 1]) /
         TEN_MINS
     );
 
@@ -176,19 +173,19 @@ const SkyChart = React.forwardRef((props, ref) => {
               x1={times[minMaxIdx(timeStates, 0)[1]]}
               x2={times[minMaxIdx(timeStates, 3)[0]]}
               strokeOpacity={0}
-              fill="rgba(0, 0, 0, 0.2)"
+              fill="rgba(0, 0, 0, 0.5)"
             />
             <ReferenceArea
               x1={times[minMaxIdx(timeStates, 3)[0]]}
               x2={times[minMaxIdx(timeStates, 4)[1]]}
               strokeOpacity={0}
-              fill="rgba(0, 0, 0, 0.5)"
+              fill="rgba(0, 0, 0, 0.7)"
             />
             <ReferenceArea
               x1={times[minMaxIdx(timeStates, 4)[1]]}
               x2={times[minMaxIdx(timeStates, 7)[0]]}
               strokeOpacity={0}
-              fill="rgba(0, 0, 0, 0.2)"
+              fill="rgba(0, 0, 0, 0.5)"
             />
             <XAxis
               padding={{ left: paddingValue, right: paddingValue }}

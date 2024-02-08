@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BadgeDelta, Card, Flex, Grid, Text, Title, Icon } from "@tremor/react";
+import { Card, Flex, Grid, Text, Title, Icon } from "@tremor/react";
 import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
+import ObjectCard from "../components/object-card";
 
 function getTime(tz) {
   return new Date().toLocaleTimeString("en-US", {
@@ -62,7 +63,7 @@ export default function SkyPage() {
             objects={favListObjects.map((obj) => ({
               alt: user.orbits.objects[obj.id].alt,
               name: obj.name,
-              color: "red",
+              color: ["red", "green", "blue", "yellow", "purple"][obj.id % 5],
             }))}
           />
         )}
@@ -78,25 +79,7 @@ export default function SkyPage() {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {favListObjects.map((obj) => (
-          <Card
-            className="cursor-pointer"
-            key={obj.id}
-            onClick={() => setPage("/sky/object")}
-          >
-            <Flex alignItems="start">
-              <div className="truncate">
-                <Text color="white">{obj.name}</Text>
-              </div>
-              <BadgeDelta deltaType={"moderateIncrease"}>{"10°"}</BadgeDelta>
-            </Flex>
-            <Flex className="mt-4 space-x-2">
-              <div>
-                <Text className="truncate">RA 07.34.54</Text>
-                <Text className="truncate">DEC 12.54.45</Text>
-                <Text className="truncate">T+20m</Text>
-              </div>
-            </Flex>
-          </Card>
+          <ObjectCard object={obj} orbits={user.orbits} />
         ))}
       </Grid>
 

@@ -4,8 +4,9 @@ export const NavContext = React.createContext({});
 
 export function useNavControl() {
   const [page, _setPage] = useState("/sky");
+  const [pageParams, setPageParams] = useState({});
   const [pageTransition, setPageTransition] = useState("");
-  const setPage = (newPage) => {
+  const setPage = (newPage, pageParams = {}) => {
     if (page === newPage) {
       return;
     } else if (page.includes(newPage)) {
@@ -18,8 +19,9 @@ export function useNavControl() {
     console.log(page, "->", newPage);
     window.scrollTo(0, 0);
     _setPage(newPage);
+    setPageParams(pageParams);
   };
-  return { page: page, setPage: setPage, pageTransition: pageTransition };
+  return { page, pageParams, setPage, pageTransition };
 }
 
 export function useNav() {
