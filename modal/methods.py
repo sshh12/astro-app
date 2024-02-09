@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from prisma import Prisma, models
 from prisma.enums import SpaceObjectType
 import context
@@ -141,7 +141,7 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
 
 
 @method(require_login=False)
-async def create_user(ctx: context.Context) -> dict:
+async def create_user(ctx: context.Context) -> Dict:
     user = await _create_user(ctx.prisma)
     user = await context.fetch_user(ctx.prisma, user.apiKey)
     fav_objects = _get_favorite_objects(user)
@@ -150,7 +150,31 @@ async def create_user(ctx: context.Context) -> dict:
 
 
 @method()
-async def get_user(ctx: context.Context) -> dict:
+async def get_user(ctx: context.Context) -> Dict:
     fav_objects = _get_favorite_objects(ctx.user)
     orbits = space_util.get_orbit_calculations(fav_objects)
     return {**_user_to_dict(ctx.user), "orbits": orbits}
+
+
+@method()
+async def get_space_object(ctx: context.Context, id: str) -> Dict:
+    obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
+    orbits = space_util.get_orbit_calculations([obj])
+    return {**_space_object_to_dict(obj), "orbits": orbits}
+
+
+@method()
+async def get_list(ctx: context.Context, id: str) -> Dict:
+    list_ = await ctx.prisma.list.find_unique(
+        where={"id": id},
+        include={
+            "objects": {
+                "include": {
+                    "SpaceObject": True,
+                }
+            }
+        },
+    )
+    objs = [obj.SpaceObject for obj in list_.objects]
+    orbits = space_util.get_orbit_calculations(objs)
+    return {**_list_to_dict(list_), "orbits": orbits}

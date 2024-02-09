@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, Flex, Grid, Text, Title, Icon } from "@tremor/react";
-import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/24/solid";
+import { Grid, Title } from "@tremor/react";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
+import ListCard from "../components/list-card";
 
 function getTime(tz) {
   return new Date().toLocaleTimeString("en-US", {
@@ -59,7 +60,7 @@ export default function SkyPage() {
             className="mt-6"
             times={user.orbits.time}
             timeStates={user.orbits.time_state}
-            timezone={user.timezone}
+            timezone={user.orbits.timezone}
             objects={favListObjects.map((obj) => ({
               alt: user.orbits.objects[obj.id].alt,
               name: obj.name,
@@ -79,7 +80,7 @@ export default function SkyPage() {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {favListObjects.map((obj) => (
-          <ObjectCard object={obj} orbits={user.orbits} />
+          <ObjectCard key={obj.id} object={obj} orbits={user.orbits} />
         ))}
       </Grid>
 
@@ -88,17 +89,7 @@ export default function SkyPage() {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {lists.map((list) => (
-          <Card key={list.id}>
-            <Flex className="space-x-6">
-              <Text color="white">{list.title}</Text>
-              <Icon
-                icon={ListBulletIcon}
-                color="violet"
-                variant="solid"
-                size="lg"
-              />
-            </Flex>
-          </Card>
+          <ListCard list={list} key={list.id} />
         ))}
       </Grid>
     </div>

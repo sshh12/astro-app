@@ -7,6 +7,7 @@ import SkyPage from "./pages/sky-page";
 import SkyObjectPage from "./pages/sky-object-page";
 import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
+import SkyListPage from "./pages/sky-list-page"
 import { NavContext, useNavControl, useNav } from "./nav";
 import { APIContext, useAPIControl } from "./api";
 
@@ -22,6 +23,7 @@ export function App() {
               {page === "/profile" && <ProfilePage />}
               {page === "/sky/search" && <SearchPage />}
               {page === "/sky/object" && <SkyObjectPage />}
+              {page === "/sky/list" && <SkyListPage />}
             </>
           </CSSTransition>
         </TransitionGroup>

@@ -86,6 +86,7 @@ def get_orbit_calculations(objects: List):
     cur = start
     cur_state = 0
     resp = {
+        "timezone": "US/Eastern",
         "time_state": [],
         "time": [],
         "objects": {o.id: {"alt": []} for o in objects},

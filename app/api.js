@@ -40,7 +40,6 @@ export function useAPIControl() {
       post("get_user").then((user) => {
         setReady(true);
         setUser(user);
-        console.log(user);
       });
     }
   }, []);
