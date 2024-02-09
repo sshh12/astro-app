@@ -127,7 +127,7 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
 
     obj = await prisma.spaceobject.find_first(where={"name": title})
     if not obj:
-        await prisma.spaceobject.create(
+        obj = await prisma.spaceobject.create(
             data={
                 "name": title,
                 "searchKey": "|".join(idents).lower().replace(" ", ""),
@@ -178,3 +178,19 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
     objs = [obj.SpaceObject for obj in list_.objects]
     orbits = space_util.get_orbit_calculations(objs)
     return {**_list_to_dict(list_), "orbits": orbits}
+
+
+@method()
+async def search(ctx: context.Context, term: str) -> Dict:
+    term = term.strip().lower().replace(" ", "")
+    objs = await ctx.prisma.spaceobject.find_many(
+        where={"searchKey": {"contains": term}}
+    )
+    if len(objs) == 0:
+        try:
+            obj = await query_and_import_simbad(ctx.prisma, term)
+            objs = [obj]
+        except Exception as e:
+            print(e)
+    orbits = space_util.get_orbit_calculations(objs)
+    return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}

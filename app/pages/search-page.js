@@ -1,49 +1,34 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  BadgeDelta,
-  Card,
-  Flex,
   Grid,
-  Text,
   Title,
-  Select,
-  SelectItem,
 } from "@tremor/react";
 import {
-  AdjustmentsVerticalIcon,
   ArrowUturnLeftIcon,
 } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
+import { useAPI } from "../api";
 import StickyHeader from "../components/sticky-header";
-import BadgeIconRound from "../components/badge-icon-round";
-
-const skyData = [
-  {
-    title: "M81",
-    delta: "14°",
-    deltaType: "moderateIncrease",
-  },
-  {
-    title: "M33",
-    delta: "23°",
-    deltaType: "increase",
-  },
-  {
-    title: "M86",
-    delta: "-10°",
-    deltaType: "moderateDecrease",
-  },
-  {
-    title: "M91",
-    delta: "5°",
-    deltaType: "unchanged",
-  },
-];
+import { useDebounce } from "../utils";
+import ObjectCard from "../components/object-card";
 
 export default function SearchPage() {
   const { setPage } = useNav();
+  const { post } = useAPI();
+
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedSearchTerm = useDebounce(searchValue, 1000);
+  const [results, setResults] = useState(null);
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      post("search", { term: debouncedSearchTerm }).then((results) => {
+        setResults(results);
+      });
+    }
+  }, [debouncedSearchTerm]);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -53,9 +38,11 @@ export default function SearchPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
         search={true}
+        searchValue={searchValue}
+        searchOnChange={(event) => setSearchValue(event.target.value)}
       />
 
-      <Card className="rounded-none" style={{ borderRadius: "0" }}>
+      {/* <Card className="rounded-none" style={{ borderRadius: "0" }}>
         <Flex alignItems="start">
           <div className="truncate">
             <Text color="white">Filters</Text>
@@ -76,30 +63,18 @@ export default function SearchPage() {
             <SelectItem value="4">Nautical Miles</SelectItem>
           </Select>
         </div>
-      </Card>
+      </Card> */}
 
       <div className="mt-5 ml-2 mr-2">
         <Title>Results</Title>
       </div>
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {skyData.concat(skyData).map((item) => (
-          <Card key={item.title}>
-            <Flex alignItems="start">
-              <div className="truncate">
-                <Text color="white">{item.title}</Text>
-              </div>
-              <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
-            </Flex>
-            <Flex className="mt-4 space-x-2">
-              <div>
-                <Text className="truncate">RA 07.34.54</Text>
-                <Text className="truncate">DEC 12.54.45</Text>
-                <Text className="truncate">T+20m</Text>
-              </div>
-            </Flex>
-          </Card>
-        ))}
-      </Grid>
+      {results && (
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          {results.objects.map((obj) => (
+            <ObjectCard key={obj.id} object={obj} orbits={results.orbits} />
+          ))}
+        </Grid>
+      )}
     </div>
   );
 }

@@ -13,6 +13,8 @@ export default function StickyHeader({
   rightIcon,
   rightIconOnClick,
   search,
+  searchValue,
+  searchOnChange
 }) {
   const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -56,6 +58,8 @@ export default function StickyHeader({
             className="py-1"
             icon={MagnifyingGlassIcon}
             placeholder="Search..."
+            value={searchValue}
+            onChange={searchOnChange}
           />
         )}
 
