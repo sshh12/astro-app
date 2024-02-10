@@ -71,6 +71,10 @@ def _user_to_dict(user: models.User) -> dict:
     }
 
 
+def clean_search_term(term: str) -> str:
+    return re.sub(r"\s+", "", term.strip().lower())
+
+
 async def _add_user_to_list(
     prisma: Prisma, user: models.User, list: models.List
 ) -> models.List:
@@ -125,12 +129,18 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
         )
     ).degrees
 
+    names = [id_[5:] for id_ in idents if "NAME" in id_]
+    if len(names) > 0:
+        title = names[0]
+
     obj = await prisma.spaceobject.find_first(where={"name": title})
     if not obj:
         obj = await prisma.spaceobject.create(
             data={
                 "name": title,
-                "searchKey": "|".join(idents).lower().replace(" ", ""),
+                "searchKey": "|".join([clean_search_term(id_) for id_ in idents])
+                .lower()
+                .replace(" ", ""),
                 "solarSystemKey": None,
                 "type": SpaceObjectType.STAR_OBJECT,
                 "ra": ra,
@@ -182,15 +192,15 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
 
 @method()
 async def search(ctx: context.Context, term: str) -> Dict:
-    term = term.strip().lower().replace(" ", "")
+    term = clean_search_term(term)
     objs = await ctx.prisma.spaceobject.find_many(
         where={"searchKey": {"contains": term}}
     )
-    if len(objs) == 0:
-        try:
-            obj = await query_and_import_simbad(ctx.prisma, term)
-            objs = [obj]
-        except Exception as e:
-            print(e)
+    try:
+        obj = await query_and_import_simbad(ctx.prisma, term)
+        objs.append(obj)
+    except Exception as e:
+        print(e)
+    objs = list({obj.id: obj for obj in objs}.values())
     orbits = space_util.get_orbit_calculations(objs)
     return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}
