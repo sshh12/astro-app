@@ -6,17 +6,19 @@ import { Grid, Title } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
-import ObjectCard from "../components/object-card"
+import ObjectCard from "../components/object-card";
 import { useAPI } from "../api";
 
 export default function SkyListPage() {
   const { pageParams, setPage } = useNav();
-  const { user, post } = useAPI();
+  const { post } = useAPI();
   const [list, setList] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     post("get_list", { id: pageParams.id }).then((list) => {
       setList(list);
+      setLoading(false);
     });
   }, []);
 
@@ -27,6 +29,7 @@ export default function SkyListPage() {
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
+        loading={loading}
       />
 
       <div className="pb-6">
@@ -50,14 +53,24 @@ export default function SkyListPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      <div className="mt-5 ml-2 mr-2">
-        <Title>Items</Title>
-      </div>
-      {list && <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {list.objects.map((obj) => (
-          <ObjectCard key={obj.id} object={obj} orbits={list.orbits} />
-        ))}
-      </Grid>}
+      {list && (
+        <>
+          <div className="mt-5 ml-2 mr-2">
+            <Title>Items</Title>
+          </div>
+          {list && (
+            <Grid
+              numItemsMd={2}
+              numItemsLg={3}
+              className="mt-2 gap-1 ml-2 mr-2"
+            >
+              {list.objects.map((obj) => (
+                <ObjectCard key={obj.id} object={obj} orbits={list.orbits} />
+              ))}
+            </Grid>
+          )}
+        </>
+      )}
     </div>
   );
 }

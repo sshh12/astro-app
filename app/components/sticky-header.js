@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Title, Subtitle, Button, Metric, TextInput } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import LoadingBar from "react-top-loading-bar";
 
 export default function StickyHeader({
   title,
@@ -14,7 +15,8 @@ export default function StickyHeader({
   rightIconOnClick,
   search,
   searchValue,
-  searchOnChange
+  searchOnChange,
+  loading = false,
 }) {
   const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -30,8 +32,20 @@ export default function StickyHeader({
     };
   }, []);
 
+  const loadingBarRef = useRef(null);
+
+  useEffect(() => {
+    if (loadingBarRef.current === null) return;
+    if (loading) {
+      loadingBarRef.current.continuousStart();
+    } else {
+      loadingBarRef.current.complete();
+    }
+  }, [loading, loadingBarRef]);
+
   return (
     <div>
+      <LoadingBar color="#22c55e" ref={loadingBarRef} />
       <div
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}

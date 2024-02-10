@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Grid, Title } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
@@ -9,18 +9,13 @@ import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
 import ListCard from "../components/list-card";
-
-function getTime(tz) {
-  return new Date().toLocaleTimeString("en-US", {
-    timeZone: tz,
-  });
-}
+import { useTimestamp } from "../utils";
 
 export default function SkyPage() {
   const { setPage } = useNav();
   const { ready, user } = useAPI();
 
-  const [currentTime, setCurrentTime] = useState();
+  const { ts } = useTimestamp();
 
   let favListObjects = [];
   if (ready) {
@@ -34,24 +29,19 @@ export default function SkyPage() {
     lists = user.lists.filter((list) => list.title !== "Favorites");
   }
 
-  useEffect(() => {
-    let intervalId;
-    if (ready) {
-      intervalId = setInterval(() => {
-        setCurrentTime(getTime(user.timezone));
-      }, 1000);
-    }
-    return () => clearInterval(intervalId);
-  }, [ready, user]);
+  const timeFormatted = new Date(ts).toLocaleTimeString("en-US", {
+    timeZone: user?.timezone || "UTC",
+  });
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Sky Atlas"
-        subtitle={ready ? currentTime : "Loading..."}
+        subtitle={timeFormatted}
         bigSubtitle={true}
         rightIcon={MagnifyingGlassIcon}
         rightIconOnClick={() => setPage("/sky/search")}
+        loading={!ready}
       />
 
       <div className="pb-6">
@@ -75,23 +65,25 @@ export default function SkyPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      <div className="mt-5 ml-2 mr-2">
-        <Title>Favorites</Title>
-      </div>
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {favListObjects.map((obj) => (
-          <ObjectCard key={obj.id} object={obj} orbits={user.orbits} />
-        ))}
-      </Grid>
+      {ready && <>
+        <div className="mt-5 ml-2 mr-2">
+          <Title>Favorites</Title>
+        </div>
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          {favListObjects.map((obj) => (
+            <ObjectCard key={obj.id} object={obj} orbits={user.orbits} />
+          ))}
+        </Grid>
 
-      <div className="mt-5 ml-2 mr-2">
-        <Title>Lists</Title>
-      </div>
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-        {lists.map((list) => (
-          <ListCard list={list} key={list.id} />
-        ))}
-      </Grid>
+        <div className="mt-5 ml-2 mr-2">
+          <Title>Lists</Title>
+        </div>
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          {lists.map((list) => (
+            <ListCard list={list} key={list.id} />
+          ))}
+        </Grid>
+      </>}
     </div>
   );
 }

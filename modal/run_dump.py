@@ -24,31 +24,21 @@ async def main(args):
     for list_ in lists:
         print(list_)
 
-    # from methods import _user_to_dict
+    # from methods import _duplicate_list
 
-    # user = await prisma.user.find_first(
-    #     where={"name": "astro-79736868"},
+    # default_lists = await prisma.list.find_many(
+    #     where={
+    #         "commonTemplate": True,
+    #     },
     #     include={
-    #         "lists": {
+    #         "objects": {
     #             "include": {
-    #                 "List": {
-    #                     "include": {
-    #                         "objects": {
-    #                             "include": {
-    #                                 "SpaceObject": True,
-    #                             }
-    #                         }
-    #                     },
-    #                 },
-    #             },
-    #         },
-    #         "objects": True,
+    #                 "SpaceObject": True,
+    #             }
+    #         }
     #     },
     # )
-    # print(_user_to_dict(user))
-    # from methods import query_and_import_simbad
-
-    # print(await query_and_import_simbad(prisma, "Polaris"))
+    # print(await _duplicate_list(prisma, default_lists[0], users[-1]))
 
     await prisma.disconnect()
 

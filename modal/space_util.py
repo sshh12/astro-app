@@ -44,8 +44,8 @@ def space_object_to_observables(eph, object):
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
 
 
-def get_orbit_calculations(objects: List):
-    zone = pytz.timezone("US/Eastern")
+def get_orbit_calculations(objects: List, timezone: str):
+    zone = pytz.timezone(timezone)
     most_recent_noon, next_noon = get_todays_noons()
 
     ts = load.timescale()
@@ -86,7 +86,7 @@ def get_orbit_calculations(objects: List):
     cur = start
     cur_state = 0
     resp = {
-        "timezone": "US/Eastern",
+        "timezone": timezone,
         "time_state": [],
         "time": [],
         "objects": {o.id: {"alt": []} for o in objects},
