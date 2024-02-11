@@ -111,7 +111,7 @@ export default function SkyObjectPage() {
 
       {object && (
         <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-          <NameCard object={object} />
+          {object.name.length > 0 && <NameCard object={object} />}
         </Grid>
       )}
     </div>
