@@ -26,7 +26,7 @@ export default function SearchPage() {
         setLoading(false);
       });
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, post]);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -40,29 +40,6 @@ export default function SearchPage() {
         searchOnChange={(event) => setSearchValue(event.target.value)}
         loading={loading}
       />
-
-      {/* <Card className="rounded-none" style={{ borderRadius: "0" }}>
-        <Flex alignItems="start">
-          <div className="truncate">
-            <Text color="white">Filters</Text>
-          </div>
-          <BadgeIconRound icon={AdjustmentsVerticalIcon} />
-        </Flex>
-        <div className="max-w-sm mx-auto space-y-6 mt-3">
-          <Select placeholder={"Object Type"}>
-            <SelectItem value="1">Kilometers</SelectItem>
-            <SelectItem value="2">Meters</SelectItem>
-            <SelectItem value="3">Miles</SelectItem>
-            <SelectItem value="4">Nautical Miles</SelectItem>
-          </Select>
-          <Select placeholder={"Constellation"}>
-            <SelectItem value="1">Kilometers</SelectItem>
-            <SelectItem value="2">Meters</SelectItem>
-            <SelectItem value="3">Miles</SelectItem>
-            <SelectItem value="4">Nautical Miles</SelectItem>
-          </Select>
-        </div>
-      </Card> */}
 
       {results && (
         <>

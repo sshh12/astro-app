@@ -21,7 +21,7 @@ export default function Tabs() {
             key={tab.path}
             className="flex-grow text-center"
             onClick={() => setPage(tab.path)}
-            active={page === tab.path}
+            active={(page === tab.path).toString()}
           >
             {tab.label}
           </Tab>

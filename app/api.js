@@ -24,7 +24,7 @@ export function useAPIControl() {
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState(false);
   const [objectBadgeMode, _setObjectBadgeMode] = useState(
-    localStorage.getItem(BADGE_MODE_KEY) || 0
+    (typeof window !== "undefined" && localStorage.getItem(BADGE_MODE_KEY)) || 0
   );
 
   const postThenUpdateUser = useCallback((func, args) => {

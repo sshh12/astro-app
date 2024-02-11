@@ -56,11 +56,13 @@ export default function SkyObjectPage() {
   const [openListDialog, setOpenListDialog] = useState(false);
 
   useEffect(() => {
-    post("get_space_object", { id: pageParams.id }).then((object) => {
-      setObject(object);
-      setLoading(false);
-    });
-  }, []);
+    if (pageParams.id) {
+      post("get_space_object", { id: pageParams.id }).then((object) => {
+        setObject(object);
+        setLoading(false);
+      });
+    }
+  }, [pageParams.id, post]);
 
   const isOnList = user?.lists.find((list) =>
     list.objects.find((obj) => obj.id === pageParams.id)

@@ -27,7 +27,7 @@ export default function ListDialog({ object, open, setOpen }) {
         )
       );
     }
-  }, [user]);
+  }, [user, existingLists, object.id]);
 
   const save = () => {
     const newListIds = objectLists.map((list) => list.id);

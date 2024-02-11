@@ -16,11 +16,13 @@ export default function SkyListPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    post("get_list", { id: pageParams.id }).then((list) => {
-      setList(list);
-      setLoading(false);
-    });
-  }, []);
+    if (pageParams.id) {
+      post("get_list", { id: pageParams.id }).then((list) => {
+        setList(list);
+        setLoading(false);
+      });
+    }
+  }, [pageParams.id, post]);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>

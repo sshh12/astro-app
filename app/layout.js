@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark bg-slate-800">
       <head>
-        <meta charset="utf-8" />
+        <meta charSet="utf-8" />
         <link rel="icon" href="favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#1e293b" />
