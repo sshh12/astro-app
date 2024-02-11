@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 
 export const APIContext = React.createContext({});
 
@@ -22,6 +22,16 @@ function post(func, args = {}) {
 export function useAPIControl() {
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState(false);
+  const postThenUpdateUser = useCallback((func, args) => {
+    setReady(false);
+    return post(func, args).then((result) => {
+      return post("get_user").then((user) => {
+        setReady(true);
+        setUser(user);
+        return { result, user };
+      });
+    });
+  }, []);
   useEffect(() => {
     if (window.initRunning) {
       return;
@@ -43,7 +53,7 @@ export function useAPIControl() {
       });
     }
   }, []);
-  return { ready, user, post };
+  return { ready, user, post, postThenUpdateUser };
 }
 
 export function useAPI() {

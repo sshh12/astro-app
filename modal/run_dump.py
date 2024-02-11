@@ -24,21 +24,10 @@ async def main(args):
     for list_ in lists:
         print(list_)
 
-    # from methods import _duplicate_list
+    # from methods import update_space_object_lists
 
-    # default_lists = await prisma.list.find_many(
-    #     where={
-    #         "commonTemplate": True,
-    #     },
-    #     include={
-    #         "objects": {
-    #             "include": {
-    #                 "SpaceObject": True,
-    #             }
-    #         }
-    #     },
-    # )
-    # print(await _duplicate_list(prisma, default_lists[0], users[-1]))
+    # list_ids = ["941115592821342209", "941123089792761857"]
+    # new_list_title = "new list"
 
     await prisma.disconnect()
 

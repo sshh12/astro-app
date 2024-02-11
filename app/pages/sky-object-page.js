@@ -14,9 +14,10 @@ import ListDialog from "../components/list-dialog";
 
 export default function SkyObjectPage() {
   const { pageParams, setPage } = useNav();
-  const { user, post } = useAPI();
+  const { user, post, ready } = useAPI();
   const [object, setObject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [openListDialog, setOpenListDialog] = useState(false);
 
   useEffect(() => {
     post("get_space_object", { id: pageParams.id }).then((object) => {
@@ -37,11 +38,17 @@ export default function SkyObjectPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
         rightIcon={isOnList ? ListBulletIcon : PlusIcon}
-        rightIconOnClick={() => void 0}
-        loading={loading}
+        rightIconOnClick={() => setOpenListDialog(true)}
+        loading={loading || !ready}
       />
 
-      {object && <ListDialog object={object} />}
+      {object && (
+        <ListDialog
+          object={object}
+          open={openListDialog}
+          setOpen={setOpenListDialog}
+        />
+      )}
 
       <div className="pb-6">
         {object && (

@@ -210,6 +210,62 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
 
 
 @method()
+async def update_space_object_lists(
+    ctx: context.Context, list_ids: List[str], new_list_title: str, object_id: str
+) -> Dict:
+    obj = await ctx.prisma.spaceobject.find_unique(
+        where={"id": object_id},
+        include={
+            "lists": {
+                "include": {
+                    "List": True,
+                }
+            }
+        },
+    )
+    obj_existing_list_ids = [str(list_.List.id) for list_ in obj.lists]
+    list_ids_to_add = [
+        list_id for list_id in list_ids if list_id not in obj_existing_list_ids
+    ]
+    list_ids_to_remove = [
+        list_id for list_id in obj_existing_list_ids if list_id not in list_ids
+    ]
+    for list_id in list_ids_to_add:
+        await ctx.prisma.spaceobjectsonlists.create(
+            data={"listId": int(list_id), "spaceObjectId": obj.id}
+        )
+    for list_id in list_ids_to_remove:
+        await ctx.prisma.spaceobjectsonlists.delete_many(
+            where={"listId": int(list_id), "spaceObjectId": obj.id}
+        )
+    if new_list_title:
+        new_list = await ctx.prisma.list.create(data={"title": new_list_title})
+        await ctx.prisma.spaceobjectsonlists.create(
+            data={"listId": new_list.id, "spaceObjectId": obj.id}
+        )
+        await ctx.prisma.listsonusers.create(
+            data={"userId": ctx.user.id, "listId": new_list.id}
+        )
+    else:
+        new_list = None
+    list_ids_deleted = []
+    for list_id in list_ids_to_remove:
+        list_objs = await ctx.prisma.spaceobjectsonlists.find_many(
+            where={"listId": int(list_id)}
+        )
+        if len(list_objs) == 0:
+            await ctx.prisma.listsonusers.delete_many(where={"listId": int(list_id)})
+            await ctx.prisma.list.delete(where={"id": int(list_id)})
+            list_ids_deleted.append(list_id)
+    return {
+        "list_ids_to_add": list_ids_to_add,
+        "list_ids_to_remove": list_ids_to_remove,
+        "new_list_id": str(new_list.id) if new_list else None,
+        "list_ids_deleted": list_ids_deleted,
+    }
+
+
+@method()
 async def search(ctx: context.Context, term: str) -> Dict:
     term = clean_search_term(term)
     objs = await ctx.prisma.spaceobject.find_many(
