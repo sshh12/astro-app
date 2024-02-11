@@ -8,6 +8,9 @@ async def main(args):
     await prisma.connect()
 
     if args.drop:
+        await prisma.listsonusers.delete_many()
+        await prisma.spaceobjectsonusers.delete_many()
+        await prisma.spaceobjectsonlists.delete_many()
         await prisma.list.delete_many()
         await prisma.user.delete_many()
         await prisma.spaceobject.delete_many()

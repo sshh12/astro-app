@@ -21,6 +21,18 @@ export function getInterpolatedValue(arr, value, values) {
   }
 }
 
+export function getMaxWhile(arr, whileFunc) {
+  let max = -Infinity;
+  let maxIdx = -1;
+  for (let i = 0; i < arr.length; i++) {
+    if (whileFunc(i) && arr[i] > max) {
+      max = arr[i];
+      maxIdx = i;
+    }
+  }
+  return max;
+}
+
 export function useTimestamp() {
   const [ts, setTs] = useState(+Date.now());
   useEffect(() => {
@@ -42,8 +54,7 @@ export function useDebounce(value, delay) {
     return () => {
       clearTimeout(handler);
     };
-  },
-  [value, delay]);
+  }, [value, delay]);
 
   return debouncedValue;
 }

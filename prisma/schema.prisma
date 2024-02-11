@@ -17,6 +17,7 @@ model User {
   timezone  String
   lat       Decimal?
   lon       Decimal?
+  elevation Decimal?
 
   lists   ListsOnUsers[]
   objects SpaceObjectsOnUsers[]
@@ -30,6 +31,7 @@ enum SpaceObjectType {
 model SpaceObject {
   id        BigInt   @id @default(autoincrement())
   name      String   @unique
+  names     String[]
   searchKey String
   createdAt DateTime @default(now())
 

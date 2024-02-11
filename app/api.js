@@ -4,6 +4,7 @@ export const APIContext = React.createContext({});
 
 const MODAL_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
+const BADGE_MODE_KEY = "astro-app:badgeMode";
 
 function post(func, args = {}) {
   return fetch(MODAL_ENDPOINT, {
@@ -22,6 +23,10 @@ function post(func, args = {}) {
 export function useAPIControl() {
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState(false);
+  const [objectBadgeMode, _setObjectBadgeMode] = useState(
+    localStorage.getItem(BADGE_MODE_KEY) || 0
+  );
+
   const postThenUpdateUser = useCallback((func, args) => {
     setReady(false);
     return post(func, args).then((result) => {
@@ -32,6 +37,12 @@ export function useAPIControl() {
       });
     });
   }, []);
+
+  const setObjectBadgeMode = (mode) => {
+    localStorage.setItem(BADGE_MODE_KEY, mode);
+    _setObjectBadgeMode(mode);
+  };
+
   useEffect(() => {
     if (window.initRunning) {
       return;
@@ -53,7 +64,15 @@ export function useAPIControl() {
       });
     }
   }, []);
-  return { ready, user, post, postThenUpdateUser };
+
+  return {
+    ready,
+    user,
+    post,
+    postThenUpdateUser,
+    objectBadgeMode,
+    setObjectBadgeMode,
+  };
 }
 
 export function useAPI() {

@@ -13,14 +13,14 @@ SOLAR_SYSTEM = {
     "venus": "Venus",
     "mars": "Mars",
     "jupiter barycenter": "Jupiter",
-    "saturn": "Saturn",
-    "uranus": "Uranus",
-    "neptune": "Neptune",
-    "pluto": "Pluto",
+    "saturn barycenter": "Saturn",
+    "uranus barycenter": "Uranus",
+    "neptune barycenter": "Neptune",
+    "pluto barycenter": "Pluto",
     "moon": "Moon",
 }
 
-DEEP_SPACE = {"Polaris", "M 31", "M 42"}
+DEEP_SPACE = {"Polaris", "Andromeda", "Great Orion Nebula"}
 
 
 async def create_list(prisma: Prisma, title: str, items: List):
@@ -41,7 +41,8 @@ async def create_list(prisma: Prisma, title: str, items: List):
                     "spaceObjectId": obj.id,
                 }
             )
-        except Exception:
+        except Exception as e:
+            print("Error", title, item_name, e)
             continue
 
 
@@ -54,6 +55,7 @@ async def main():
             await prisma.spaceobject.create(
                 data={
                     "name": name,
+                    "names": [],
                     "searchKey": methods.clean_search_term(name),
                     "solarSystemKey": key,
                     "type": SpaceObjectType.SOLAR_SYSTEM_OBJECT,
@@ -65,8 +67,15 @@ async def main():
     for obj_name in DEEP_SPACE:
         await methods.query_and_import_simbad(prisma, obj_name)
 
-    await create_list(prisma, "Favorites", ["Sun", "Moon", "Jupiter", "M 31", "M 42"])
-    await create_list(prisma, "Beginner Objects", ["Moon"])
+    await create_list(
+        prisma,
+        "Favorites",
+        ["Sun", "Moon", "Jupiter", "Andromeda", "Great Orion Nebula"],
+    )
+    await create_list(
+        prisma, "Beginner Objects", ["Moon", "Andromeda", "Great Orion Nebula"]
+    )
+    await create_list(prisma, "Solar System", list(SOLAR_SYSTEM.values()))
 
     await prisma.disconnect()
 

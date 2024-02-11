@@ -38,6 +38,7 @@ def _space_object_to_dict(obj: models.SpaceObject) -> dict:
     return {
         "id": str(obj.id),
         "name": obj.name,
+        "names": obj.names,
         "searchKey": obj.searchKey,
         "solarSystemKey": obj.solarSystemKey,
         "type": obj.type,
@@ -67,6 +68,7 @@ def _user_to_dict(user: models.User) -> dict:
         "timezone": user.timezone,
         "lat": float(user.lat),
         "lon": float(user.lon),
+        "elevation": float(user.elevation),
         "lists": [_list_to_dict(list.List) for list in user.lists],
     }
 
@@ -101,6 +103,7 @@ async def _create_user(prisma: Prisma) -> models.User:
             "timezone": "America/Los_Angeles",
             "lat": 34.118330,
             "lon": -118.300333,
+            "elevation": 0.0,
         },
     )
     default_lists = await prisma.list.find_many(
@@ -164,6 +167,7 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
                 "type": SpaceObjectType.STAR_OBJECT,
                 "ra": ra,
                 "dec": dec,
+                "names": names,
             },
         )
     return obj
