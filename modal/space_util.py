@@ -4,13 +4,13 @@ import datetime as dt
 import pytz
 
 from skyfield import almanac
-from skyfield.api import N, W, wgs84, load, Star, Angle
+from skyfield.api import wgs84, load, Star, Angle
 
 TIME_RESOLUTION_MINS = 10
 
 
-def get_todays_noons() -> Tuple:
-    zone = pytz.timezone("US/Eastern")
+def get_todays_noons(timezone: str) -> Tuple:
+    zone = pytz.timezone(timezone)
     now = dt.datetime.now(zone)
 
     if now.hour >= 12:
@@ -44,16 +44,16 @@ def space_object_to_observables(eph, object):
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
 
 
-def get_orbit_calculations(objects: List, timezone: str):
+def get_orbit_calculations(objects: List, timezone: str, lat: float, lon: float):
     zone = pytz.timezone(timezone)
-    most_recent_noon, next_noon = get_todays_noons()
+    most_recent_noon, next_noon = get_todays_noons(timezone)
 
     ts = load.timescale()
     t0 = ts.from_datetime(most_recent_noon)
     t1 = ts.from_datetime(next_noon)
 
     eph = load("de421.bsp")
-    loc = wgs84.latlon(40.8939 * N, 83.8917 * W)
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=0.0)
     earth = eph["earth"]
     loc_place = earth + loc
 
@@ -73,7 +73,7 @@ def get_orbit_calculations(objects: List, timezone: str):
     assert len(states) == 8
 
     start = round_datetime(checkpoints["Day-"]) - dt.timedelta(
-        minutes=TIME_RESOLUTION_MINS * 3
+        minutes=TIME_RESOLUTION_MINS * 2
     )
     end = round_datetime(checkpoints["Day+"]) + dt.timedelta(
         minutes=TIME_RESOLUTION_MINS * 3

@@ -100,7 +100,7 @@ async def _create_user(prisma: Prisma) -> models.User:
             "apiKey": _gen_api_key(),
             "timezone": "America/Los_Angeles",
             "lat": 34.118330,
-            "lon": 118.300333,
+            "lon": -118.300333,
         },
     )
     default_lists = await prisma.list.find_many(
@@ -174,21 +174,27 @@ async def create_user(ctx: context.Context) -> Dict:
     user = await _create_user(ctx.prisma)
     user = await context.fetch_user(ctx.prisma, user.apiKey)
     fav_objects = _get_favorite_objects(user)
-    orbits = space_util.get_orbit_calculations(fav_objects, user.timezone)
+    orbits = space_util.get_orbit_calculations(
+        fav_objects, user.timezone, user.lat, user.lon
+    )
     return {"api_key": user.apiKey, **_user_to_dict(user), "orbits": orbits}
 
 
 @method()
 async def get_user(ctx: context.Context) -> Dict:
     fav_objects = _get_favorite_objects(ctx.user)
-    orbits = space_util.get_orbit_calculations(fav_objects, ctx.user.timezone)
+    orbits = space_util.get_orbit_calculations(
+        fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon
+    )
     return {**_user_to_dict(ctx.user), "orbits": orbits}
 
 
 @method()
 async def get_space_object(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    orbits = space_util.get_orbit_calculations([obj], ctx.user.timezone)
+    orbits = space_util.get_orbit_calculations(
+        [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon
+    )
     return {**_space_object_to_dict(obj), "orbits": orbits}
 
 
@@ -205,7 +211,9 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
         },
     )
     objs = [obj.SpaceObject for obj in list_.objects]
-    orbits = space_util.get_orbit_calculations(objs, ctx.user.timezone)
+    orbits = space_util.get_orbit_calculations(
+        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon
+    )
     return {**_list_to_dict(list_), "orbits": orbits}
 
 
@@ -277,5 +285,7 @@ async def search(ctx: context.Context, term: str) -> Dict:
     except Exception as e:
         print(e)
     objs = list({obj.id: obj for obj in objs}.values())
-    orbits = space_util.get_orbit_calculations(objs, ctx.user.timezone)
+    orbits = space_util.get_orbit_calculations(
+        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon
+    )
     return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}
