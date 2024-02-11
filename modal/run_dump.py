@@ -27,10 +27,11 @@ async def main(args):
     for list_ in lists:
         print(list_)
 
-    # from methods import update_space_object_lists
+    # from methods import _create_user, context, _user_to_dict
 
-    # list_ids = ["941115592821342209", "941123089792761857"]
-    # new_list_title = "new list"
+    # user = await context.fetch_user(prisma, user.apiKey)
+
+    # print(_user_to_dict(user))
 
     await prisma.disconnect()
 

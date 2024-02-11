@@ -40,7 +40,7 @@ def round_datetime(dt_obj) -> Tuple:
 
 def space_object_to_observables(eph, object):
     if object.solarSystemKey is not None:
-        return eph[object.solarSystemKey.replace("jupiter", "jupiter barycenter")]
+        return eph[object.solarSystemKey]
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
 
 

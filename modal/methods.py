@@ -167,7 +167,7 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
                 "type": SpaceObjectType.STAR_OBJECT,
                 "ra": ra,
                 "dec": dec,
-                "names": names,
+                "names": idents,
             },
         )
     return obj
