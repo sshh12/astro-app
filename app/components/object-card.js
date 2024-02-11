@@ -26,7 +26,9 @@ export default function ObjectCard({ object, orbits }) {
   const { ts } = useTimestamp();
 
   const orbitAlt = orbits.objects[object.id].alt;
+  const orbitAz = orbits.objects[object.id].az;
   const alt = getInterpolatedValue(orbits.time, ts, orbitAlt);
+  const az = getInterpolatedValue(orbits.time, ts, orbitAz);
   const isDay = ts < orbits.time[0] || ts > orbits.time[orbits.time.length - 1];
   const maxAlt = getMaxWhile(
     orbitAlt,
@@ -35,7 +37,8 @@ export default function ObjectCard({ object, orbits }) {
 
   const onBadgeClick = (e) => {
     e.stopPropagation();
-    setObjectBadgeMode((objectBadgeMode + 1) % 2);
+    e.preventDefault();
+    setObjectBadgeMode((objectBadgeMode + 1) % 3);
   };
 
   return (
@@ -61,7 +64,20 @@ export default function ObjectCard({ object, orbits }) {
             Daytime
           </Badge>
         )}
-        {objectBadgeMode == 1 && (
+        {objectBadgeMode == 1 && !isDay && (
+          <BadgeDelta
+            deltaType={altToDelta(alt)}
+            onClick={(e) => onBadgeClick(e)}
+          >
+            ALT {Math.round(alt)}° AZ {Math.round(az)}°
+          </BadgeDelta>
+        )}
+        {objectBadgeMode == 1 && isDay && (
+          <Badge color="yellow" onClick={(e) => onBadgeClick(e)}>
+            Daytime
+          </Badge>
+        )}
+        {objectBadgeMode == 2 && (
           <BadgeDelta
             deltaType={altToDelta(maxAlt)}
             onClick={(e) => onBadgeClick(e)}

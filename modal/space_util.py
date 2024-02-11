@@ -89,7 +89,7 @@ def get_orbit_calculations(objects: List, timezone: str, lat: float, lon: float)
         "timezone": timezone,
         "time_state": [],
         "time": [],
-        "objects": {o.id: {"alt": []} for o in objects},
+        "objects": {o.id: {"alt": [], "az": []} for o in objects},
     }
     while cur <= end:
         t = ts.from_datetime(cur)
@@ -101,8 +101,11 @@ def get_orbit_calculations(objects: List, timezone: str, lat: float, lon: float)
         resp["time"].append(int(cur.timestamp() * 1000))
 
         for oid, observable in observables.items():
-            alt = loc_time.observe(observable).apparent().altaz()[0].degrees
+            alt_az = loc_time.observe(observable).apparent().altaz()
+            alt = alt_az[0].degrees
+            az = alt_az[1].degrees
             resp["objects"][oid]["alt"].append(round(alt, 2))
+            resp["objects"][oid]["az"].append(round(az, 2))
 
         cur += dt.timedelta(minutes=TIME_RESOLUTION_MINS)
 

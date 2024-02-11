@@ -74,7 +74,7 @@ def _user_to_dict(user: models.User) -> dict:
 
 
 def clean_search_term(term: str) -> str:
-    return re.sub(r"\s+", "", term.strip().lower().replace("-", ""))
+    return re.sub(r"[\s\-'_]+", "", term.lower())
 
 
 async def _duplicate_list(

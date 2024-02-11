@@ -6,11 +6,47 @@ import {
   ArrowUturnLeftIcon,
   ListBulletIcon,
 } from "@heroicons/react/24/solid";
+import { Card, Flex, Text, List, ListItem, Grid } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChart from "../components/sky-chart";
 import StickyHeader from "../components/sticky-header";
 import { useAPI } from "../api";
 import ListDialog from "../components/list-dialog";
+
+function NameCard({ object }) {
+  const names = object.names;
+  names.sort((a, b) => {
+    let aScore = a.length;
+    let bScore = b.length;
+    if (a.includes("NAME ")) {
+      aScore -= 1000;
+    }
+    if (b.includes("NAME ")) {
+      bScore -= 1000;
+    }
+    return aScore - bScore;
+  });
+  return (
+    <Card>
+      <Flex alignItems="start">
+        <div className="truncate">
+          <Text color="white">Identifiers</Text>
+        </div>
+      </Flex>
+      <List>
+        {names.map((objName) => {
+          const [key, ...value] = objName.split(" ");
+          return (
+            <ListItem key={objName}>
+              <span>{key}</span>
+              <span>{value.join(" ")}</span>
+            </ListItem>
+          );
+        })}
+      </List>
+    </Card>
+  );
+}
 
 export default function SkyObjectPage() {
   const { pageParams, setPage } = useNav();
@@ -70,6 +106,12 @@ export default function SkyObjectPage() {
           <SkyChart className="mt-6" times={[]} timeStates={[]} objects={[]} />
         )}
       </div>
+
+      {object && (
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          <NameCard object={object} />
+        </Grid>
+      )}
     </div>
   );
 }
