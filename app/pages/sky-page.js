@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { Grid, Title } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
-import SkyChart from "../components/sky-chart";
+import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
 import ListCard from "../components/list-card";
@@ -44,10 +44,9 @@ export default function SkyPage() {
         loading={!ready}
       />
 
-      <div className="pb-6">
+      <div className="pb-5 mt-6">
         {ready && (
-          <SkyChart
-            className="mt-6"
+          <SkyChartPanel
             times={user.orbits.time}
             timeStates={user.orbits.time_state}
             timezone={user.orbits.timezone}
@@ -59,31 +58,33 @@ export default function SkyPage() {
           />
         )}
         {!ready && (
-          <SkyChart className="mt-6" times={[]} timeStates={[]} objects={[]} />
+          <SkyChartPanel times={[]} timeStates={[]} objects={[]} />
         )}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      {ready && <>
-        <div className="mt-5 ml-2 mr-2">
-          <Title>Favorites</Title>
-        </div>
-        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-          {favListObjects.map((obj) => (
-            <ObjectCard key={obj.id} object={obj} orbits={user.orbits} />
-          ))}
-        </Grid>
+      {ready && (
+        <>
+          <div className="mt-5 ml-2 mr-2">
+            <Title>Favorites</Title>
+          </div>
+          <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+            {favListObjects.map((obj) => (
+              <ObjectCard key={obj.id} object={obj} orbits={user.orbits} />
+            ))}
+          </Grid>
 
-        <div className="mt-5 ml-2 mr-2">
-          <Title>Lists</Title>
-        </div>
-        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-          {lists.map((list) => (
-            <ListCard list={list} key={list.id} />
-          ))}
-        </Grid>
-      </>}
+          <div className="mt-5 ml-2 mr-2">
+            <Title>Lists</Title>
+          </div>
+          <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+            {lists.map((list) => (
+              <ListCard list={list} key={list.id} />
+            ))}
+          </Grid>
+        </>
+      )}
     </div>
   );
 }

@@ -1,19 +1,33 @@
 "use client";
 
 import React from "react";
-import { Card, Flex, Grid, Text } from "@tremor/react";
+import { Grid } from "@tremor/react";
 import {
   MapPinIcon,
   UserCircleIcon,
   FlagIcon,
 } from "@heroicons/react/24/solid";
-import BadgeIconRound from "../components/badge-icon-round";
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
+import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
 
 export default function ProfilePage() {
-  const { ready, user } = useAPI();
+  const { ready, user, postThenUpdateUser } = useAPI();
+
+  const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
+  const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);
+
+  const saveAccountSettings = (settings) => {
+    accountSettingsOpen(false);
+    postThenUpdateUser("update_user", settings);
+  };
+
+  const saveLocationSettings = (settings) => {
+    setLocationSettingsOpen(false);
+    postThenUpdateUser("update_user_location", settings);
+  };
+
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
@@ -27,34 +41,44 @@ export default function ProfilePage() {
           title="Account"
           icon={UserCircleIcon}
           color="orange"
-          items={[{ name: "USERNAME", value: user?.name }]}
+          items={[
+            { name: "USERNAME", value: user?.name, key: "name", type: "text" },
+          ]}
+          open={accountSettingsOpen}
+          setOpen={setAccountSettingsOpen}
+          onSave={saveAccountSettings}
         />
         <SettingsCard
           title="Location"
           icon={MapPinIcon}
           color="blue"
+          open={locationSettingsOpen}
+          setOpen={setLocationSettingsOpen}
+          onSave={saveLocationSettings}
           items={[
-            { name: "LATITUDE", value: user?.lat },
-            { name: "LONGITUDE", value: user?.lon },
-            { name: "ELEVATION (m)", value: user?.elevation },
-            { name: "TIMEZONE", value: user?.timezone },
+            {
+              name: "TIMEZONE",
+              key: "timezone",
+              value: user?.timezone,
+              type: "select",
+            },
+            { name: "LATITUDE", key: "lat", value: user?.lat, type: "number" },
+            { name: "LONGITUDE", key: "lon", value: user?.lon, type: "number" },
+            {
+              name: "ELEVATION (m)",
+              key: "elevation",
+              value: user?.elevation,
+              type: "number",
+            },
           ]}
         />
-        <Card>
-          <Flex alignItems="start">
-            <div className="truncate">
-              <Text color="white">Feedback</Text>
-            </div>
-            <BadgeIconRound icon={FlagIcon} color={"purple"} />
-          </Flex>
-          <Flex className="mt-4 space-x-2">
-            <div>
-              <Text className="truncate">
-                Share feedback or submit a feature request.
-              </Text>
-            </div>
-          </Flex>
-        </Card>
+        <LinkCard
+          title="Feedback"
+          subtitle="Share feedback or submit a feature request."
+          color="purple"
+          icon={FlagIcon}
+          onClick={() => (window.location.href = "https://sshh.io")}
+        />
       </Grid>
     </div>
   );

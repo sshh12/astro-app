@@ -181,7 +181,13 @@ async def create_user(ctx: context.Context) -> Dict:
     orbits = space_util.get_orbit_calculations(
         fav_objects, user.timezone, user.lat, user.lon
     )
-    return {"api_key": user.apiKey, **_user_to_dict(user), "orbits": orbits}
+    timezones = space_util.get_timezones()
+    return {
+        "api_key": user.apiKey,
+        **_user_to_dict(user),
+        "orbits": orbits,
+        "timezones": timezones,
+    }
 
 
 @method()
@@ -190,7 +196,41 @@ async def get_user(ctx: context.Context) -> Dict:
     orbits = space_util.get_orbit_calculations(
         fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon
     )
-    return {**_user_to_dict(ctx.user), "orbits": orbits}
+    timezones = space_util.get_timezones()
+    return {**_user_to_dict(ctx.user), "orbits": orbits, "timezones": timezones}
+
+
+@method()
+async def update_user(
+    ctx: context.Context,
+    name: str,
+) -> Dict:
+    await ctx.prisma.user.update(
+        where={"id": ctx.user.id},
+        data={
+            "name": name,
+        },
+    )
+    return {}
+
+@method()
+async def update_user_location(
+    ctx: context.Context,
+    elevation: int,
+    lat: float,
+    lon: float,
+    timezone: str,
+) -> Dict:
+    await ctx.prisma.user.update(
+        where={"id": ctx.user.id},
+        data={
+            "elevation": elevation,
+            "lat": lat,
+            "lon": lon,
+            "timezone": timezone,
+        },
+    )
+    return {}
 
 
 @method()

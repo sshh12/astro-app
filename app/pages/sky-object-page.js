@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { Card, Flex, Text, List, ListItem, Grid } from "@tremor/react";
 import { useNav } from "../nav";
-import SkyChart from "../components/sky-chart";
+import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import { useAPI } from "../api";
 import ListDialog from "../components/list-dialog";
@@ -88,10 +88,9 @@ export default function SkyObjectPage() {
         />
       )}
 
-      <div className="pb-6">
+      <div className="pb-5">
         {object && (
-          <SkyChart
-            className="mt-6"
+          <SkyChartPanel
             times={object.orbits.time}
             timeStates={object.orbits.time_state}
             timezone={object.orbits.timezone}
@@ -104,9 +103,7 @@ export default function SkyObjectPage() {
             ]}
           />
         )}
-        {!object && (
-          <SkyChart className="mt-6" times={[]} timeStates={[]} objects={[]} />
-        )}
+        {!object && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
       </div>
 
       {object && (

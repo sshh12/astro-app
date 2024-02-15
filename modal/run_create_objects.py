@@ -55,7 +55,7 @@ async def main():
             await prisma.spaceobject.create(
                 data={
                     "name": name,
-                    "names": [],
+                    "names": [f"NAME {name}"],
                     "searchKey": methods.clean_search_term(name),
                     "solarSystemKey": key,
                     "type": SpaceObjectType.SOLAR_SYSTEM_OBJECT,

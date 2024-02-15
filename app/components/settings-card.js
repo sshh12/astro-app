@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Flex,
@@ -11,23 +11,104 @@ import {
   DialogPanel,
   Title,
   Button,
+  NumberInput,
+  SearchSelect,
+  SearchSelectItem,
+  TextInput,
 } from "@tremor/react";
 import BadgeIconRound from "../components/badge-icon-round";
+import { useAPI } from "../api";
 
-export default function SettingsCard({ title, icon, color, items }) {
+export default function SettingsCard({
+  title,
+  icon,
+  color,
+  items,
+  open,
+  setOpen,
+  onSave,
+}) {
+  const { ready, user } = useAPI();
+
+  const [editValues, setEditValues] = useState({});
+  useEffect(() => {
+    if (open) {
+      setEditValues(
+        items.reduce((acc, item) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {})
+      );
+    } else {
+      setEditValues({});
+    }
+  }, [items, open]);
+
   return (
     <>
-      <Dialog open={false} onClose={() => void 0} static={true}>
+      <Dialog open={open} onClose={() => setOpen(false)} static={true}>
         <DialogPanel>
-          <Title className="mb-3">Title</Title>
+          <Title className="mb-3">{title}</Title>
+
+          {ready && (
+            <div>
+              {items.map((item) => {
+                return (
+                  <div key={item.name} className="mb-3">
+                    <Text className="mb-1">{item.name}</Text>
+                    {item.type === "number" && (
+                      <NumberInput
+                        value={editValues[item.key]}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            [item.key]: e.target.value,
+                          })
+                        }
+                      />
+                    )}
+                    {item.type === "select" && (
+                      <SearchSelect
+                        value={editValues[item.key]}
+                        onChange={(v) =>
+                          setEditValues({
+                            ...editValues,
+                            [item.key]: v,
+                          })
+                        }
+                      >
+                        {user.timezones.map((tz) => (
+                          <SearchSelectItem key={tz.name} value={tz.name}>
+                            {tz.name} (UTC{tz.offset})
+                          </SearchSelectItem>
+                        ))}
+                      </SearchSelect>
+                    )}
+                    {item.type === "text" && (
+                      <TextInput
+                        value={editValues[item.key]}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            [item.key]: e.target.value,
+                          })
+                        }
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <div className="mt-3">
-            <Button variant="light" onClick={() => save()}>
+            <Button variant="light" onClick={() => onSave(editValues)}>
               Save
             </Button>
           </div>
         </DialogPanel>
       </Dialog>
-      <Card>
+      <Card onClick={() => setOpen(true)}>
         <Flex alignItems="start">
           <div className="truncate">
             <Text color="white">{title}</Text>

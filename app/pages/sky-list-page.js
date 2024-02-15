@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { Grid, Title } from "@tremor/react";
 import { useNav } from "../nav";
-import SkyChart from "../components/sky-chart";
+import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
 import { useAPI } from "../api";
@@ -34,10 +34,9 @@ export default function SkyListPage() {
         loading={loading}
       />
 
-      <div className="pb-6">
+      <div className="pb-5 mt-6">
         {list && (
-          <SkyChart
-            className="mt-6"
+          <SkyChartPanel
             times={list.orbits.time}
             timeStates={list.orbits.time_state}
             timezone={list.orbits.timezone}
@@ -48,9 +47,7 @@ export default function SkyListPage() {
             }))}
           />
         )}
-        {!list && (
-          <SkyChart className="mt-6" times={[]} timeStates={[]} objects={[]} />
-        )}
+        {!list && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
