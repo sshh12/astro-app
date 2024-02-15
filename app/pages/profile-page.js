@@ -19,7 +19,7 @@ export default function ProfilePage() {
   const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);
 
   const saveAccountSettings = (settings) => {
-    accountSettingsOpen(false);
+    setAccountSettingsOpen(false);
     postThenUpdateUser("update_user", settings);
   };
 
