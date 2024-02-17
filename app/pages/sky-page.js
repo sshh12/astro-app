@@ -52,6 +52,7 @@ export default function SkyPage() {
             timezone={user.orbits.timezone}
             objects={favListObjects.map((obj) => ({
               alt: user.orbits.objects[obj.id].alt,
+              az: user.orbits.objects[obj.id].az,
               name: obj.name,
               color: obj.color,
             }))}

@@ -91,6 +91,7 @@ async def _duplicate_list(
         data={
             "title": list.title,
             "commonTemplate": False,
+            "color": list.color,
             "objects": {
                 "create": [
                     {"spaceObjectId": obj.SpaceObject.id} for obj in list.objects

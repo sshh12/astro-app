@@ -16,7 +16,12 @@ export default function ListCard({ list }) {
     >
       <Flex className="space-x-6">
         <Text color="white">{list.title}</Text>
-        <Icon icon={ListBulletIcon} color="violet" variant="solid" size="lg" />
+        <Icon
+          icon={ListBulletIcon}
+          color={list.color.toLowerCase()}
+          variant="solid"
+          size="lg"
+        />
       </Flex>
     </Card>
   );

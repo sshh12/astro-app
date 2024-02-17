@@ -42,6 +42,7 @@ export default function SkyListPage() {
             timezone={list.orbits.timezone}
             objects={list.objects.map((obj) => ({
               alt: list.orbits.objects[obj.id].alt,
+              az: list.orbits.objects[obj.id].az,
               name: obj.name,
               color: obj.color,
             }))}

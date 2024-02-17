@@ -97,6 +97,7 @@ export default function SkyObjectPage() {
             objects={[
               {
                 alt: object.orbits.objects[object.id].alt,
+                az: object.orbits.objects[object.id].az,
                 name: object.name,
                 color: object.color,
               },

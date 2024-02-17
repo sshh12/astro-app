@@ -19,6 +19,10 @@ export default function RootLayout({ children }) {
         <meta name="description" content="Astro App" />
         <link rel="apple-touch-icon" href="/logo192.png" />
         <link rel="manifest" href="/manifest.json" />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-JY9C3ZHSYL"
+        ></script>
       </head>
       <body className={inter.className}>{children}</body>
     </html>
