@@ -98,7 +98,7 @@ export default function SkyObjectPage() {
               {
                 alt: object.orbits.objects[object.id].alt,
                 name: object.name,
-                color: "green",
+                color: object.color,
               },
             ]}
           />

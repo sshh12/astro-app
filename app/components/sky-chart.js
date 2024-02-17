@@ -65,7 +65,7 @@ const SkyChart = React.forwardRef((props, ref) => {
   } = props;
 
   const categories = objects.map((object) => object.name);
-  const colors = objects.map((object) => object.color);
+  const colors = objects.map((object) => object.color.toLowerCase());
   const CustomTooltip = customTooltip;
   const paddingValue = !showXAxis && !showYAxis ? 0 : 20;
   const [activeDot, setActiveDot] = useState(undefined);
@@ -138,8 +138,7 @@ const SkyChart = React.forwardRef((props, ref) => {
   const nowX =
     TEN_MINS *
     Math.floor(
-      Math.min(Math.max(ts, times[0]), times[times.length - 1]) /
-        TEN_MINS
+      Math.min(Math.max(ts, times[0]), times[times.length - 1]) / TEN_MINS
     );
 
   return (

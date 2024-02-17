@@ -198,12 +198,10 @@ async def create_user(ctx: context.Context) -> Dict:
     orbits = space_util.get_orbit_calculations(
         fav_objects, user.timezone, user.lat, user.lon
     )
-    timezones = space_util.get_timezones()
     return {
         "api_key": user.apiKey,
         **_user_to_dict(user),
         "orbits": orbits,
-        "timezones": timezones,
     }
 
 
@@ -213,8 +211,7 @@ async def get_user(ctx: context.Context) -> Dict:
     orbits = space_util.get_orbit_calculations(
         fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon
     )
-    timezones = space_util.get_timezones()
-    return {**_user_to_dict(ctx.user), "orbits": orbits, "timezones": timezones}
+    return {**_user_to_dict(ctx.user), "orbits": orbits}
 
 
 @method()

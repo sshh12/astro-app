@@ -60,7 +60,7 @@ export default function ProfilePage() {
               name: "TIMEZONE",
               key: "timezone",
               value: user?.timezone,
-              type: "select",
+              type: "select-timezone",
             },
             { name: "LATITUDE", key: "lat", value: user?.lat, type: "number" },
             { name: "LONGITUDE", key: "lon", value: user?.lon, type: "number" },

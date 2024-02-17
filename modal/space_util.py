@@ -1,5 +1,4 @@
-from typing import Tuple, List, Dict
-from collections import defaultdict
+from typing import Tuple, List
 import datetime as dt
 import pytz
 
@@ -7,17 +6,6 @@ from skyfield import almanac
 from skyfield.api import wgs84, load, Star, Angle
 
 TIME_RESOLUTION_MINS = 10
-
-
-def get_timezones() -> List[Dict]:
-    timezones = pytz.common_timezones
-    return [
-        {
-            "name": tz,
-            "offset": dt.datetime.now(pytz.timezone(tz)).strftime("%z"),
-        }
-        for tz in timezones
-    ]
 
 
 def get_todays_noons(timezone: str) -> Tuple:

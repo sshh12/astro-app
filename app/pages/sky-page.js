@@ -53,13 +53,11 @@ export default function SkyPage() {
             objects={favListObjects.map((obj) => ({
               alt: user.orbits.objects[obj.id].alt,
               name: obj.name,
-              color: ["red", "green", "blue", "yellow", "purple"][obj.id % 5],
+              color: obj.color,
             }))}
           />
         )}
-        {!ready && (
-          <SkyChartPanel times={[]} timeStates={[]} objects={[]} />
-        )}
+        {!ready && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>

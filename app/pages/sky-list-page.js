@@ -43,7 +43,7 @@ export default function SkyListPage() {
             objects={list.objects.map((obj) => ({
               alt: list.orbits.objects[obj.id].alt,
               name: obj.name,
-              color: ["red", "green", "blue", "yellow", "purple"][obj.id % 5],
+              color: obj.color,
             }))}
           />
         )}

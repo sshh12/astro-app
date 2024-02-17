@@ -18,6 +18,7 @@ import {
 } from "@tremor/react";
 import BadgeIconRound from "../components/badge-icon-round";
 import { useAPI } from "../api";
+import { TIMEZONES } from "./../timezones";
 
 export default function SettingsCard({
   title,
@@ -28,7 +29,7 @@ export default function SettingsCard({
   setOpen,
   onSave,
 }) {
-  const { ready, user } = useAPI();
+  const { ready } = useAPI();
 
   const [editValues, setEditValues] = useState({});
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function SettingsCard({
                         }
                       />
                     )}
-                    {item.type === "select" && (
+                    {item.type === "select-timezone" && (
                       <SearchSelect
                         value={editValues[item.key]}
                         onChange={(v) =>
@@ -77,7 +78,7 @@ export default function SettingsCard({
                           })
                         }
                       >
-                        {user.timezones.map((tz) => (
+                        {TIMEZONES.map((tz) => (
                           <SearchSelectItem key={tz.name} value={tz.name}>
                             {tz.name} (UTC{tz.offset})
                           </SearchSelectItem>
