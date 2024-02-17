@@ -177,7 +177,7 @@ const ObjectPath = ({ object }) => {
     <>
       {lines.map((lineGeometry, i) => (
         <line key={`object-${object.name}-${i}`}>
-          <lineBasicMaterial attach="material" color={color} linewidth={10} />
+          <lineBasicMaterial attach="material" color={color} />
           <primitive attach="geometry" object={lineGeometry} />
         </line>
       ))}
