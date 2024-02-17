@@ -164,17 +164,14 @@ async def query_and_import_simbad(
         )
     ).degrees
 
-    title = simbad_title
-
-    names = [id_[5:] for id_ in idents if "NAME" in id_]
-    if len(names) > 0:
-        title = names[0]
-
-    if override_name is not None:
-        title = override_name
-
     obj = await prisma.spaceobject.find_first(where={"simbadName": simbad_title})
     if not obj:
+        title = simbad_title
+        names = [id_[5:] for id_ in idents if "NAME" in id_]
+        if len(names) > 0:
+            title = names[0]
+        if override_name is not None:
+            title = override_name
         obj = await prisma.spaceobject.create(
             data={
                 "name": title,

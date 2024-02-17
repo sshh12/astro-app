@@ -68,7 +68,7 @@ async def main():
     prisma = Prisma()
     await prisma.connect()
 
-    for name, key in SOLAR_SYSTEM.items():
+    for name, (key, color) in SOLAR_SYSTEM.items():
         try:
             await prisma.spaceobject.create(
                 data={
@@ -77,6 +77,7 @@ async def main():
                     "searchKey": methods.clean_search_term(name),
                     "solarSystemKey": key,
                     "type": SpaceObjectType.SOLAR_SYSTEM_OBJECT,
+                    "color": color,
                 },
             )
         except Exception:
