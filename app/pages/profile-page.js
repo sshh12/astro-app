@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useEffect} from "react";
 import { Grid } from "@tremor/react";
 import {
   MapPinIcon,
@@ -11,9 +11,11 @@ import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
 import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
+import { useNav } from "../nav";
 
 export default function ProfilePage() {
   const { ready, user, postThenUpdateUser } = useAPI();
+  const { pageParams } = useNav();
 
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);
@@ -27,6 +29,12 @@ export default function ProfilePage() {
     setLocationSettingsOpen(false);
     postThenUpdateUser("update_user_location", settings);
   };
+
+  useEffect(() => {
+    if (pageParams.openLocationSettings) {
+      setLocationSettingsOpen(true);
+    }
+  }, [pageParams.openLocationSettings]);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>

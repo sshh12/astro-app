@@ -103,9 +103,16 @@ export default function SettingsCard({
           )}
 
           <div className="mt-3">
-            <Button variant="light" onClick={() => onSave(editValues)}>
-              Save
-            </Button>
+            {ready && (
+              <Button variant="light" onClick={() => onSave(editValues)}>
+                Save
+              </Button>
+            )}
+            {!ready && (
+              <Button variant="light" color="grey">
+                Save
+              </Button>
+            )}
           </div>
         </DialogPanel>
       </Dialog>

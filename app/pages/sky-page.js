@@ -9,6 +9,7 @@ import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
 import ListCard from "../components/list-card";
+import IntroDialog from "../components/intro-dialog";
 import { useTimestamp, formatTime } from "../utils";
 
 export default function SkyPage() {
@@ -41,6 +42,8 @@ export default function SkyPage() {
         rightIconOnClick={() => setPage("/sky/search")}
         loading={!ready}
       />
+
+      <IntroDialog />
 
       <div className="pb-5 mt-6">
         {user && (
