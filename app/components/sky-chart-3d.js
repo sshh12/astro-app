@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useMemo } from "react";
-import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { COLORS } from "../colors";
+
+const RADIUS = 2;
 
 const altAzToCartesian = (alt, az, radius) => {
   const phi = THREE.MathUtils.degToRad(90 - alt);
@@ -14,38 +16,77 @@ const altAzToCartesian = (alt, az, radius) => {
   );
 };
 
-const TexturedPlane = ({ text }) => {
+const TextMark = ({ text, position }) => {
   const canvasTexture = useMemo(() => {
-    // Create a canvas element
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
-
-    // Set canvas dimensions
-    canvas.width = 512;
-    canvas.height = 256;
-
-    // Draw background
-    context.fillStyle = "red";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Set text properties
-    context.font = "48px serif";
-    context.fillStyle = "white";
+    canvas.width = 100;
+    canvas.height = 100;
+    context.font = "bold 100px serif";
+    context.fillStyle = "#3b82f6";
     context.textAlign = "center";
     context.textBaseline = "middle";
-
-    // Draw text onto the canvas
     context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-    // Use the canvas as a texture
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
   }, [text]);
 
+  const meshRef = useRef();
+
+  useEffect(() => {
+    if (meshRef.current) {
+      const target = new THREE.Vector3(0, 0, 0);
+      meshRef.current.lookAt(target);
+    }
+  }, []);
+
   return (
-    <mesh position={[1, 1, 1]}>
-      <planeGeometry attach="geometry" args={[5, 2.5]} />
-      <meshBasicMaterial attach="material" color="#fff" />
+    <mesh ref={meshRef} position={position}>
+      <planeGeometry attach="geometry" args={[0.2, 0.2]} />
+      <meshBasicMaterial
+        attach="material"
+        map={canvasTexture}
+        transparent={true}
+        opacity={0.9}
+      />
+    </mesh>
+  );
+};
+
+const TextLabel = ({ text, position, color }) => {
+  const width = text.length;
+  const canvasTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = 100 * width;
+    canvas.height = 100;
+    context.font = "100px serif";
+    context.fillStyle = color;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  }, [text]);
+
+  const meshRef = useRef();
+
+  useEffect(() => {
+    if (meshRef.current) {
+      const target = new THREE.Vector3(0, 0, 0);
+      meshRef.current.lookAt(target);
+    }
+  }, []);
+
+  return (
+    <mesh ref={meshRef} position={position}>
+      <planeGeometry attach="geometry" args={[0.12 * width, 0.12]} />
+      <meshBasicMaterial
+        attach="material"
+        map={canvasTexture}
+        transparent={true}
+        opacity={0.9}
+      />
     </mesh>
   );
 };
@@ -55,7 +96,7 @@ const SphereGrid = () => {
   for (let alt = 0; alt <= 90; alt += 30) {
     const points = [];
     for (let az = 0; az <= 360; az += 5) {
-      points.push(altAzToCartesian(alt, az, 2));
+      points.push(altAzToCartesian(alt, az, RADIUS));
     }
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
     altLines.push(
@@ -91,30 +132,57 @@ const SphereGrid = () => {
     );
   }
 
+  const posNorth = altAzToCartesian(0, 0, RADIUS);
+  const posSouth = altAzToCartesian(180, 0, RADIUS);
+  const posEast = altAzToCartesian(0, 90, RADIUS);
+  const posWest = altAzToCartesian(0, 270, RADIUS);
+
   return (
     <>
       {altLines}
       {azLines}
+      <TextMark text="N" position={posNorth} />
+      <TextMark text="S" position={posSouth} />
+      <TextMark text="E" position={posEast} />
+      <TextMark text="W" position={posWest} />
     </>
   );
 };
 
 const ObjectPath = ({ object }) => {
-  const points = [];
+  const lines = [];
+  let longestMidPoint = null;
+  let longestLength = 0;
+  let points = [];
   for (let i in object.az) {
     if (object.alt[i] > 0) {
       points.push(altAzToCartesian(object.alt[i], object.az[i], 2));
     } else {
-      break;
+      if (points.length > 0) {
+        if (points.length > longestLength) {
+          longestLength = points.length;
+          longestMidPoint = points[Math.floor(points.length / 2)];
+        }
+        lines.push(new THREE.BufferGeometry().setFromPoints(points));
+        points = [];
+      }
     }
   }
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  if (points.length > 0) {
+    lines.push(new THREE.BufferGeometry().setFromPoints(points));
+  }
+
   const color = COLORS[object.color.toLowerCase()];
   return (
-    <line key={`object-${object.name}`}>
-      <lineBasicMaterial attach="material" color={color} />
-      <primitive attach="geometry" object={lineGeometry} />
-    </line>
+    <>
+      {lines.map((lineGeometry, i) => (
+        <line key={`object-${object.name}-${i}`}>
+          <lineBasicMaterial attach="material" color={color} linewidth={10} />
+          <primitive attach="geometry" object={lineGeometry} />
+        </line>
+      ))}
+      <TextLabel text={object.name} position={longestMidPoint} color={color} />
+    </>
   );
 };
 
@@ -126,7 +194,7 @@ const CameraControls = () => {
     window.alt = 30;
     window.az = 0;
 
-    const vector = altAzToCartesian(window.alt, window.az, 2);
+    const vector = altAzToCartesian(window.alt, window.az, RADIUS);
     camera.lookAt(vector);
 
     const onMouseDown = (event) => {
@@ -223,7 +291,6 @@ export default function SkyChart3D({ times, timeStates, timezone, objects }) {
         {objects.map((object) => (
           <ObjectPath key={object.name} object={object} />
         ))}
-        <TexturedPlane text="Hello, Three.js!" />
       </Canvas>
     </div>
   );
