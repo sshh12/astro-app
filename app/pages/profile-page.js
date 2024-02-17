@@ -77,7 +77,9 @@ export default function ProfilePage() {
           subtitle="Share feedback or submit a feature request."
           color="purple"
           icon={FlagIcon}
-          onClick={() => (window.location.href = "https://sshh.io")}
+          onClick={() =>
+            (window.location.href = "https://forms.gle/KFnRddtrbLVANPdJA")
+          }
         />
       </Grid>
     </div>

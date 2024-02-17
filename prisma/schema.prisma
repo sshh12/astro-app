@@ -28,6 +28,31 @@ enum SpaceObjectType {
   STAR_OBJECT
 }
 
+enum Color {
+  SLATE
+  GRAY
+  ZINC
+  NEUTRAL
+  STONE
+  RED
+  ORANGE
+  AMBER
+  YELLOW
+  LIME
+  GREEN
+  EMERALD
+  TEAL
+  CYAN
+  SKY
+  BLUE
+  INDIGO
+  VIOLET
+  PURPLE
+  FUCHSIA
+  PINK
+  ROSE
+}
+
 model SpaceObject {
   id        BigInt   @id @default(autoincrement())
   name      String   @unique
@@ -39,6 +64,8 @@ model SpaceObject {
   dec            Decimal?
   solarSystemKey String?
   type           SpaceObjectType
+  simbadName     String?
+  color          Color           @default(SLATE)
 
   lists SpaceObjectsOnLists[]
   users SpaceObjectsOnUsers[]
@@ -48,6 +75,7 @@ model List {
   id             BigInt  @id @default(autoincrement())
   title          String
   commonTemplate Boolean @default(false)
+  color          Color   @default(SLATE)
 
   users   ListsOnUsers[]
   objects SpaceObjectsOnLists[]
@@ -78,6 +106,7 @@ model SpaceObjectsOnUsers {
   User          User        @relation(fields: [userId], references: [id])
   SpaceObject   SpaceObject @relation(fields: [spaceObjectId], references: [id])
   nickname      String?
+  color         Color       @default(SLATE)
 
   @@id([userId, spaceObjectId])
 }

@@ -29,13 +29,23 @@ export function useAPIControl() {
 
   const postThenUpdateUser = useCallback((func, args) => {
     setReady(false);
-    return post(func, args).then((result) => {
-      return post("get_user").then((user) => {
+    return post(func, args)
+      .then((result) => {
+        return post("get_user")
+          .then((user) => {
+            setReady(true);
+            setUser(user);
+            return { result, user };
+          })
+          .catch((e) => {
+            setReady(true);
+            return { error: e };
+          });
+      })
+      .catch((e) => {
         setReady(true);
-        setUser(user);
-        return { result, user };
+        return { error: e };
       });
-    });
   }, []);
 
   const setObjectBadgeMode = (mode) => {

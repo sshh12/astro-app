@@ -1,6 +1,6 @@
 from typing import List, Dict
 from prisma import Prisma, models
-from prisma.enums import SpaceObjectType
+from prisma.enums import SpaceObjectType, Color
 import context
 import random
 import aiohttp
@@ -34,6 +34,10 @@ def _gen_name() -> str:
     return "astro-" + "".join(random.choice(alphabet) for _ in range(8))
 
 
+def _random_color() -> Color:
+    return random.choice(list(Color))
+
+
 def _space_object_to_dict(obj: models.SpaceObject) -> dict:
     return {
         "id": str(obj.id),
@@ -41,6 +45,8 @@ def _space_object_to_dict(obj: models.SpaceObject) -> dict:
         "names": obj.names,
         "searchKey": obj.searchKey,
         "solarSystemKey": obj.solarSystemKey,
+        "color": obj.color,
+        "simbadName": obj.simbadName,
         "type": obj.type,
     }
 
@@ -49,6 +55,7 @@ def _list_to_dict(list: models.List) -> dict:
     return {
         "id": str(list.id),
         "title": list.title,
+        "color": list.color,
         "objects": [_space_object_to_dict(obj.SpaceObject) for obj in list.objects],
     }
 
@@ -123,13 +130,19 @@ async def _create_user(prisma: Prisma) -> models.User:
     return new_user
 
 
-async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObject:
+async def query_and_import_simbad(
+    prisma: Prisma, term: str, override_name: str = None
+) -> models.SpaceObject:
+    obj = await prisma.spaceobject.find_first(where={"name": term})
+    if obj is not None:
+        return obj
+
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"https://simbad.cds.unistra.fr/simbad/sim-basic?Ident={term}&submit=SIMBAD+search&output.format=ASCII"
         ) as response:
             output = await response.text()
-    title = re.search(r"Object ([\s\S]+?)  ---", output).group(1).strip()
+    simbad_title = re.search(r"Object ([\s\S]+?)  ---", output).group(1).strip()
     icrs_match = re.search(
         r"ICRS,ep=J2000,eq=2000\): (\d+) (\d+) ([\d\.]+)  ([\d+\-]+) (\d+) ([\d\.]+)",
         output,
@@ -151,11 +164,16 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
         )
     ).degrees
 
+    title = simbad_title
+
     names = [id_[5:] for id_ in idents if "NAME" in id_]
     if len(names) > 0:
         title = names[0]
 
-    obj = await prisma.spaceobject.find_first(where={"name": title})
+    if override_name is not None:
+        title = override_name
+
+    obj = await prisma.spaceobject.find_first(where={"simbadName": simbad_title})
     if not obj:
         obj = await prisma.spaceobject.create(
             data={
@@ -168,6 +186,8 @@ async def query_and_import_simbad(prisma: Prisma, term: str) -> models.SpaceObje
                 "ra": ra,
                 "dec": dec,
                 "names": idents,
+                "color": _random_color(),
+                "simbadName": simbad_title,
             },
         )
     return obj
@@ -212,6 +232,7 @@ async def update_user(
         },
     )
     return {}
+
 
 @method()
 async def update_user_location(
@@ -291,7 +312,9 @@ async def update_space_object_lists(
             where={"listId": int(list_id), "spaceObjectId": obj.id}
         )
     if new_list_title:
-        new_list = await ctx.prisma.list.create(data={"title": new_list_title})
+        new_list = await ctx.prisma.list.create(
+            data={"title": new_list_title, "color": _random_color()}
+        )
         await ctx.prisma.spaceobjectsonlists.create(
             data={"listId": new_list.id, "spaceObjectId": obj.id}
         )
