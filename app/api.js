@@ -5,6 +5,7 @@ export const APIContext = React.createContext({});
 const MODAL_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
 const BADGE_MODE_KEY = "astro-app:badgeMode";
+const CACHED_USER_KEY = "astro-app:cachedUser";
 
 function post(func, args = {}) {
   return fetch(MODAL_ENDPOINT, {
@@ -22,10 +23,24 @@ function post(func, args = {}) {
 
 export function useAPIControl() {
   const [ready, setReady] = useState(false);
-  const [user, setUser] = useState(false);
-  const [objectBadgeMode, _setObjectBadgeMode] = useState(
-    (typeof window !== "undefined" && localStorage.getItem(BADGE_MODE_KEY)) || 2
-  );
+  const [user, setUser] = useState(null);
+  const [objectBadgeMode, _setObjectBadgeMode] = useState(null);
+  const [cachedUser, _setCachedUser] = useState(null);
+
+  useEffect(() => {
+    _setObjectBadgeMode(+localStorage.getItem(BADGE_MODE_KEY) || 2);
+    _setCachedUser(JSON.parse(localStorage.getItem(CACHED_USER_KEY) || "null"));
+  }, []);
+
+  const setObjectBadgeMode = (mode) => {
+    localStorage.setItem(BADGE_MODE_KEY, mode);
+    _setObjectBadgeMode(mode);
+  };
+
+  const setCachedUser = (cachedUser) => {
+    localStorage.setItem(CACHED_USER_KEY, JSON.stringify(cachedUser));
+    _setCachedUser(cachedUser);
+  };
 
   const postThenUpdateUser = useCallback((func, args) => {
     setReady(false);
@@ -35,6 +50,7 @@ export function useAPIControl() {
           .then((user) => {
             setReady(true);
             setUser(user);
+            setCachedUser(user);
             return { result, user };
           })
           .catch((e) => {
@@ -47,11 +63,6 @@ export function useAPIControl() {
         return { error: e };
       });
   }, []);
-
-  const setObjectBadgeMode = (mode) => {
-    localStorage.setItem(BADGE_MODE_KEY, mode);
-    _setObjectBadgeMode(mode);
-  };
 
   useEffect(() => {
     if (window.initRunning) {
@@ -66,18 +77,20 @@ export function useAPIControl() {
         localStorage.setItem(API_KEY_KEY, user.api_key);
         setReady(true);
         setUser(user);
+        setCachedUser(user);
       });
     } else {
       post("get_user").then((user) => {
         setReady(true);
         setUser(user);
+        setCachedUser(user);
       });
     }
   }, []);
 
   return {
+    user: user || cachedUser,
     ready,
-    user,
     post,
     postThenUpdateUser,
     objectBadgeMode,

@@ -9,7 +9,7 @@ import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
 import ListCard from "../components/list-card";
-import { useTimestamp } from "../utils";
+import { useTimestamp, formatTime } from "../utils";
 
 export default function SkyPage() {
   const { setPage } = useNav();
@@ -18,20 +18,18 @@ export default function SkyPage() {
   const { ts } = useTimestamp();
 
   let favListObjects = [];
-  if (ready) {
+  if (user) {
     favListObjects = user.lists.find(
       (list) => list.title === "Favorites"
     ).objects;
   }
 
   let lists = [];
-  if (ready) {
+  if (user) {
     lists = user.lists.filter((list) => list.title !== "Favorites");
   }
 
-  const timeFormatted = new Date(ts).toLocaleTimeString("en-US", {
-    timeZone: user?.timezone || "UTC",
-  });
+  const timeFormatted = formatTime(ts, user?.timezone);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -45,7 +43,7 @@ export default function SkyPage() {
       />
 
       <div className="pb-5 mt-6">
-        {ready && (
+        {user && (
           <SkyChartPanel
             times={user.orbits.time}
             timeStates={user.orbits.time_state}
@@ -58,12 +56,12 @@ export default function SkyPage() {
             }))}
           />
         )}
-        {!ready && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
+        {!user && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      {ready && (
+      {user && (
         <>
           <div className="mt-5 ml-2 mr-2">
             <Title>Favorites</Title>

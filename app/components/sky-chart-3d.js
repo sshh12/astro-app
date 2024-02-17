@@ -67,7 +67,7 @@ const TextLabel = ({ text, position, color }) => {
     context.fillText(text, canvas.width / 2, canvas.height / 2);
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
-  }, [text]);
+  }, [text, color, width]);
 
   const meshRef = useRef();
 
@@ -264,7 +264,7 @@ const CameraControls = () => {
       gl.domElement.removeEventListener("touchmove", onMouseMove);
       gl.domElement.removeEventListener("touchend", onMouseUp);
     };
-  }, [gl.domElement]);
+  }, [gl.domElement, camera]);
 
   return null;
 };

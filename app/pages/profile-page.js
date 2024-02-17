@@ -32,7 +32,7 @@ export default function ProfilePage() {
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Profile"
-        subtitle={ready ? "@" + user.name : ""}
+        subtitle={user ? "@" + user.name : ""}
         loading={!ready}
       />
 

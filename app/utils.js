@@ -30,7 +30,7 @@ export function getMaxWhile(arr, whileFunc) {
       maxIdx = i;
     }
   }
-  return max;
+  return [max, maxIdx];
 }
 
 export function useTimestamp() {
@@ -57,4 +57,10 @@ export function useDebounce(value, delay) {
   }, [value, delay]);
 
   return debouncedValue;
+}
+
+export function formatTime(ts, timezone) {
+  return new Date(ts).toLocaleTimeString("en-US", {
+    timeZone: timezone || "UTC",
+  });
 }

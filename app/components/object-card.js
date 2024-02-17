@@ -4,7 +4,7 @@ import React from "react";
 import { BadgeDelta, Badge, Card, Flex, Text } from "@tremor/react";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
-import { useTimestamp, getInterpolatedValue, getMaxWhile } from "../utils";
+import { useTimestamp, getInterpolatedValue, getMaxWhile, formatTime } from "../utils";
 
 function altToDelta(alt) {
   if (alt < -20) {
@@ -22,7 +22,7 @@ function altToDelta(alt) {
 
 export default function ObjectCard({ object, orbits }) {
   const { setPage } = useNav();
-  const { objectBadgeMode, setObjectBadgeMode } = useAPI();
+  const { objectBadgeMode, setObjectBadgeMode, user } = useAPI();
   const { ts } = useTimestamp();
 
   const orbitAlt = orbits.objects[object.id].alt;
@@ -30,15 +30,16 @@ export default function ObjectCard({ object, orbits }) {
   const alt = getInterpolatedValue(orbits.time, ts, orbitAlt);
   const az = getInterpolatedValue(orbits.time, ts, orbitAz);
   const isDay = ts < orbits.time[0] || ts > orbits.time[orbits.time.length - 1];
-  const maxAlt = getMaxWhile(
+  const [maxAlt, maxAltIdx] = getMaxWhile(
     orbitAlt,
     (i) => orbits.time_state[i] > 0 && orbits.time_state[i] < 7
   );
+  const maxAltTime = orbits.time[maxAltIdx];
 
   const onBadgeClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    setObjectBadgeMode((objectBadgeMode + 1) % 3);
+    setObjectBadgeMode((objectBadgeMode + 1) % 4);
   };
 
   return (
@@ -83,6 +84,14 @@ export default function ObjectCard({ object, orbits }) {
             onClick={(e) => onBadgeClick(e)}
           >
             Max {Math.round(maxAlt)}°
+          </BadgeDelta>
+        )}
+        {objectBadgeMode == 3 && (
+          <BadgeDelta
+            deltaType={altToDelta(maxAlt)}
+            onClick={(e) => onBadgeClick(e)}
+          >
+            Max {Math.round(maxAlt)}° at {formatTime(maxAltTime, user?.timezone)}
           </BadgeDelta>
         )}
       </Flex>
