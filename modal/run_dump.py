@@ -27,12 +27,6 @@ async def main(args):
     for list_ in lists:
         print(list_)
 
-    # from methods import _create_user, context, _user_to_dict
-
-    # user = await context.fetch_user(prisma, user.apiKey)
-
-    # print(_user_to_dict(user))
-
     await prisma.disconnect()
 
 

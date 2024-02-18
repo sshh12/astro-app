@@ -143,7 +143,10 @@ async def query_and_import_simbad(
             f"https://simbad.cds.unistra.fr/simbad/sim-basic?Ident={term}&submit=SIMBAD+search&output.format=ASCII"
         ) as response:
             output = await response.text()
-    simbad_title = re.search(r"Object ([\s\S]+?)  ---", output).group(1).strip()
+    try:
+        simbad_title = re.search(r"Object ([\s\S]+?)  ---", output).group(1).strip()
+    except AttributeError:
+        raise Exception(f"Could not find simbad result for {term}")
     icrs_match = re.search(
         r"ICRS,ep=J2000,eq=2000\): (\d+) (\d+) ([\d\.]+)  ([\d+\-]+) (\d+) ([\d\.]+)",
         output,
