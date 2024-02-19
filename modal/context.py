@@ -37,3 +37,6 @@ class Context:
     async def __aexit__(self, exc_type, exc, tb):
         if exc:
             raise exc
+
+    async def disconnect(self):
+        await self.prisma.disconnect()

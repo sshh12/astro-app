@@ -3,8 +3,9 @@ import datetime as dt
 import pytz
 
 from skyfield import almanac
-from skyfield.api import wgs84, load, Star, Angle
+from skyfield.api import wgs84, Loader, Star, Angle
 
+CACHE_DIR = "/root/cache/"
 TIME_RESOLUTION_MINS = 10
 
 
@@ -46,6 +47,8 @@ def space_object_to_observables(eph, object):
 def get_orbit_calculations(objects: List, timezone: str, lat: float, lon: float):
     zone = pytz.timezone(timezone)
     most_recent_noon, next_noon = get_todays_noons(timezone)
+
+    load = Loader(CACHE_DIR)
 
     ts = load.timescale()
     t0 = ts.from_datetime(most_recent_noon)
