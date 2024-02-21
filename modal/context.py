@@ -25,18 +25,14 @@ async def fetch_user(prisma: Prisma, api_key: str) -> models.User:
 
 
 class Context:
-    def __init__(self, api_key: str):
-        self.prisma = Prisma()
+    def __init__(self, prisma: Prisma, api_key: str):
         self.api_key = api_key
+        self.prisma = prisma
 
     async def __aenter__(self):
-        await self.prisma.connect()
         self.user = await fetch_user(self.prisma, self.api_key)
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         if exc:
             raise exc
-
-    async def disconnect(self):
-        await self.prisma.disconnect()
