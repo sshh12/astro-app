@@ -16,6 +16,7 @@ class BackendArgs(BaseModel):
 @stub.function(
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
+    mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
 )
 @modal.web_endpoint(method="POST")
 async def backend(args: BackendArgs):
@@ -26,7 +27,7 @@ async def backend(args: BackendArgs):
     prisma = Prisma()
     await prisma.connect()
 
-    async with context.Context(args.api_key) as ctx:
+    async with context.Context(prisma, args.api_key) as ctx:
         result = await methods.METHODS[args.func](ctx, **args.args)
 
     return Response(content=json.dumps(result), media_type="application/json")
