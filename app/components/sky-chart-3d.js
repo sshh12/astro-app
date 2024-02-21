@@ -60,7 +60,7 @@ const TextLabel = ({ text, position, color }) => {
     const context = canvas.getContext("2d");
     canvas.width = 100 * width;
     canvas.height = 100;
-    context.font = "100px serif";
+    context.font = "100px inter";
     context.fillStyle = color;
     context.textAlign = "center";
     context.textBaseline = "middle";

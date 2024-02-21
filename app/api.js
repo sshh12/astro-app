@@ -48,6 +48,9 @@ export function useAPIControl() {
       .then((result) => {
         return post("get_user")
           .then((user) => {
+            if (user.error) {
+              return { error: user.error };
+            }
             setReady(true);
             setUser(user);
             setCachedUser(user);

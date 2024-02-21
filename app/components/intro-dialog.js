@@ -30,7 +30,7 @@ export default function IntroDialog() {
         timezone for accurate astronomical calculations.
         <Flex className="mt-3">
           <Button variant="light" onClick={() => close()} color="slate">
-            Keep Demo Location
+            Demo Location
           </Button>
           <Button
             variant="primary"

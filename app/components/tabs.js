@@ -4,7 +4,8 @@ import { Tab, TabGroup, TabList } from "@tremor/react";
 import { useNav } from "../nav";
 
 const TABS = [
-  { label: "Sky Atlas", path: "/sky" },
+  { label: "Sky", path: "/sky" },
+  { label: "Location", path: "/location" },
   { label: "Profile", path: "/profile" },
 ];
 

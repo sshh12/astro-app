@@ -8,6 +8,7 @@ import SkyObjectPage from "./pages/sky-object-page";
 import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
 import SkyListPage from "./pages/sky-list-page";
+import LocationPage from "./pages/location-page";
 import { NavContext, useNavControl, useNav } from "./nav";
 import { APIContext, useAPIControl } from "./api";
 
@@ -21,6 +22,7 @@ export function App() {
             <>
               {page === "/sky" && <SkyPage />}
               {page === "/profile" && <ProfilePage />}
+              {page === "/location" && <LocationPage />}
               {page === "/sky/search" && <SearchPage />}
               {page === "/sky/object" && <SkyObjectPage />}
               {page === "/sky/list" && <SkyListPage />}
