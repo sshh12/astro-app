@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   PlusIcon,
   ArrowUturnLeftIcon,
@@ -10,7 +10,7 @@ import { Card, Flex, Text, List, ListItem, Grid } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import { useAPI } from "../api";
+import { useAPI, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
 
 function NameCard({ object }) {
@@ -50,19 +50,15 @@ function NameCard({ object }) {
 
 export default function SkyObjectPage() {
   const { pageParams, setPage } = useNav();
-  const { user, post, ready } = useAPI();
-  const [object, setObject] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, ready } = useAPI();
   const [openListDialog, setOpenListDialog] = useState(false);
 
-  useEffect(() => {
-    if (pageParams.id) {
-      post("get_space_object", { id: pageParams.id }).then((object) => {
-        setObject(object);
-        setLoading(false);
-      });
+  const [objectReady, object] = usePostWithCache(
+    pageParams.id && "get_space_object",
+    {
+      id: pageParams.id,
     }
-  }, [pageParams.id, post]);
+  );
 
   const isOnList = user?.lists.find((list) =>
     list.objects.find((obj) => obj.id === pageParams.id)
@@ -77,7 +73,7 @@ export default function SkyObjectPage() {
         leftIconOnClick={() => setPage("/sky")}
         rightIcon={isOnList ? ListBulletIcon : PlusIcon}
         rightIconOnClick={() => setOpenListDialog(true)}
-        loading={loading || !ready}
+        loading={!objectReady || !ready}
       />
 
       {object && (

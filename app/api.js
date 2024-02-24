@@ -105,3 +105,25 @@ export function useAPI() {
   const api = useContext(APIContext);
   return api;
 }
+
+export function usePostWithCache(func, args = {}) {
+  const [ready, setReady] = useState();
+  const [result, setResult] = useState();
+  const argsStr = JSON.stringify(args);
+  const key = `astro-app:${func}:${argsStr}`;
+  useEffect(() => {
+    if (func) {
+      if (localStorage.getItem(key)) {
+        setResult(JSON.parse(localStorage.getItem(key)));
+      }
+      post(func, JSON.parse(argsStr)).then((val) => {
+        if (!val.error) {
+          localStorage.setItem(key, JSON.stringify(val));
+          setResult(val);
+          setReady(true);
+        }
+      });
+    }
+  }, [func, argsStr]);
+  return [ready, result];
+}

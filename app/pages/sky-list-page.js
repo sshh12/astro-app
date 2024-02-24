@@ -1,28 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { Grid, Title } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
-import { useAPI } from "../api";
+import { usePostWithCache } from "../api";
 
 export default function SkyListPage() {
   const { pageParams, setPage } = useNav();
-  const { post } = useAPI();
-  const [list, setList] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (pageParams.id) {
-      post("get_list", { id: pageParams.id }).then((list) => {
-        setList(list);
-        setLoading(false);
-      });
-    }
-  }, [pageParams.id, post]);
+  const [listReady, list] = usePostWithCache(pageParams.id && "get_list", {
+    id: pageParams.id,
+  });
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -31,7 +23,7 @@ export default function SkyListPage() {
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
-        loading={loading}
+        loading={!listReady}
       />
 
       <div className="pb-5 mt-6">

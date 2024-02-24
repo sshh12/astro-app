@@ -77,6 +77,8 @@ export default function StickyHeader({
           />
         )}
 
+        {!rightIcon && <div style={{ width: "50px" }}></div>}
+
         {rightIcon && (
           <Button
             onClick={rightIconOnClick}
