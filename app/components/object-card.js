@@ -3,8 +3,13 @@
 import React from "react";
 import { BadgeDelta, Badge, Card, Flex, Text } from "@tremor/react";
 import { useNav } from "../nav";
-import { useAPI } from "../api";
-import { useTimestamp, getInterpolatedValue, getMaxWhile, formatTime } from "../utils";
+import { useAPI, useAnalytics } from "../api";
+import {
+  useTimestamp,
+  getInterpolatedValue,
+  getMaxWhile,
+  formatTime,
+} from "../utils";
 
 function altToDelta(alt) {
   if (alt < -20) {
@@ -24,6 +29,7 @@ export default function ObjectCard({ object, orbits }) {
   const { setPage } = useNav();
   const { objectBadgeMode, setObjectBadgeMode, user } = useAPI();
   const { ts } = useTimestamp();
+  const emitEvent = useAnalytics();
 
   const orbitAlt = orbits.objects[object.id].alt;
   const orbitAz = orbits.objects[object.id].az;
@@ -46,7 +52,11 @@ export default function ObjectCard({ object, orbits }) {
     <Card
       className="cursor-pointer"
       key={object.id}
-      onClick={() => setPage("/sky/object", object)}
+      onClick={() => {
+        emitEvent("click_object_card");
+        emitEvent(`click_object_card_${object.name}`);
+        setPage("/sky/object", object);
+      }}
     >
       <Flex alignItems="start">
         <div className="truncate">
@@ -91,7 +101,8 @@ export default function ObjectCard({ object, orbits }) {
             deltaType={altToDelta(maxAlt)}
             onClick={(e) => onBadgeClick(e)}
           >
-            Max {Math.round(maxAlt)}° at {formatTime(maxAltTime, user?.timezone)}
+            Max {Math.round(maxAlt)}° at{" "}
+            {formatTime(maxAltTime, user?.timezone)}
           </BadgeDelta>
         )}
       </Flex>

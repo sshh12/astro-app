@@ -42,7 +42,7 @@ const useWeather = (lat, lon, timezone) => {
     if (lat && lon && timezone) {
       fetchWeather();
     }
-  }, [lat, lon]);
+  }, [lat, lon, timezone]);
   return weather;
 };
 
@@ -82,6 +82,7 @@ function GOESCard({ wfo }) {
         <Flex>
           <img
             onError={() => setUseGOES18(false)}
+            alt={"image of clouds"}
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
           />
         </Flex>
@@ -116,9 +117,9 @@ function cloudCoverToColor(cloudCover) {
 
 function precipitationToColor(precipitation) {
   if (precipitation < 20) {
-    return "gray";
+    return "green";
   } else {
-    return "blue";
+    return "red";
   }
 }
 

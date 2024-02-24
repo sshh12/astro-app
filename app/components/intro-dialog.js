@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogPanel, Title, Button, Flex } from "@tremor/react";
 import { useNav } from "../nav";
+import { useAnalytics } from "../api";
 
 const SEEN_KEY = "astro-app:introDialogSeen";
 
 export default function IntroDialog() {
   const [open, setOpen] = useState(false);
   const { setPage } = useNav();
+  const emitEvent = useAnalytics();
 
   useEffect(() => {
     const seen = localStorage.getItem(SEEN_KEY);
@@ -19,6 +21,7 @@ export default function IntroDialog() {
 
   const close = () => {
     setOpen(false);
+    emitEvent("intro_close");
     localStorage.setItem(SEEN_KEY, "true");
   };
 
@@ -37,6 +40,7 @@ export default function IntroDialog() {
             onClick={() => {
               close();
               setPage("/profile", { openLocationSettings: true });
+              emitEvent("intro_update_location");
             }}
           >
             Update Location

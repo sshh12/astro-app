@@ -2,6 +2,7 @@
 
 import { Tab, TabGroup, TabList } from "@tremor/react";
 import { useNav } from "../nav";
+import { useAnalytics } from "../api";
 
 const TABS = [
   { label: "Sky", path: "/sky" },
@@ -11,6 +12,7 @@ const TABS = [
 
 export default function Tabs() {
   const { page, setPage } = useNav();
+  const emitEvent = useAnalytics();
   return (
     <TabGroup className="tabs-bottom-group">
       <TabList
@@ -21,7 +23,11 @@ export default function Tabs() {
           <Tab
             key={tab.path}
             className="flex-grow text-center"
-            onClick={() => setPage(tab.path)}
+            onClick={() => {
+              emitEvent("tab_click");
+              emitEvent(`tab_click_${tab.path.replace("/", "__")}`);
+              setPage(tab.path);
+            }}
             active={(page === tab.path).toString()}
           >
             {tab.label}

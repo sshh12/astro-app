@@ -42,8 +42,14 @@ export default function WrappedApp() {
     );
   }, []);
   useEffect(() => {
-    import("./analytics");
-  });
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    window.gtag = gtag;
+    gtag("js", new Date());
+    gtag("config", "G-JY9C3ZHSYL");
+  }, []);
   const navProps = useNavControl();
   const apiProps = useAPIControl();
   return (

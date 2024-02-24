@@ -4,8 +4,6 @@ import {
   TabPanel,
   TabList,
   Tab,
-  Flex,
-  Text,
 } from "@tremor/react";
 import SkyChart3D from "./sky-chart-3d";
 import SkyChart from "./sky-chart";

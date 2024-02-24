@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  use,
+} from "react";
 
 export const APIContext = React.createContext({});
 
@@ -124,6 +130,25 @@ export function usePostWithCache(func, args = {}) {
         }
       });
     }
-  }, [func, argsStr]);
+  }, [func, argsStr, key]);
   return [ready, result];
+}
+
+export function useAnalytics() {
+  const [gtagFunc, setGtagFunc] = useState(null);
+  useEffect(() => {
+    if (window.gtag) {
+      setGtagFunc(window.gtag);
+    }
+  }, []);
+  const emitEvent = useCallback(
+    (name) => {
+      console.log("event", name);
+      if (gtagFunc) {
+        gtagFunc("event", name);
+      }
+    },
+    [gtagFunc]
+  );
+  return emitEvent;
 }
