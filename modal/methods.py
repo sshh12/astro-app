@@ -200,7 +200,7 @@ async def create_user(ctx: context.Context) -> Dict:
     user = await context.fetch_user(ctx.prisma, user.apiKey)
     fav_objects = _get_favorite_objects(user)
     orbits = space_util.get_orbit_calculations(
-        fav_objects, user.timezone, user.lat, user.lon
+        fav_objects, user.timezone, user.lat, user.lon, user.elevation
     )
     return {
         "api_key": user.apiKey,
@@ -213,7 +213,7 @@ async def create_user(ctx: context.Context) -> Dict:
 async def get_user(ctx: context.Context) -> Dict:
     fav_objects = _get_favorite_objects(ctx.user)
     orbits = space_util.get_orbit_calculations(
-        fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon
+        fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
     return {**_user_to_dict(ctx.user), "orbits": orbits}
 
@@ -256,7 +256,7 @@ async def update_user_location(
 async def get_space_object(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
     orbits = space_util.get_orbit_calculations(
-        [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon
+        [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
     return {**_space_object_to_dict(obj), "orbits": orbits}
 
@@ -275,7 +275,7 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
     )
     objs = [obj.SpaceObject for obj in list_.objects]
     orbits = space_util.get_orbit_calculations(
-        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon
+        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
     return {**_list_to_dict(list_), "orbits": orbits}
 
@@ -351,6 +351,18 @@ async def search(ctx: context.Context, term: str) -> Dict:
         print(e)
     objs = list({obj.id: obj for obj in objs}.values())
     orbits = space_util.get_orbit_calculations(
-        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon
+        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
     return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}
+
+
+@method()
+async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict:
+    week = space_util.calulate_week_info_with_weather_data(
+        weather_data,
+        ctx.user.timezone,
+        ctx.user.lat,
+        ctx.user.lon,
+        ctx.user.elevation,
+    )
+    return {"location_details": week}

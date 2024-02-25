@@ -28,15 +28,19 @@ function useWFO(lat, lon) {
 
 const useWeather = (lat, lon, timezone) => {
   const [weather, setWeather] = useState(null);
-  const key = "astro-app:weather";
+  const { post } = useAPI();
+  const key = "astro-app:location_details";
   useEffect(() => {
     setWeather(JSON.parse(localStorage.getItem(key)) || null);
     async function fetchWeather() {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability,cloud_cover&daily=weather_code,sunrise,sunset,precipitation_probability_max&timezone=${timezone}`
+      const weatherResp = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability,cloud_cover&daily=weather_code&timezone=${timezone}`
       );
-      const data = await response.json();
-      setWeather(data);
+      const weatherData = await weatherResp.json();
+      const apiResult = await post("get_location_details", {
+        weather_data: weatherData,
+      });
+      setWeather(apiResult);
       localStorage.setItem(key, JSON.stringify(data));
     }
     if (lat && lon && timezone) {
@@ -64,10 +68,14 @@ function formatLocation(lat, lon) {
 
 function GOESCard({ wfo }) {
   const [urlKey, setUrlKey] = useState(0);
+  const [viewStatic, setViewStatis] = useState(true);
+  const [supportsStatic, setSupportsStatic] = useState(true);
+  const [supportsGOES18, setSupportsGOES18] = useState(true);
+  const [supportsGOES16, setSupportsGOES16] = useState(true);
   useEffect(() => {
     const refresh = setInterval(() => {
       setUrlKey((key) => key + 1);
-    }, 10 * 1000);
+    }, 5 * 60 * 1000);
     return () => clearInterval(refresh);
   }, [wfo]);
   return (
@@ -78,12 +86,30 @@ function GOESCard({ wfo }) {
         </div>
         <BadgeIconRound icon={CloudIcon} color={"green"} />
       </Flex>
-      {wfo && (
-        <Flex>
+      {wfo && supportsStatic && viewStatic && (
+        <Flex onClick={() => setViewStatis(false)}>
           <img
-            onError={() => setUseGOES18(false)}
+            onError={() => setSupportsStatic(false)}
             alt={"image of clouds"}
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
+          />
+        </Flex>
+      )}
+      {wfo && supportsGOES18 && !viewStatic && (
+        <Flex onClick={() => setViewStatis(true)}>
+          <img
+            onError={() => setSupportsGOES18(false)}
+            alt={"image of clouds"}
+            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
+          />
+        </Flex>
+      )}
+      {wfo && supportsGOES16 && !viewStatic && (
+        <Flex onClick={() => setViewStatis(true)}>
+          <img
+            onError={() => setSupportsGOES16(false)}
+            alt={"image of clouds"}
+            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
         </Flex>
       )}
@@ -91,18 +117,26 @@ function GOESCard({ wfo }) {
   );
 }
 
-function getDayOfWeek(dateString) {
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-  const date = new Date(dateString);
-  return days[date.getDay()];
+function getTwlightName(value) {
+  return {
+    0: "Night",
+    1: "Astronomical twilight",
+    2: "Nautical twilight",
+    3: "Civil twilight",
+    4: "Day",
+  }[value];
+}
+
+function twilightToColor(value) {
+  if (value === 4) {
+    return "yellow";
+  } else if (value === 3) {
+    return "orange";
+  } else if (value === 2) {
+    return "gray-600";
+  } else {
+    return "gray-950";
+  }
 }
 
 function cloudCoverToColor(cloudCover) {
@@ -118,8 +152,32 @@ function cloudCoverToColor(cloudCover) {
 function precipitationToColor(precipitation) {
   if (precipitation < 20) {
     return "green";
+  } else if (precipitation < 50) {
+    return "yellow"
   } else {
     return "red";
+  }
+}
+
+function moonIlluminationToColor(moonIllumination) {
+  if (moonIllumination < 10) {
+    return "gray-800";
+  } else if (moonIllumination < 20) {
+    return "gray-700";
+  } else if (moonIllumination < 30) {
+    return "gray-600";
+  } else if (moonIllumination < 40) {
+    return "gray-500";
+  } else if (moonIllumination < 50) {
+    return "gray-400";
+  } else if (moonIllumination < 60) {
+    return "gray-300";
+  } else if (moonIllumination < 70) {
+    return "gray-200";
+  } else if (moonIllumination < 80) {
+    return "gray-100";
+  } else {
+    return "gray-100";
   }
 }
 
@@ -166,39 +224,52 @@ function weatherCodeToColor(weatherCode) {
   }
 }
 
-function WeatherCard({
-  timezone,
-  date,
-  hours,
-  hourlyCloudCover,
-  hourlyPrecipitation,
-  weatherCode,
-}) {
-  const timeAtIndex = (i) => formatTime(hours[i], timezone);
+function WeatherCard({ dateInfo, timezone }) {
+  const timeAtIndex = (i) => formatTime(dateInfo.time[i], timezone);
+  const skyData = [];
+  for (let i in dateInfo.time) {
+    skyData.push({
+      tooltip: `${getTwlightName(dateInfo.twilight_state[i])} at ${timeAtIndex(
+        i
+      )}`,
+      color: twilightToColor(dateInfo.twilight_state[i]),
+    });
+  }
   const cloudData = [];
-  for (let i in hours) {
+  for (let i in dateInfo.time) {
     cloudData.push({
-      tooltip: `${hourlyCloudCover[i]}% at ${timeAtIndex(i)}`,
-      color: cloudCoverToColor(hourlyCloudCover[i]),
+      tooltip: `${dateInfo.cloud_cover[i]}% at ${timeAtIndex(i)}`,
+      color: cloudCoverToColor(dateInfo.cloud_cover[i]),
     });
   }
   const precipitationData = [];
-  for (let i in hours) {
+  for (let i in dateInfo.time) {
     precipitationData.push({
-      tooltip: `${hourlyPrecipitation[i]}% at ${timeAtIndex(i)}`,
-      color: precipitationToColor(hourlyPrecipitation[i]),
+      tooltip: `${dateInfo.precipitation_probability[i]}% at ${timeAtIndex(i)}`,
+      color: precipitationToColor(dateInfo.precipitation_probability[i]),
     });
   }
   return (
     <Card>
       <Flex alignItems="start" className="mb-3">
         <div className="truncate">
-          <Text color="white">{getDayOfWeek(date)}</Text>
+          <Text color="white">
+            {dateInfo.start_weekday} - {dateInfo.end_weekday}
+          </Text>
         </div>
-        <Badge color={weatherCodeToColor(weatherCode)}>
-          {WEATHER_CODES[weatherCode]}
+      </Flex>
+      <Flex className="mb-3">
+        <Badge color={weatherCodeToColor(dateInfo.weather_code)}>
+          {WEATHER_CODES[dateInfo.weather_code]}
+        </Badge>
+        <Badge color={moonIlluminationToColor(dateInfo.moon_illumination)}>
+          {Math.round(dateInfo.moon_illumination)}% Moon
         </Badge>
       </Flex>
+      <div>
+        <Text color="gray-500">Sky</Text>
+        <Tracker data={skyData} className="mt-2 mb-2" />
+      </div>
       <div>
         <Text color="gray-500">Clouds</Text>
         <Tracker data={cloudData} className="mt-2 mb-2" />
@@ -235,26 +306,13 @@ export default function LocationPage() {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {weather &&
-          weather.daily.time.map((date, dayIdx) => {
-            const hourlyIdxs = weather.hourly.time
-              .filter((hour) => hour.startsWith(date))
-              .map((hour) => weather.hourly.time.indexOf(hour));
-            const hours = hourlyIdxs.map((idx) => weather.hourly.time[idx]);
-            const hourlyCloudCover = hourlyIdxs.map(
-              (idx) => weather.hourly.cloud_cover[idx]
-            );
-            const hourlyPrecipitation = hourlyIdxs.map(
-              (idx) => weather.hourly.precipitation_probability[idx]
-            );
+          user &&
+          weather.location_details.map((dateInfo, dayIdx) => {
             return (
               <WeatherCard
                 key={dayIdx}
+                dateInfo={dateInfo}
                 timezone={user.timezone}
-                date={date}
-                weatherCode={weather.daily.weather_code[dayIdx]}
-                hours={hours}
-                hourlyCloudCover={hourlyCloudCover}
-                hourlyPrecipitation={hourlyPrecipitation}
               />
             );
           })}
