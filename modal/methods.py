@@ -358,7 +358,7 @@ async def search(ctx: context.Context, term: str) -> Dict:
 
 @method()
 async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict:
-    week = space_util.calulate_week_info_with_weather_data(
+    week = space_util.calculate_week_info_with_weather_data(
         weather_data,
         ctx.user.timezone,
         ctx.user.lat,

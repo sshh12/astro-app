@@ -134,8 +134,8 @@ def get_orbit_calculations(
     return resp
 
 
-def calulate_week_info_with_weather_data(
-    weather_data, timezone: str, lat: float, lon: float
+def calculate_week_info_with_weather_data(
+    weather_data, timezone: str, lat: float, lon: float, elevation: float
 ) -> Dict:
     weather_fields = ["cloud_cover", "precipitation_probability"]
     zone = pytz.timezone(timezone)
@@ -144,7 +144,7 @@ def calulate_week_info_with_weather_data(
     ts = load.timescale()
     eph = load("de421.bsp")
     sun, moon, earth = eph["sun"], eph["moon"], eph["earth"]
-    loc = wgs84.latlon(float(lat), float(lon), elevation_m=0.0)
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
 
     hour_mapping = {}
     for hi, date in enumerate(weather_data["hourly"]["time"]):
