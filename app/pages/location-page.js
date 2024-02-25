@@ -28,6 +28,7 @@ function useWFO(lat, lon) {
 
 const useWeather = (lat, lon, timezone) => {
   const [weather, setWeather] = useState(null);
+  const [weatherReady, setWeatherReady] = useState(false);
   const { post } = useAPI();
   const key = "astro-app:location_details";
   useEffect(() => {
@@ -41,13 +42,14 @@ const useWeather = (lat, lon, timezone) => {
         weather_data: weatherData,
       });
       setWeather(apiResult);
+      setWeatherReady(true);
       localStorage.setItem(key, JSON.stringify(data));
     }
     if (lat && lon && timezone) {
       fetchWeather();
     }
   }, [lat, lon, timezone]);
-  return weather;
+  return [weatherReady, weather];
 };
 
 function formatLocation(lat, lon) {
@@ -153,7 +155,7 @@ function precipitationToColor(precipitation) {
   if (precipitation < 20) {
     return "green";
   } else if (precipitation < 50) {
-    return "yellow"
+    return "yellow";
   } else {
     return "red";
   }
@@ -285,14 +287,18 @@ function WeatherCard({ dateInfo, timezone }) {
 export default function LocationPage() {
   const { ready, user } = useAPI();
   const wfo = useWFO(user?.lat, user?.lon);
-  const weather = useWeather(user?.lat, user?.lon, user?.timezone);
+  const [weatherReady, weather] = useWeather(
+    user?.lat,
+    user?.lon,
+    user?.timezone
+  );
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Location"
         subtitle={user ? formatLocation(user.lat, user.lon) : ""}
-        loading={!ready}
+        loading={!ready || !weatherReady}
       />
 
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 mb-4 gap-1 ml-2 mr-2">
