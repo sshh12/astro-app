@@ -228,8 +228,13 @@ function weatherCodeToColor(weatherCode) {
 
 function WeatherCard({ dateInfo, timezone }) {
   const timeAtIndex = (i) => formatTime(dateInfo.time[i], timezone);
+  const now = +Date.now();
+  const nowIndex = dateInfo.time.findIndex((x) => x > now) || 0;
   const skyData = [];
   for (let i in dateInfo.time) {
+    if (i < nowIndex - 1) {
+      continue;
+    }
     skyData.push({
       tooltip: `${getTwlightName(dateInfo.twilight_state[i])} at ${timeAtIndex(
         i
@@ -239,6 +244,9 @@ function WeatherCard({ dateInfo, timezone }) {
   }
   const cloudData = [];
   for (let i in dateInfo.time) {
+    if (i < nowIndex - 1) {
+      continue;
+    }
     cloudData.push({
       tooltip: `${dateInfo.cloud_cover[i]}% at ${timeAtIndex(i)}`,
       color: cloudCoverToColor(dateInfo.cloud_cover[i]),
@@ -246,6 +254,9 @@ function WeatherCard({ dateInfo, timezone }) {
   }
   const precipitationData = [];
   for (let i in dateInfo.time) {
+    if (i < nowIndex - 1) {
+      continue;
+    }
     precipitationData.push({
       tooltip: `${dateInfo.precipitation_probability[i]}% at ${timeAtIndex(i)}`,
       color: precipitationToColor(dateInfo.precipitation_probability[i]),
