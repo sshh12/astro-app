@@ -43,7 +43,7 @@ const useWeather = (lat, lon, timezone) => {
       });
       setWeather(apiResult);
       setWeatherReady(true);
-      localStorage.setItem(key, JSON.stringify(data));
+      localStorage.setItem(key, JSON.stringify(apiResult));
     }
     if (lat && lon && timezone) {
       fetchWeather();
