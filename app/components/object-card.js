@@ -105,7 +105,7 @@ export default function ObjectCard({ object, orbits, showExpanded = false }) {
             onClick={(e) => onBadgeClick(e)}
           >
             Max {Math.round(maxAlt)}° at{" "}
-            {formatTime(maxAltTime, user?.timezone)}
+            {formatTime(maxAltTime, user?.timezone, true)}
           </BadgeDelta>
         )}
       </Flex>

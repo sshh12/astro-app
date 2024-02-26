@@ -59,10 +59,14 @@ export function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-export function formatTime(ts, timezone) {
-  return new Date(ts).toLocaleTimeString("en-US", {
+export function formatTime(ts, timezone, trimSeconds = false) {
+  let timeString = new Date(ts).toLocaleTimeString("en-US", {
     timeZone: timezone || "UTC",
   });
+  if (trimSeconds) {
+    timeString = timeString.replace(/:\d+ ([APM]+)/, " $1");
+  }
+  return timeString;
 }
 
 export function objectAKA(object) {

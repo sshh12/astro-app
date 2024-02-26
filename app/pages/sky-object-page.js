@@ -70,7 +70,7 @@ function OverviewCard({ object }) {
             <span>{object.descriptionCredit}</span>
           </ListItem>
           <ListItem>
-            <span>{object.imgCredit}</span>
+            <span>Image: {object.imgCredit}</span>
           </ListItem>
         </List>
       </Flex>

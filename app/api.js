@@ -34,7 +34,7 @@ export function useAPIControl() {
   const [cachedUser, _setCachedUser] = useState(null);
 
   useEffect(() => {
-    _setObjectBadgeMode(+localStorage.getItem(BADGE_MODE_KEY) || 2);
+    _setObjectBadgeMode(+localStorage.getItem(BADGE_MODE_KEY) || 3);
     _setCachedUser(JSON.parse(localStorage.getItem(CACHED_USER_KEY) || "null"));
   }, []);
 

@@ -52,8 +52,8 @@ def _space_object_to_dict(obj: models.SpaceObject, expand: bool = False) -> dict
     if expand:
         props.update(
             {
-                "ra": float(obj.ra),
-                "dec": float(obj.dec),
+                "ra": float(obj.ra) if obj.ra else None,
+                "dec": float(obj.dec) if obj.dec else None,
                 "simbadName": obj.simbadName,
                 "imgCredit": obj.imgCredit,
                 "description": obj.description,
