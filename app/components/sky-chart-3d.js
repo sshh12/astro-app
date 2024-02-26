@@ -60,7 +60,7 @@ const TextLabel = ({ text, position, color }) => {
     const context = canvas.getContext("2d");
     canvas.width = 100 * width;
     canvas.height = 100;
-    context.font = "100px inter";
+    context.font = "100px Verdana, sans-serif";
     context.fillStyle = color;
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -169,7 +169,12 @@ const ObjectPath = ({ object }) => {
     }
   }
   if (points.length > 0) {
+    if (points.length > longestLength) {
+      longestLength = points.length;
+      longestMidPoint = points[Math.floor(points.length / 2)];
+    }
     lines.push(new THREE.BufferGeometry().setFromPoints(points));
+    points = [];
   }
 
   const color = COLORS[object.color.toLowerCase()];

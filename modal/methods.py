@@ -352,6 +352,7 @@ async def update_space_object_lists(
 
 @method()
 async def search(ctx: context.Context, term: str) -> Dict:
+    print("search/", repr(term))
     term = clean_search_term(term)
     objs = await ctx.prisma.spaceobject.find_many(
         where={"searchKey": {"contains": term}}

@@ -23,9 +23,14 @@ async def backend(args: BackendArgs):
     from prisma import Prisma
     import context
     import methods
+    import datetime
 
     prisma = Prisma()
-    await prisma.connect()
+    try:
+        await prisma.connect(timeout=datetime.timedelta(seconds=10))
+    except Exception as e:
+        print("Failed to connect to database, retrying", e)
+        await prisma.connect(timeout=datetime.timedelta(seconds=10))
 
     async with context.Context(prisma, args.api_key) as ctx:
         result = await methods.METHODS[args.func](ctx, **args.args)
