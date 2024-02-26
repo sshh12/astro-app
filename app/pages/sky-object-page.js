@@ -14,7 +14,9 @@ import { useAPI, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
 
 function NameCard({ object }) {
-  const names = object.names;
+  const names = object.names.filter(
+    (name) => name.length > 0 && !name.startsWith("[")
+  );
   names.sort((a, b) => {
     let aScore = a.length;
     let bScore = b.length;
@@ -44,6 +46,34 @@ function NameCard({ object }) {
           );
         })}
       </List>
+    </Card>
+  );
+}
+
+function OverviewCard({ object }) {
+  return (
+    <Card>
+      <Flex alignItems="start">
+        <div className="truncate">
+          <Text color="white">Overview</Text>
+        </div>
+      </Flex>
+      <Flex className="mt-2">
+        <Text>{object.description}</Text>
+      </Flex>
+      <Flex className="border-solid border-2 border-gray-700 mt-2">
+        <img style={{ width: "100%" }} src={object.imgURL} />
+      </Flex>
+      <Flex className="mt-2">
+        <List>
+          <ListItem>
+            <span>{object.descriptionCredit}</span>
+          </ListItem>
+          <ListItem>
+            <span>{object.imgCredit}</span>
+          </ListItem>
+        </List>
+      </Flex>
     </Card>
   );
 }
@@ -103,8 +133,11 @@ export default function SkyObjectPage() {
         {!object && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
       </div>
 
+      <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
+
       {object && (
-        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+        <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
+          {object.description && <OverviewCard object={object} />}
           {object.name.length > 0 && <NameCard object={object} />}
         </Grid>
       )}

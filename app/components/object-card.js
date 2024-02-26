@@ -9,6 +9,7 @@ import {
   getInterpolatedValue,
   getMaxWhile,
   formatTime,
+  objectAKA,
 } from "../utils";
 
 function altToDelta(alt) {
@@ -25,7 +26,7 @@ function altToDelta(alt) {
   }
 }
 
-export default function ObjectCard({ object, orbits }) {
+export default function ObjectCard({ object, orbits, showExpanded = false }) {
   const { setPage } = useNav();
   const { objectBadgeMode, setObjectBadgeMode, user } = useAPI();
   const { ts } = useTimestamp();
@@ -47,6 +48,8 @@ export default function ObjectCard({ object, orbits }) {
     e.preventDefault();
     setObjectBadgeMode((objectBadgeMode + 1) % 4);
   };
+
+  const expand = showExpanded || [1, 3].includes(objectBadgeMode);
 
   return (
     <Card
@@ -106,6 +109,16 @@ export default function ObjectCard({ object, orbits }) {
           </BadgeDelta>
         )}
       </Flex>
+      {expand && (
+        <Flex className="mt-2" style={{ minHeight: "2.5rem" }}>
+          <Text>{objectAKA(object).join(", ")}&nbsp;</Text>
+        </Flex>
+      )}
+      {expand && object.imgURL && (
+        <Flex className="border-solid border-2 border-gray-700 mt-2">
+          <img style={{ width: "100%" }} src={object.imgURL} />
+        </Flex>
+      )}
     </Card>
   );
 }

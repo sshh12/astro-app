@@ -116,7 +116,7 @@ export default function SettingsCard({
           </div>
         </DialogPanel>
       </Dialog>
-      <Card onClick={() => setOpen(true)}>
+      <Card onClick={() => setOpen(true)} className="cursor-pointer">
         <Flex alignItems="start">
           <div className="truncate">
             <Text color="white">{title}</Text>

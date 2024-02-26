@@ -6,7 +6,7 @@ import BadgeIconRound from "../components/badge-icon-round";
 
 export default function LinkCard({ title, subtitle, icon, color, onClick }) {
   return (
-    <Card onClick={onClick}>
+    <Card onClick={onClick} className="cursor-pointer">
       <Flex alignItems="start">
         <div className="truncate">
           <Text color="white">{title}</Text>

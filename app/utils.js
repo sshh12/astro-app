@@ -64,3 +64,34 @@ export function formatTime(ts, timezone) {
     timeZone: timezone || "UTC",
   });
 }
+
+export function objectAKA(object) {
+  const NGC = object.names.find((x) => x.startsWith("NGC "));
+  const M = object.names.find((x) => x.startsWith("M "));
+  const PGC = object.names.find((x) => x.startsWith("PGC "));
+  const UGC = object.names.find((x) => x.startsWith("UGC "));
+
+  let names = object.names
+    .filter(
+      (x) =>
+        x.startsWith("NAME ") &&
+        !object.name.toLowerCase().includes(x.toLowerCase()) &&
+        !x.toLowerCase().includes(object.name.toLowerCase())
+    )
+    .map((x) => x.slice(5));
+  const nebulaNames = names
+    .filter((x) => x.endsWith(" Nebula"))
+    .sort((a, b) => b.length - a.length);
+  names = names
+    .filter((x) => !nebulaNames.includes(x))
+    .concat([nebulaNames[0]])
+    .filter((x) => x && x.trim() !== "");
+
+  let aka = [...names];
+  for (let val of [M, NGC, PGC, UGC]) {
+    if (val) {
+      aka.push(val);
+    }
+  }
+  return aka;
+}
