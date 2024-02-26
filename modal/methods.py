@@ -285,6 +285,8 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
             }
         },
     )
+    if list_ is None:
+        return {"error": "List not found"}
     objs = [obj.SpaceObject for obj in list_.objects]
     orbits = space_util.get_orbit_calculations(
         objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
