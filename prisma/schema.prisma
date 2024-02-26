@@ -60,12 +60,16 @@ model SpaceObject {
   searchKey String
   createdAt DateTime @default(now())
 
-  ra             Decimal?
-  dec            Decimal?
-  solarSystemKey String?
-  type           SpaceObjectType
-  simbadName     String?
-  color          Color           @default(SLATE)
+  ra                Decimal?
+  dec               Decimal?
+  solarSystemKey    String?
+  type              SpaceObjectType
+  simbadName        String?
+  color             Color           @default(SLATE)
+  description       String?         @db.String(2000)
+  descriptionCredit String?
+  imgURL            String?
+  imgCredit         String?
 
   lists SpaceObjectsOnLists[]
   users SpaceObjectsOnUsers[]

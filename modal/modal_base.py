@@ -9,7 +9,7 @@ image_base = (
     )
     .apt_install("curl")
     .run_commands(
-        "curl https://raw.githubusercontent.com/sshh12/astro-app/main/prisma/schema.prisma?50 > /root/schema.prisma",
+        "curl https://raw.githubusercontent.com/sshh12/astro-app/main/prisma/schema.prisma?51 > /root/schema.prisma",
         "prisma generate --schema /root/schema.prisma",
         "python -c \"from skyfield.api import Loader; Loader('/root/cache/')('de421.bsp')\"",
     )
