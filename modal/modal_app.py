@@ -17,6 +17,8 @@ class BackendArgs(BaseModel):
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
     mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
+    retries=2,
+    container_idle_timeout=300,
 )
 @modal.web_endpoint(method="POST")
 async def backend(args: BackendArgs):
@@ -25,12 +27,8 @@ async def backend(args: BackendArgs):
     import methods
     import datetime
 
-    prisma = Prisma()
-    try:
-        await prisma.connect(timeout=datetime.timedelta(seconds=10))
-    except Exception as e:
-        print("Failed to connect to database, retrying", e)
-        await prisma.connect(timeout=datetime.timedelta(seconds=10))
+    prisma = Prisma(connect_timeout=datetime.timedelta(seconds=10))
+    await prisma.connect()
 
     async with context.Context(prisma, args.api_key) as ctx:
         result = await methods.METHODS[args.func](ctx, **args.args)

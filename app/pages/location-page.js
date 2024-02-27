@@ -48,7 +48,7 @@ const useWeather = (lat, lon, timezone) => {
     if (lat && lon && timezone) {
       fetchWeather();
     }
-  }, [lat, lon, timezone]);
+  }, [lat, lon, timezone, post]);
   return [weatherReady, weather];
 };
 
@@ -70,6 +70,7 @@ function formatLocation(lat, lon) {
 
 function GOESCard({ wfo }) {
   const [urlKey, setUrlKey] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [viewStatic, setViewStatis] = useState(true);
   const [supportsStatic, setSupportsStatic] = useState(true);
   const [supportsGOES18, setSupportsGOES18] = useState(true);
@@ -88,10 +89,17 @@ function GOESCard({ wfo }) {
         </div>
         <BadgeIconRound icon={CloudIcon} color={"green"} />
       </Flex>
+      {loading && (
+        <svg width="600" height="600" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" fill="#0d121e"></rect>
+        </svg>
+      )}
       {wfo && supportsStatic && viewStatic && (
         <Flex onClick={() => setViewStatis(false)}>
           <img
+            style={{ display: loading ? "none" : "block" }}
             onError={() => setSupportsStatic(false)}
+            onLoad={() => setLoading(false)}
             alt={"image of clouds"}
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
           />
@@ -100,7 +108,9 @@ function GOESCard({ wfo }) {
       {wfo && supportsGOES18 && !viewStatic && (
         <Flex onClick={() => setViewStatis(true)}>
           <img
+            style={{ display: loading ? "none" : "block" }}
             onError={() => setSupportsGOES18(false)}
+            onLoad={() => setLoading(false)}
             alt={"image of clouds"}
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
@@ -109,7 +119,9 @@ function GOESCard({ wfo }) {
       {wfo && supportsGOES16 && !viewStatic && (
         <Flex onClick={() => setViewStatis(true)}>
           <img
+            style={{ display: loading ? "none" : "block" }}
             onError={() => setSupportsGOES16(false)}
+            onLoad={() => setLoading(false)}
             alt={"image of clouds"}
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />

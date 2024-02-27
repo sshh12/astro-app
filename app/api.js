@@ -10,7 +10,7 @@ export const APIContext = React.createContext({});
 
 const MODAL_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
-const BADGE_MODE_KEY = "astro-app:badgeMode";
+const VIEW_MODE_KEY = "astro-app:viewMode";
 const CACHED_USER_KEY = "astro-app:cachedUser";
 
 function post(func, args = {}) {
@@ -30,17 +30,24 @@ function post(func, args = {}) {
 export function useAPIControl() {
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState(null);
-  const [objectBadgeMode, _setObjectBadgeMode] = useState(null);
+  const [objectViewMode, _setObjectViewMode] = useState(null);
   const [cachedUser, _setCachedUser] = useState(null);
 
   useEffect(() => {
-    _setObjectBadgeMode(+localStorage.getItem(BADGE_MODE_KEY) || 3);
+    const localMode = JSON.parse(localStorage.getItem(VIEW_MODE_KEY) || "{}");
+    if (!localMode.badgeMode) {
+      localMode.badgeMode = "max-alt";
+    }
+    if (!localMode.imageMode) {
+      localMode.imageMode = "dss2";
+    }
+    _setObjectViewMode(localMode);
     _setCachedUser(JSON.parse(localStorage.getItem(CACHED_USER_KEY) || "null"));
   }, []);
 
-  const setObjectBadgeMode = (mode) => {
-    localStorage.setItem(BADGE_MODE_KEY, mode);
-    _setObjectBadgeMode(mode);
+  const setObjectViewMode = (mode) => {
+    localStorage.setItem(VIEW_MODE_KEY, JSON.stringify(mode));
+    _setObjectViewMode(mode);
   };
 
   const setCachedUser = (cachedUser) => {
@@ -102,8 +109,8 @@ export function useAPIControl() {
     ready,
     post,
     postThenUpdateUser,
-    objectBadgeMode,
-    setObjectBadgeMode,
+    objectViewMode,
+    setObjectViewMode,
   };
 }
 
