@@ -104,7 +104,7 @@ const IMAGE_MODES = [
       !!object.ra ? (
         <img
           style={{ width: "100%" }}
-          src={`https://alasky.cds.unistra.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=1200&height=900&fov=0.5&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=${
+          src={`https://alasky.cds.unistra.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=1200&height=900&fov=1.0&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=${
             object.ra * 15
           }&dec=${object.dec}&format=jpg`}
           alt="Astro image"

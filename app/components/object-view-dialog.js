@@ -6,8 +6,8 @@ import {
   DialogPanel,
   Title,
   Button,
-  SearchSelect,
-  SearchSelectItem,
+  Select,
+  SelectItem,
 } from "@tremor/react";
 
 export default function ObjectViewDialog({
@@ -29,36 +29,38 @@ export default function ObjectViewDialog({
         <label className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           Badge
         </label>
-        <SearchSelect
+        <Select
           className="mb-3"
           value={objectViewMode.badgeMode}
           onChange={(v) =>
             setObjectViewMode({ ...objectViewMode, badgeMode: v })
           }
+          enableClear={false}
         >
           {badgeModes.map((mode) => (
-            <SearchSelectItem key={mode.id} value={mode.id}>
+            <SelectItem key={mode.id} value={mode.id}>
               {mode.label}
-            </SearchSelectItem>
+            </SelectItem>
           ))}
-        </SearchSelect>
+        </Select>
 
         <label className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           Image
         </label>
-        <SearchSelect
+        <Select
           className="mb-3"
           value={objectViewMode.imageMode}
           onChange={(v) =>
             setObjectViewMode({ ...objectViewMode, imageMode: v })
           }
+          enableClear={false}
         >
           {imageModes.map((mode) => (
-            <SearchSelectItem key={mode.id} value={mode.id}>
+            <SelectItem key={mode.id} value={mode.id}>
               {mode.label}
-            </SearchSelectItem>
+            </SelectItem>
           ))}
-        </SearchSelect>
+        </Select>
 
         <div className="mt-20">
           <Button variant="light" onClick={() => close()}>

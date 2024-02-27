@@ -77,6 +77,7 @@ export default function SettingsCard({
                             [item.key]: v,
                           })
                         }
+                        enableClear={false}
                       >
                         {TIMEZONES.map((tz) => (
                           <SearchSelectItem key={tz.name} value={tz.name}>

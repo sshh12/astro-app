@@ -89,11 +89,6 @@ function GOESCard({ wfo }) {
         </div>
         <BadgeIconRound icon={CloudIcon} color={"green"} />
       </Flex>
-      {loading && (
-        <svg width="600" height="600" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="#0d121e"></rect>
-        </svg>
-      )}
       {wfo && supportsStatic && viewStatic && (
         <Flex onClick={() => setViewStatis(false)}>
           <img
