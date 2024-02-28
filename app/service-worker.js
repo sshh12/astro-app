@@ -49,13 +49,13 @@ workbox.routing.registerRoute(
     url.href.startsWith(
       "https://alasky.cds.unistra.fr/hips-image-services/hips2fits"
     ),
-  new CacheFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: "astro-image-cache",
     plugins: [
-      new CacheableResponsePlugin({
+      new workbox.cacheableResponse.CacheableResponsePlugin({
         statuses: [0, 200],
       }),
-      new ExpirationPlugin({
+      new workbox.expiration.ExpirationPlugin({
         maxEntries: 50,
         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
       }),
