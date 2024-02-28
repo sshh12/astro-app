@@ -35,7 +35,7 @@ export default function SkyPage() {
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
-        title="Sky Atlas"
+        title="Sky"
         subtitle={timeFormatted}
         bigSubtitle={true}
         rightIcon={MagnifyingGlassIcon}

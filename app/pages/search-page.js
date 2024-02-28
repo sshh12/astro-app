@@ -43,10 +43,10 @@ export default function SearchPage() {
       />
 
       {!results && (
-        <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+        <Grid numItemsMd={1} numItemsLg={1} className="mt-8 gap-1 ml-2 mr-2">
           <LinkCard
             title="SIMBAD"
-            subtitle="Searches are powered by SIMBAD"
+            subtitle="Searches are powered by SIMBAD."
             color="purple"
             icon={CircleStackIcon}
             onClick={() =>
