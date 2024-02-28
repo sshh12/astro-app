@@ -93,6 +93,11 @@ const BADGE_MODES = [
 
 const IMAGE_MODES = [
   {
+    id: "none",
+    label: "No Image",
+    render: null,
+  },
+  {
     id: "wiki",
     label: "Show Wiki Image",
     render: ({ object }) => (
@@ -183,9 +188,11 @@ export default function ObjectCard({ object, orbits }) {
         <Flex className="mt-2" style={{ minHeight: "2.5rem" }}>
           <Text>{objectAKA(object).join(", ")}&nbsp;</Text>
         </Flex>
-        <Flex className="border-solid border-2 border-gray-700 mt-2">
-          <ImageElement object={object} />
-        </Flex>
+        {ImageElement !== null && (
+          <Flex className="border-solid border-2 border-gray-700 mt-2">
+            <ImageElement object={object} />
+          </Flex>
+        )}
       </Card>
     </>
   );
