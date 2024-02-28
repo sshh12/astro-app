@@ -12,6 +12,8 @@ import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import { useAPI, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
+import SkySurveyImage from "../components/sky-survey-image";
+import { SKY_SURVEYS } from "./../sky-surveys";
 
 function NameCard({ object }) {
   const names = object.names.filter(
@@ -72,8 +74,45 @@ function OverviewCard({ object }) {
           <ListItem>
             <span>Image: {object.imgCredit}</span>
           </ListItem>
+          <ListItem>
+            <span>Sky Surveys: HiPS2FITS</span>
+          </ListItem>
         </List>
       </Flex>
+    </Card>
+  );
+}
+
+function SurveyCard({ object }) {
+  return (
+    <Card>
+      <Flex alignItems="start">
+        <div className="truncate">
+          <Text color="white">Sky Surveys</Text>
+        </div>
+      </Flex>
+      <Grid
+        numItems={2}
+        numItemsSm={2}
+        numItemsMd={3}
+        numItemsLg={3}
+        className="mt-3 gap-1 ml-2 mr-2"
+      >
+        {SKY_SURVEYS.map((survey) => (
+          <Flex className="flex-col">
+            <Text>{survey.name}</Text>
+            <Flex className="border-solid border-2 border-gray-700">
+              <SkySurveyImage
+                object={object}
+                hips={survey.hips}
+                fov={1.0}
+                aspectRatio={1.0}
+                key={survey.hips}
+              />
+            </Flex>
+          </Flex>
+        ))}
+      </Grid>
     </Card>
   );
 }
@@ -138,7 +177,8 @@ export default function SkyObjectPage() {
       {object && (
         <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
           {object.description && <OverviewCard object={object} />}
-          {object.name.length > 0 && <NameCard object={object} />}
+          {object.ra && <SurveyCard object={object} />}
+          {object.names.length > 0 && <NameCard object={object} />}
         </Grid>
       )}
     </div>

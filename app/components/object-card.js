@@ -12,6 +12,8 @@ import {
   objectAKA,
 } from "../utils";
 import ObjectViewDialog from "./object-view-dialog";
+import SkySurveyImage from "./sky-survey-image";
+import { SKY_SURVEYS } from "../sky-surveys";
 
 function altToDelta(alt) {
   if (alt < -20) {
@@ -97,23 +99,23 @@ const IMAGE_MODES = [
       <img style={{ width: "100%" }} src={object.imgURL} alt="Astro image" />
     ),
   },
-  {
-    id: "dss2",
-    label: "Show CDS/P/DSS2 Sky Survey",
+].concat(
+  SKY_SURVEYS.map((survey) => ({
+    id: survey.name.toLowerCase(),
+    label: `Show ${survey.name} Sky Survey`,
     render: ({ object }) =>
       !!object.ra ? (
-        <img
-          style={{ width: "100%" }}
-          src={`https://alasky.cds.unistra.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=1200&height=900&fov=1.0&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=${
-            object.ra * 15
-          }&dec=${object.dec}&format=jpg`}
-          alt="Astro image"
+        <SkySurveyImage
+          object={object}
+          hips={survey.hips}
+          fov={1.0}
+          aspectRatio={16 / 9}
         />
       ) : (
         <img style={{ width: "100%" }} src={object.imgURL} alt="Astro image" />
       ),
-  },
-];
+  }))
+);
 
 export default function ObjectCard({ object, orbits }) {
   const { setPage } = useNav();

@@ -62,9 +62,9 @@ export default function ObjectViewDialog({
           ))}
         </Select>
 
-        <div className="mt-20">
+        <div style={{ marginTop: "12rem" }}>
           <Button variant="light" onClick={() => close()}>
-            Save
+            Close
           </Button>
         </div>
       </DialogPanel>
