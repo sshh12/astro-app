@@ -99,7 +99,7 @@ function SurveyCard({ object }) {
         className="mt-3 gap-1 ml-2 mr-2"
       >
         {SKY_SURVEYS.map((survey) => (
-          <Flex className="flex-col">
+          <Flex className="flex-col" key={survey.hips}>
             <Text>{survey.name}</Text>
             <Flex className="border-solid border-2 border-gray-700">
               <SkySurveyImage
@@ -107,7 +107,6 @@ function SurveyCard({ object }) {
                 hips={survey.hips}
                 fov={1.0}
                 aspectRatio={1.0}
-                key={survey.hips}
               />
             </Flex>
           </Flex>
