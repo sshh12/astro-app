@@ -190,49 +190,6 @@ function moonIlluminationToColor(moonIllumination) {
   }
 }
 
-const WEATHER_CODES = {
-  0: "Clear Sky",
-  1: "Mainly Clear",
-  2: "Partly Cloudy",
-  3: "Overcast",
-  45: "Fog",
-  48: "Fog",
-  51: "Drizzle",
-  53: "Drizzle",
-  55: "Drizzle",
-  56: "Freezing Drizzle",
-  57: "Freezing Drizzle",
-  61: "Rain",
-  63: "Rain",
-  65: "Rain",
-  66: "Freezing Rain",
-  67: "Freezing Rain",
-  71: "Snow",
-  73: "Snow",
-  75: "Snow",
-  77: "Snow",
-  80: "Rain",
-  81: "Rain",
-  82: "Rain",
-  85: "Snow",
-  86: "Snow",
-  95: "Thunderstorm",
-  96: "Thunderstorm",
-  99: "Thunderstorm",
-};
-
-function weatherCodeToColor(weatherCode) {
-  if (weatherCode < 3) {
-    return "green";
-  } else if (weatherCode < 45) {
-    return "yellow";
-  } else if (weatherCode < 80) {
-    return "orange";
-  } else {
-    return "red";
-  }
-}
-
 function WeatherCard({ dateInfo, timezone }) {
   const timeAtIndex = (i) => formatTime(dateInfo.time[i], timezone);
   const now = +Date.now();
@@ -279,9 +236,6 @@ function WeatherCard({ dateInfo, timezone }) {
         </div>
       </Flex>
       <Flex className="mb-3">
-        <Badge color={weatherCodeToColor(dateInfo.weather_code)}>
-          {WEATHER_CODES[dateInfo.weather_code]}
-        </Badge>
         <Badge color={moonIlluminationToColor(dateInfo.moon_illumination)}>
           {Math.round(dateInfo.moon_illumination)}% Moon
         </Badge>
