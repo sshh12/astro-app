@@ -51,3 +51,8 @@ workbox.routing.registerRoute(
     ),
   new workbox.strategies.CacheFirst()
 );
+
+workbox.routing.registerRoute(
+  ({ url }) => url.href.startsWith("https://via.placeholder.com"),
+  new workbox.strategies.CacheFirst()
+);
