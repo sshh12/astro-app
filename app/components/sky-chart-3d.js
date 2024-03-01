@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useMemo } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import { COLORS } from "../colors";
+import { useTimestamp, getInterpolatedValue } from "../utils";
 
 const RADIUS = 2;
+const TRACER_OFFSET = 1000 * 60 * 60 * 2;
 
 const altAzToCartesian = (alt, az, radius) => {
   const phi = THREE.MathUtils.degToRad(90 - alt);
@@ -149,14 +152,40 @@ const SphereGrid = () => {
   );
 };
 
-const ObjectPath = ({ object }) => {
+const ObjectPath = ({ object, times }) => {
+  const { ts } = useTimestamp();
+  const tracerMesh = useRef();
+  const tracerOffset = useRef(0);
+  useFrame(() => {
+    if (!tracerMesh.current) return;
+    const altTracer = getInterpolatedValue(
+      times,
+      ts + tracerOffset.current,
+      object.alt
+    );
+    const azTracer = getInterpolatedValue(
+      times,
+      ts + tracerOffset.current,
+      object.az
+    );
+    const posTracer = altAzToCartesian(altTracer, azTracer, RADIUS);
+    tracerMesh.current.position.x = posTracer.x;
+    tracerMesh.current.position.y = posTracer.y;
+    tracerMesh.current.position.z = posTracer.z;
+    tracerOffset.current += 1000 * 60;
+    if (tracerOffset.current > TRACER_OFFSET) {
+      tracerOffset.current = -TRACER_OFFSET;
+    }
+    tracerMesh.current.visible = altTracer > 0;
+  });
+
   const lines = [];
   let longestMidPoint = null;
   let longestLength = 0;
   let points = [];
   for (let i in object.az) {
     if (object.alt[i] > 0) {
-      points.push(altAzToCartesian(object.alt[i], object.az[i], 2));
+      points.push(altAzToCartesian(object.alt[i], object.az[i], RADIUS));
     } else {
       if (points.length > 0) {
         if (points.length > longestLength) {
@@ -177,6 +206,10 @@ const ObjectPath = ({ object }) => {
     points = [];
   }
 
+  const curAlt = getInterpolatedValue(times, ts, object.alt);
+  const curAz = getInterpolatedValue(times, ts, object.az);
+  const curPos = altAzToCartesian(curAlt, curAz, RADIUS);
+
   const color = COLORS[object.color.toLowerCase()];
   return (
     <>
@@ -187,6 +220,14 @@ const ObjectPath = ({ object }) => {
         </line>
       ))}
       <TextLabel text={object.name} position={longestMidPoint} color={color} />
+      <mesh position={curPos} visible={curAlt > 0}>
+        <sphereGeometry attach="geometry" args={[0.03, 32, 32]} />
+        <meshBasicMaterial attach="material" color={color} />
+      </mesh>
+      <mesh ref={tracerMesh}>
+        <sphereGeometry attach="geometry" args={[0.01, 32, 32]} />
+        <meshBasicMaterial attach="material" color={color} />
+      </mesh>
     </>
   );
 };
@@ -294,7 +335,7 @@ export default function SkyChart3D({ times, timeStates, timezone, objects }) {
         <SphereGrid />
         <CameraControls />
         {objects.map((object) => (
-          <ObjectPath key={object.name} object={object} />
+          <ObjectPath key={object.name} object={object} times={times} />
         ))}
       </Canvas>
     </div>

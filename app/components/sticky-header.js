@@ -37,7 +37,7 @@ export default function StickyHeader({
   useEffect(() => {
     if (loadingBarRef.current === null) return;
     if (loading) {
-      loadingBarRef.current.continuousStart(0, 2000);
+      loadingBarRef.current.continuousStart(0, 1300);
     } else {
       loadingBarRef.current.complete();
     }
