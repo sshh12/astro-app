@@ -225,7 +225,7 @@ const ObjectPath = ({ object, times }) => {
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
       <mesh ref={tracerMesh}>
-        <sphereGeometry attach="geometry" args={[0.01, 32, 32]} />
+        <sphereGeometry attach="geometry" args={[0.02, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
     </>
