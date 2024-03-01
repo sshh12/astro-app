@@ -13,6 +13,7 @@ import StickyHeader from "../components/sticky-header";
 import { useAPI, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
 import SkySurveyImage from "../components/sky-survey-image";
+import SkyAltChart from "../components/sky-alt-chart";
 import { SKY_SURVEYS } from "./../sky-surveys";
 
 function NameCard({ object }) {
@@ -116,6 +117,34 @@ function SurveyCard({ object }) {
   );
 }
 
+function DetailsCard({ details, timezone }) {
+  return (
+    <Card>
+      <Flex alignItems="start" className="mb-2">
+        <div className="truncate">
+          <Text color="white">Annual Night Altitude</Text>
+        </div>
+      </Flex>
+      <SkyAltChart
+        timezone={timezone}
+        times={details.details.map((detail) => detail.start)}
+        alts={[
+          {
+            name: "Max Altitude",
+            color: "blue",
+            alts: details.details.map((detail) => detail.max_alt),
+          },
+          {
+            name: "Min Altitude",
+            color: "orange",
+            alts: details.details.map((detail) => detail.min_alt),
+          },
+        ]}
+      />
+    </Card>
+  );
+}
+
 export default function SkyObjectPage() {
   const { pageParams, setPage } = useNav();
   const { user, ready } = useAPI();
@@ -123,6 +152,12 @@ export default function SkyObjectPage() {
 
   const [objectReady, object] = usePostWithCache(
     pageParams.id && "get_space_object",
+    {
+      id: pageParams.id,
+    }
+  );
+  const [objectDetailsReady, objectDetails] = usePostWithCache(
+    pageParams.id && "get_space_object_details",
     {
       id: pageParams.id,
     }
@@ -141,7 +176,7 @@ export default function SkyObjectPage() {
         leftIconOnClick={() => setPage("/sky")}
         rightIcon={isOnList ? ListBulletIcon : PlusIcon}
         rightIconOnClick={() => setOpenListDialog(true)}
-        loading={!objectReady || !ready}
+        loading={!objectReady || !ready || !objectDetailsReady}
       />
 
       {object && (
@@ -177,6 +212,9 @@ export default function SkyObjectPage() {
         <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
           {object.description && <OverviewCard object={object} />}
           {object.ra && <SurveyCard object={object} />}
+          {objectDetails && user && (
+            <DetailsCard details={objectDetails} timezone={user.timezone} />
+          )}
           {object.names.length > 0 && <NameCard object={object} />}
         </Grid>
       )}

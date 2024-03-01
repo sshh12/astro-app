@@ -44,21 +44,10 @@ workbox.routing.registerRoute(
   workbox.precaching.createHandlerBoundToURL("/index.html")
 );
 
-// workbox.routing.registerRoute(
-//   ({ url }) =>
-//     url.href.startsWith(
-//       "https://alasky.cds.unistra.fr/hips-image-services/hips2fits"
-//     ),
-//   new workbox.strategies.CacheFirst({
-//     cacheName: "astro-image-cache",
-//     plugins: [
-//       new workbox.cacheableResponse.CacheableResponsePlugin({
-//         statuses: [0, 200],
-//       }),
-//       new workbox.expiration.ExpirationPlugin({
-//         maxEntries: 50,
-//         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
-//       }),
-//     ],
-//   })
-// );
+workbox.routing.registerRoute(
+  ({ url }) =>
+    url.href.startsWith(
+      "https://alasky.cds.unistra.fr/hips-image-services/hips2fits"
+    ),
+  new workbox.strategies.CacheFirst()
+);

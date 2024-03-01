@@ -274,6 +274,15 @@ async def get_space_object(ctx: context.Context, id: str) -> Dict:
 
 
 @method()
+async def get_space_object_details(ctx: context.Context, id: str) -> Dict:
+    obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
+    long_term_details = space_util.get_longterm_orbit_calculations(
+        obj, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
+    )
+    return {"details": long_term_details}
+
+
+@method()
 async def get_list(ctx: context.Context, id: str) -> Dict:
     list_ = await ctx.prisma.list.find_unique(
         where={"id": id},
@@ -373,7 +382,7 @@ async def search(ctx: context.Context, term: str) -> Dict:
 
 @method()
 async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict:
-    week = space_util.calculate_week_info_with_weather_data(
+    week = space_util.get_week_info_with_weather_data(
         weather_data,
         ctx.user.timezone,
         ctx.user.lat,

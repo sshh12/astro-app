@@ -1,10 +1,13 @@
 from typing import Tuple, List, Dict
 import datetime as dt
 import pytz
+import numpy as np
 
 from skyfield import almanac
 from skyfield.api import wgs84, Loader, Star, Angle
 from skyfield.framelib import ecliptic_frame
+from skyfield.searchlib import find_maxima, find_minima
+
 
 CACHE_DIR = "/root/cache/"
 TIME_RESOLUTION_MINS = 10
@@ -134,7 +137,7 @@ def get_orbit_calculations(
     return resp
 
 
-def calculate_week_info_with_weather_data(
+def get_week_info_with_weather_data(
     weather_data, timezone: str, lat: float, lon: float, elevation: float
 ) -> Dict:
     weather_fields = ["cloud_cover", "precipitation_probability"]
@@ -201,3 +204,73 @@ def calculate_week_info_with_weather_data(
         week.append(date_info)
 
     return week
+
+
+def get_longterm_orbit_calculations(
+    object: List,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    nb_days: int = 365,
+) -> List:
+
+    load = Loader(CACHE_DIR)
+
+    ts = load.timescale()
+
+    eph = load("de421.bsp")
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
+    earth = eph["earth"]
+    loc_place = earth + loc
+
+    obj = space_object_to_observables(eph, object)
+
+    def alt_at(t):
+        return loc_place.at(t).observe(obj).apparent().altaz()[0].degrees
+
+    alt_at.step_days = 0.1
+
+    days = []
+
+    start_noon, start_next_noon = get_todays_noons(timezone)
+    for i in range(0, nb_days):
+        most_recent_noon = round_datetime_to_hour(start_noon + dt.timedelta(days=i))
+        next_noon = round_datetime_to_hour(
+            start_next_noon + dt.timedelta(days=i), round_up=True
+        )
+
+        day_info = {
+            "i": i,
+            "start": int(most_recent_noon.timestamp() * 1000),
+            "end": int(next_noon.timestamp() * 1000),
+        }
+
+        t0 = ts.from_datetime(most_recent_noon)
+        t1 = ts.from_datetime(next_noon)
+        f = almanac.dark_twilight_day(eph, loc)
+        times, events = almanac.find_discrete(t0, t1, f)
+
+        night_idx = np.where(events == 1)[0]
+        if len(night_idx) != 2:
+            continue
+        n0 = times[night_idx[0]]
+        n1 = times[night_idx[-1]]
+
+        _, max_alts = find_maxima(n0, n1, alt_at)
+        if len(max_alts) > 0:
+            max_alt = max(max_alts)
+        else:
+            max_alt = max(alt_at(n0), alt_at(n1))
+        day_info["max_alt"] = round(max_alt, 2)
+
+        _, min_alts = find_minima(n0, n1, alt_at)
+        if len(min_alts) > 0:
+            min_alt = min(min_alts)
+        else:
+            min_alt = min(alt_at(n0), alt_at(n1))
+        day_info["min_alt"] = round(min_alt, 2)
+
+        days.append(day_info)
+
+    return days
