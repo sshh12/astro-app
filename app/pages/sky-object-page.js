@@ -5,6 +5,7 @@ import {
   PlusIcon,
   ArrowUturnLeftIcon,
   ListBulletIcon,
+  ShareIcon,
 } from "@heroicons/react/24/solid";
 import { Card, Flex, Text, List, ListItem, Grid } from "@tremor/react";
 import { useNav } from "../nav";
@@ -14,6 +15,7 @@ import { useAPI, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
 import SkySurveyImage from "../components/sky-survey-image";
 import SkyAltChart from "../components/sky-alt-chart";
+import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
 
 function NameCard({ object }) {
@@ -149,6 +151,7 @@ export default function SkyObjectPage() {
   const { pageParams, setPage } = useNav();
   const { user, ready } = useAPI();
   const [openListDialog, setOpenListDialog] = useState(false);
+  const [openShare, setOpenShare] = useState(false);
 
   const [objectReady, object] = usePostWithCache(
     pageParams.id && "get_space_object",
@@ -167,6 +170,19 @@ export default function SkyObjectPage() {
     list.objects.find((obj) => obj.id === pageParams.id)
   );
 
+  const rightIcons = [
+    {
+      icon: ShareIcon,
+      onClick: () => setOpenShare(true),
+    },
+  ];
+  if (user) {
+    rightIcons.push({
+      icon: isOnList ? ListBulletIcon : PlusIcon,
+      onClick: () => setOpenListDialog(true),
+    });
+  }
+
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
@@ -174,9 +190,15 @@ export default function SkyObjectPage() {
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
-        rightIcon={isOnList ? ListBulletIcon : PlusIcon}
-        rightIconOnClick={() => setOpenListDialog(true)}
+        rightIcons={rightIcons}
         loading={!objectReady || !ready || !objectDetailsReady}
+      />
+
+      <ShareLinkDialog
+        open={openShare}
+        setOpen={setOpenShare}
+        path={`/sky/object?id=${object?.id}`}
+        title={`Share ${object?.name}`}
       />
 
       {object && (

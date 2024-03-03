@@ -37,8 +37,9 @@ export default function SkyPage() {
         title="Sky"
         subtitle={timeFormatted}
         bigSubtitle={true}
-        rightIcon={MagnifyingGlassIcon}
-        rightIconOnClick={() => setPage("/sky/search")}
+        rightIcons={[
+          { icon: MagnifyingGlassIcon, onClick: () => setPage("/sky/search") },
+        ]}
         loading={!ready}
       />
 

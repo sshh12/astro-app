@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Title, Subtitle, Button, Metric, TextInput } from "@tremor/react";
+import {
+  Title,
+  Subtitle,
+  Button,
+  Metric,
+  TextInput,
+  Flex,
+} from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import LoadingBar from "react-top-loading-bar";
 
@@ -11,8 +18,7 @@ export default function StickyHeader({
   bigSubtitle,
   leftIcon,
   leftIconOnClick,
-  rightIcon,
-  rightIconOnClick,
+  rightIcons = [],
   search,
   searchValue,
   searchOnChange,
@@ -46,7 +52,7 @@ export default function StickyHeader({
   return (
     <div>
       <LoadingBar color="#22c55e" ref={loadingBarRef} />
-      <div
+      <Flex
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}
       >
@@ -57,11 +63,12 @@ export default function StickyHeader({
             icon={leftIcon}
           ></Button>
         )}
+
         <div
           style={{
             opacity: Math.min(1.0, scrollPosition / 60),
             transition: "opacity 0.5s",
-            textAlign: leftIcon && rightIcon ? "center" : null,
+            textAlign: leftIcon && rightIcons ? "center" : null,
           }}
         >
           <Title>{title}</Title>
@@ -77,16 +84,20 @@ export default function StickyHeader({
           />
         )}
 
-        {!rightIcon && <div style={{ width: "50px" }}></div>}
+        {!rightIcons && <div style={{ width: "50px" }}></div>}
 
-        {rightIcon && (
-          <Button
-            onClick={rightIconOnClick}
-            color="slate-800"
-            icon={rightIcon}
-          ></Button>
+        {rightIcons.length > 0 && (
+          <div className="justify-end ml-auto">
+            {rightIcons.map((v) => (
+              <Button
+                onClick={v.onClick}
+                color="slate-800"
+                icon={v.icon}
+              ></Button>
+            ))}
+          </div>
         )}
-      </div>
+      </Flex>
 
       <div
         className="bg-slate-800"

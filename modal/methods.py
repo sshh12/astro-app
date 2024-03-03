@@ -269,12 +269,17 @@ async def update_user_location(
     return {}
 
 
-@method()
+@method(require_login=False)
 async def get_space_object(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    orbits = space_util.get_orbit_calculations(
-        [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
-    )
+    if ctx.user:
+        orbits = space_util.get_orbit_calculations(
+            [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
+        )
+    else:
+        orbits = space_util.get_orbit_calculations(
+            [obj], DEFAULT_TZ, DEFAULT_LAT, DEFAULT_LON, DEFAULT_ELEVATION
+        )
     return {**_space_object_to_dict(obj, expand=True), "orbits": orbits}
 
 

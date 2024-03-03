@@ -7,7 +7,7 @@ import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
-import ShareListDialog from "../components/share-list-dialog";
+import ShareLinkDialog from "../components/share-link-dialog";
 import { usePostWithCache } from "../api";
 
 export default function SkyListPage() {
@@ -26,11 +26,15 @@ export default function SkyListPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
         loading={!listReady}
-        rightIcon={ShareIcon}
-        rightIconOnClick={() => setOpenShare(true)}
+        rightIcons={[{ icon: ShareIcon, onClick: () => setOpenShare(true) }]}
       />
 
-      <ShareListDialog open={openShare} setOpen={setOpenShare} list={list} />
+      <ShareLinkDialog
+        open={openShare}
+        setOpen={setOpenShare}
+        path={`/sky/list?id=${list?.id}`}
+        title={`Share ${list?.title}`}
+      />
 
       <div className="pb-5 mt-6">
         {list?.orbits?.time && (
