@@ -11,6 +11,11 @@ import space_util
 
 METHODS = {}
 
+DEFAULT_TZ = "America/Los_Angeles"
+DEFAULT_LAT = 34.118330
+DEFAULT_LON = -118.300333
+DEFAULT_ELEVATION = 0.0
+
 
 def method(require_login: bool = True):
     def wrap(func):
@@ -120,10 +125,10 @@ async def _create_user(prisma: Prisma) -> models.User:
         data={
             "name": _gen_name(),
             "apiKey": _gen_api_key(),
-            "timezone": "America/Los_Angeles",
-            "lat": 34.118330,
-            "lon": -118.300333,
-            "elevation": 0.0,
+            "timezone": DEFAULT_TZ,
+            "lat": DEFAULT_LAT,
+            "lon": DEFAULT_LON,
+            "elevation": DEFAULT_ELEVATION,
         },
     )
     default_lists = await prisma.list.find_many(
@@ -302,7 +307,9 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
             objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
         )
     else:
-        orbits = {}
+        orbits = space_util.get_orbit_calculations(
+            objs, DEFAULT_TZ, DEFAULT_LAT, DEFAULT_LON, DEFAULT_ELEVATION
+        )
     return {**_list_to_dict(list_), "orbits": orbits}
 
 

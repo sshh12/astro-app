@@ -9,6 +9,7 @@ import ProfilePage from "./pages/profile-page";
 import SearchPage from "./pages/search-page";
 import SkyListPage from "./pages/sky-list-page";
 import LocationPage from "./pages/location-page";
+import IntroDialog from "./components/intro-dialog";
 import { NavContext, useNavControl, useNav } from "./nav";
 import { APIContext, useAPIControl } from "./api";
 
@@ -17,6 +18,7 @@ export function App() {
   return (
     <main className="bg-slate-800">
       <div>
+        <IntroDialog />
         <TransitionGroup>
           <CSSTransition key={page} classNames={pageTransition} timeout={300}>
             <>
