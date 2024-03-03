@@ -66,6 +66,7 @@ export function useAPIControl() {
         return post("get_user")
           .then((user) => {
             if (user.error) {
+              alert("Error " + user.error);
               return { error: user.error };
             }
             setReady(true);
