@@ -75,11 +75,13 @@ export function useAPIControl() {
           })
           .catch((e) => {
             setReady(true);
+            alert("Error " + e);
             return { error: e };
           });
       })
       .catch((e) => {
         setReady(true);
+        alert("Error " + e);
         return { error: e };
       });
   }, []);
@@ -92,6 +94,7 @@ export function useAPIControl() {
     if (!localStorage.getItem(API_KEY_KEY)) {
       post("create_user").then((user) => {
         if (!user.api_key) {
+          alert("Error loading account details -- try again later");
           return;
         }
         localStorage.setItem(API_KEY_KEY, user.api_key);
