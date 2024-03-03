@@ -33,7 +33,7 @@ export default function SkyListPage() {
       <ShareListDialog open={openShare} setOpen={setOpenShare} list={list} />
 
       <div className="pb-5 mt-6">
-        {list && (
+        {list?.orbits?.time && (
           <SkyChartPanel
             times={list.orbits.time}
             timeStates={list.orbits.time_state}
