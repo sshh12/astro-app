@@ -1,16 +1,18 @@
 "use client";
 
-import React from "react";
-import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import React, { useState } from "react";
+import { ArrowUturnLeftIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { Grid, Title } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
+import ShareListDialog from "../components/share-list-dialog";
 import { usePostWithCache } from "../api";
 
 export default function SkyListPage() {
   const { pageParams, setPage } = useNav();
+  const [openShare, setOpenShare] = useState(false);
 
   const [listReady, list] = usePostWithCache(pageParams.id && "get_list", {
     id: pageParams.id,
@@ -19,12 +21,16 @@ export default function SkyListPage() {
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
-        title={pageParams.title}
+        title={list?.title || pageParams.title}
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
         loading={!listReady}
+        rightIcon={ShareIcon}
+        rightIconOnClick={() => setOpenShare(true)}
       />
+
+      <ShareListDialog open={openShare} setOpen={setOpenShare} list={list} />
 
       <div className="pb-5 mt-6">
         {list && (

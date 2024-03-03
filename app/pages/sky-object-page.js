@@ -170,7 +170,7 @@ export default function SkyObjectPage() {
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
-        title={pageParams.name}
+        title={object?.name || pageParams.name}
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}

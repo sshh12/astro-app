@@ -1,4 +1,4 @@
-import React, { use, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 export const NavContext = React.createContext({});
 
@@ -9,7 +9,7 @@ export function useNavControl() {
   useEffect(() => {
     const path = window.location.pathname;
     if (path !== "/") {
-      setPage(path);
+      _setPage(path);
     }
     const args = window.location.search.slice(1);
     if (args) {
@@ -35,10 +35,16 @@ export function useNavControl() {
     window.scrollTo(0, 0);
     _setPage(newPage);
     setPageParams(pageParams);
-    const pageParamsString = Object.keys(pageParams).reduce((acc, key) => {
-      return `${acc}${key}=${pageParams[key]}&`;
-    }, "");
-    window.history.pushState({}, "", `${newPage}?${pageParamsString}`);
+    const pageParamsString = Object.keys(pageParams)
+      .reduce((acc, key) => {
+        return `${acc}${key}=${pageParams[key]}&`;
+      }, "")
+      .slice(0, -1);
+    if (!window.location.host.startsWith("localhost")) {
+      window.history.pushState({}, "", `${newPage}?${pageParamsString}`);
+    } else {
+      window.history.pushState({}, "", `?${pageParamsString}&page=${newPage}`);
+    }
   };
   return { page, pageParams, setPage, pageTransition };
 }

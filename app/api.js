@@ -8,6 +8,7 @@ import React, {
 
 export const APIContext = React.createContext({});
 
+export const BASE_URL = "https://astro.sshh.io";
 const MODAL_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
 const VIEW_MODE_KEY = "astro-app:viewMode";
