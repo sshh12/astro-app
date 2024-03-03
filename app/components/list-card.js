@@ -17,7 +17,7 @@ export default function ListCard({ list }) {
       onClick={() => {
         emitEvent("click_list_card");
         emitEvent(`click_list_card_${list.title}`);
-        setPage("/sky/list", list);
+        setPage("/sky/list", { id: list.id, title: list.title });
       }}
     >
       <Flex className="space-x-6">

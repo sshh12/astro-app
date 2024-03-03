@@ -168,7 +168,7 @@ export default function ObjectCard({ object, orbits }) {
         onClick={() => {
           emitEvent("click_object_card");
           emitEvent(`click_object_card_${object.name}`);
-          setPage("/sky/object", object);
+          setPage("/sky/object", { id: object.id, name: object.name });
         }}
       >
         <Flex alignItems="start">
