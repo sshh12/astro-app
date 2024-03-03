@@ -42,6 +42,9 @@ export function useAPIControl() {
     if (!localMode.imageMode) {
       localMode.imageMode = "dss2";
     }
+    if (!localMode.sizeMode) {
+      localMode.sizeMode = "full";
+    }
     _setObjectViewMode(localMode);
     _setCachedUser(JSON.parse(localStorage.getItem(CACHED_USER_KEY) || "null"));
   }, []);

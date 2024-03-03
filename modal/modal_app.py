@@ -13,34 +13,31 @@ class BackendArgs(BaseModel):
     args: Dict
 
 
-@stub.function(
+@stub.cls(
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
     mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
-    retries=1,
     container_idle_timeout=300,
     allow_concurrent_inputs=10,
-    concurrency_limit=10,
 )
-@modal.web_endpoint(method="POST")
-async def backend(args: BackendArgs):
-    from prisma import Prisma
-    import context
-    import methods
-    import datetime
+class AstroApp:
+    @modal.enter()
+    async def open_connection(self):
+        from prisma import Prisma
 
-    prisma = Prisma(connect_timeout=datetime.timedelta(seconds=10))
-    for i in range(10):
-        print("connecting", i)
-        try:
-            await prisma.connect()
-        except Exception as e:
-            print("...failed", i, e)
-        else:
-            print("connected!")
-            break
+        self.prisma = Prisma()
+        await self.prisma.connect()
 
-    async with context.Context(prisma, args.api_key) as ctx:
-        result = await methods.METHODS[args.func](ctx, **args.args)
+    @modal.web_endpoint(method="POST", label="astro-app-backend")
+    async def backend(self, args: BackendArgs):
+        import context
+        import methods
 
-    return Response(content=json.dumps(result), media_type="application/json")
+        async with context.Context(self.prisma, args.api_key) as ctx:
+            result = await methods.METHODS[args.func](ctx, **args.args)
+
+        return Response(content=json.dumps(result), media_type="application/json")
+
+    @modal.exit()
+    async def close_connection(self):
+        await self.prisma.disconnect()

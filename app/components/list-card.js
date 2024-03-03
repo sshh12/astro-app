@@ -4,15 +4,18 @@ import React from "react";
 import { Card, Flex, Text, Icon } from "@tremor/react";
 import { ListBulletIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
-import { useAnalytics } from "../api";
+import { useAnalytics, useAPI } from "../api";
 
 export default function ListCard({ list }) {
+  const { objectViewMode } = useAPI();
   const { setPage } = useNav();
   const emitEvent = useAnalytics();
 
+  const compact = objectViewMode.sizeMode !== "full";
+
   return (
     <Card
-      className="cursor-pointer"
+      className={!compact ? "cursor-pointer p-4" : "cursor-pointer p-2"}
       key={list.id}
       onClick={() => {
         emitEvent("click_list_card");

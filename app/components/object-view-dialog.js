@@ -13,6 +13,7 @@ import {
 export default function ObjectViewDialog({
   badgeModes,
   imageModes,
+  sizeModes,
   objectViewMode,
   setObjectViewMode,
   open,
@@ -25,6 +26,24 @@ export default function ObjectViewDialog({
     <Dialog open={open} onClose={() => close()} static={true}>
       <DialogPanel>
         <Title className="mb-3">View Options</Title>
+
+        <label className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+          Size
+        </label>
+        <Select
+          className="mb-3"
+          value={objectViewMode.sizeMode}
+          onChange={(v) =>
+            setObjectViewMode({ ...objectViewMode, sizeMode: v })
+          }
+          enableClear={false}
+        >
+          {sizeModes.map((mode) => (
+            <SelectItem key={mode.id} value={mode.id}>
+              {mode.label}
+            </SelectItem>
+          ))}
+        </Select>
 
         <label className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           Badge

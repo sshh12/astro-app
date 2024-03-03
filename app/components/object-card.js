@@ -100,24 +100,33 @@ const IMAGE_MODES = [
   {
     id: "wiki",
     label: "Show Wiki Image",
-    render: ({ object }) => (
-      <img style={{ width: "100%" }} src={object.imgURL} alt="Astro image" />
+    render: ({ object, style = {} }) => (
+      <img
+        style={{ width: "100%", ...style }}
+        src={object.imgURL}
+        alt="Astro image"
+      />
     ),
   },
 ].concat(
   SKY_SURVEYS.map((survey) => ({
     id: survey.name.toLowerCase(),
     label: `Show ${survey.name} Sky Survey`,
-    render: ({ object }) =>
+    render: ({ object, style = {} }) =>
       !!object.ra ? (
         <SkySurveyImage
           object={object}
           hips={survey.hips}
           fov={1.0}
           aspectRatio={16 / 9}
+          style={style}
         />
       ) : (
-        <img style={{ width: "100%" }} src={object.imgURL} alt="Astro image" />
+        <img
+          style={{ width: "100%", ...style }}
+          src={object.imgURL}
+          alt="Astro image"
+        />
       ),
   }))
 );
@@ -152,9 +161,15 @@ export default function ObjectCard({ object, orbits }) {
   const imageToRender = objectViewMode.imageMode;
   const ImageElement = IMAGE_MODES.find((b) => b.id === imageToRender).render;
 
+  const compact = objectViewMode.sizeMode !== "full";
+
   return (
     <>
       <ObjectViewDialog
+        sizeModes={[
+          { id: "full", label: "Full Size" },
+          { id: "compact", label: "Compact" },
+        ]}
         badgeModes={BADGE_MODES}
         imageModes={IMAGE_MODES}
         objectViewMode={objectViewMode}
@@ -163,7 +178,7 @@ export default function ObjectCard({ object, orbits }) {
         setOpen={setOpenViewEditor}
       />
       <Card
-        className="cursor-pointer"
+        className={!compact ? "cursor-pointer p-4" : "cursor-pointer p-2"}
         key={object.id}
         onClick={() => {
           emitEvent("click_object_card");
@@ -171,27 +186,56 @@ export default function ObjectCard({ object, orbits }) {
           setPage("/sky/object", { id: object.id, name: object.name });
         }}
       >
-        <Flex alignItems="start">
-          <div className="truncate">
-            <Text color="white">{object.name}</Text>
-          </div>
-          <BadgeElement
-            maxAlt={maxAlt}
-            maxAltTime={maxAltTime}
-            onBadgeClick={onBadgeClick}
-            isDay={isDay}
-            user={user}
-            alt={alt}
-            az={az}
-          />
-        </Flex>
-        <Flex className="mt-2" style={{ minHeight: "2.5rem" }}>
-          <Text>{objectAKA(object).join(", ")}&nbsp;</Text>
-        </Flex>
-        {ImageElement !== null && (
-          <Flex className="border-solid border-2 border-gray-700 mt-2">
-            <ImageElement object={object} />
-          </Flex>
+        {!compact && (
+          <>
+            <Flex alignItems="start">
+              <div className="truncate">
+                <Text color="white">{object.name}</Text>
+              </div>
+              <BadgeElement
+                maxAlt={maxAlt}
+                maxAltTime={maxAltTime}
+                onBadgeClick={onBadgeClick}
+                isDay={isDay}
+                user={user}
+                alt={alt}
+                az={az}
+              />
+            </Flex>
+            <Flex className="mt-2" style={{ minHeight: "2.5rem" }}>
+              <Text>{objectAKA(object).join(", ")}&nbsp;</Text>
+            </Flex>
+            {ImageElement !== null && (
+              <Flex className="border-solid border-2 border-gray-700 mt-2">
+                <ImageElement object={object} />
+              </Flex>
+            )}
+          </>
+        )}
+        {compact && (
+          <>
+            <Flex className="justify-between">
+              <div className="truncate">
+                <Text color="white" className="mb-1">
+                  {object.name}
+                </Text>
+                <BadgeElement
+                  maxAlt={maxAlt}
+                  maxAltTime={maxAltTime}
+                  onBadgeClick={onBadgeClick}
+                  isDay={isDay}
+                  user={user}
+                  alt={alt}
+                  az={az}
+                />
+              </div>
+              {ImageElement !== null && (
+                <Flex className="border-solid border-2 border-gray-700 w-10">
+                  <ImageElement object={object} />
+                </Flex>
+              )}
+            </Flex>
+          </>
         )}
       </Card>
     </>

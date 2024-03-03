@@ -177,11 +177,7 @@ function precipitationToColor(precipitation) {
 }
 
 function moonIlluminationToColor(moonIllumination) {
-  if (moonIllumination < 10) {
-    return "gray-800";
-  } else if (moonIllumination < 20) {
-    return "gray-700";
-  } else if (moonIllumination < 30) {
+  if (moonIllumination < 30) {
     return "gray-600";
   } else if (moonIllumination < 40) {
     return "gray-500";
@@ -191,8 +187,6 @@ function moonIlluminationToColor(moonIllumination) {
     return "gray-300";
   } else if (moonIllumination < 70) {
     return "gray-200";
-  } else if (moonIllumination < 80) {
-    return "gray-100";
   } else {
     return "gray-100";
   }
