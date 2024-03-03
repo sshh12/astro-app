@@ -90,6 +90,7 @@ export default function StickyHeader({
           <div className="justify-end ml-auto">
             {rightIcons.map((v) => (
               <Button
+                key={v.icon}
                 onClick={v.onClick}
                 color="slate-800"
                 icon={v.icon}
