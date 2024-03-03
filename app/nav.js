@@ -18,6 +18,10 @@ export function useNavControl() {
         acc[key] = value;
         return acc;
       }, {});
+      if (newPageParams.page) {
+        _setPage(newPageParams.page);
+        delete newPageParams.page;
+      }
       setPageParams(newPageParams);
     }
   }, []);
