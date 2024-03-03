@@ -19,6 +19,8 @@ class BackendArgs(BaseModel):
     mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
     retries=1,
     container_idle_timeout=300,
+    allow_concurrent_inputs=10,
+    concurrency_limit=10,
 )
 @modal.web_endpoint(method="POST")
 async def backend(args: BackendArgs):

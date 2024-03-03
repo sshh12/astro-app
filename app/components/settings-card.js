@@ -32,6 +32,7 @@ export default function SettingsCard({
   const { ready } = useAPI();
 
   const [editValues, setEditValues] = useState({});
+  const [showCurLocation, setShowCurLocation] = useState(false);
   useEffect(() => {
     if (open) {
       setEditValues(
@@ -44,6 +45,26 @@ export default function SettingsCard({
       setEditValues({});
     }
   }, [items, open]);
+
+  const hasLatLonItem = !!items.find((item) => item.key === "lat");
+  useEffect(() => {
+    if (hasLatLonItem && navigator.geolocation) {
+      setShowCurLocation(true);
+    }
+  }, [hasLatLonItem, open]);
+
+  const updateCurrentLocation = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const tzExists = TIMEZONES.find((t) => t.name === tz);
+      setEditValues({
+        ...editValues,
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+        timezone: tzExists ? tz : editValues.timezone,
+      });
+    });
+  };
 
   return (
     <>
@@ -103,18 +124,23 @@ export default function SettingsCard({
             </div>
           )}
 
-          <div className="mt-3">
+          <Flex className="mt-4 justify-between">
+            {showCurLocation && (
+              <Button variant="light" onClick={() => updateCurrentLocation()}>
+                Use Device Location
+              </Button>
+            )}
             {ready && (
-              <Button variant="light" onClick={() => onSave(editValues)}>
+              <Button variant="primary" onClick={() => onSave(editValues)}>
                 Save
               </Button>
             )}
             {!ready && (
-              <Button variant="light" color="grey">
+              <Button variant="primary" color="grey">
                 Save
               </Button>
             )}
-          </div>
+          </Flex>
         </DialogPanel>
       </Dialog>
       <Card onClick={() => setOpen(true)} className="cursor-pointer">
