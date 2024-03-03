@@ -49,7 +49,7 @@ const INTRO_SLIDES = [
   },
   {
     title: "Location Access",
-    text: "The requires your location and preferred timezone for accurate astronomical calculations. If not, we'll start you off with a random location.",
+    text: "The app requires your location and preferred timezone for accurate astronomical calculations. If not, we'll start you off with a random location.",
     nextText: "Update Location",
     nextOnClick: ({ goToUpdateLocation }) => goToUpdateLocation(),
     skipOnClick: ({ close }) => close(),
