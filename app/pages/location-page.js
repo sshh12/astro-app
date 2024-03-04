@@ -90,13 +90,7 @@ function GOESCard({ wfo }) {
         <BadgeIconRound icon={CloudIcon} color={"green"} />
       </Flex>
       {loading && (
-        <img
-          src="https://via.placeholder.com/600x600/111111/0b0f18?text=+"
-          alt="Placeholder"
-          width="600"
-          height="600"
-          crossorigin="anonymous"
-        ></img>
+        <img src="/600.png" alt="Placeholder" width="600" height="600"></img>
       )}
       {wfo && supportsStatic && viewStatic && (
         <Flex onClick={() => setViewStatis(false)}>
