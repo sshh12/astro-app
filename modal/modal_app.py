@@ -17,8 +17,7 @@ class BackendArgs(BaseModel):
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
     mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
-    container_idle_timeout=300,
-    allow_concurrent_inputs=10,
+    container_idle_timeout=500,
 )
 class AstroApp:
     @modal.enter()

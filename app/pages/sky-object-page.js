@@ -124,7 +124,7 @@ function SurveyCard({ object }) {
   );
 }
 
-function DetailsCard({ details, timezone }) {
+function DetailsCard({ details, detailsReady, timezone }) {
   return (
     <Card>
       <Flex alignItems="start" className="mb-2">
@@ -132,22 +132,25 @@ function DetailsCard({ details, timezone }) {
           <Text color="white">Annual Night Altitude</Text>
         </div>
       </Flex>
-      <SkyAltChart
-        timezone={timezone}
-        times={details.details.map((detail) => detail.start)}
-        alts={[
-          {
-            name: "Max Altitude",
-            color: "blue",
-            alts: details.details.map((detail) => detail.max_alt),
-          },
-          {
-            name: "Min Altitude",
-            color: "orange",
-            alts: details.details.map((detail) => detail.min_alt),
-          },
-        ]}
-      />
+      {!detailsReady && <Text>Calculating...</Text>}
+      {details && timezone && (
+        <SkyAltChart
+          timezone={timezone}
+          times={details.details.map((detail) => detail.start)}
+          alts={[
+            {
+              name: "Max Altitude",
+              color: "blue",
+              alts: details.details.map((detail) => detail.max_alt),
+            },
+            {
+              name: "Min Altitude",
+              color: "orange",
+              alts: details.details.map((detail) => detail.min_alt),
+            },
+          ]}
+        />
+      )}
     </Card>
   );
 }
@@ -196,7 +199,7 @@ export default function SkyObjectPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
         rightIcons={rightIcons}
-        loading={!objectReady || !ready || !objectDetailsReady}
+        loading={!objectReady || !ready}
       />
 
       <ShareLinkDialog
@@ -239,9 +242,11 @@ export default function SkyObjectPage() {
         <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
           {object.description && <OverviewCard object={object} />}
           {object.ra && <SurveyCard object={object} />}
-          {objectDetails && user && (
-            <DetailsCard details={objectDetails} timezone={user.timezone} />
-          )}
+          <DetailsCard
+            details={objectDetails}
+            detailsReady={objectDetailsReady}
+            timezone={user.timezone}
+          />
           {object.names.length > 0 && <NameCard object={object} />}
         </Grid>
       )}
