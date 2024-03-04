@@ -67,7 +67,12 @@ function OverviewCard({ object }) {
         <Text>{object.description}</Text>
       </Flex>
       <Flex className="border-solid border-2 border-gray-700 mt-2">
-        <img style={{ width: "100%" }} src={object.imgURL} alt="Astro image" />
+        <img
+          style={{ width: "100%" }}
+          src={object.imgURL}
+          alt="Astro image"
+          crossorigin="anonymous"
+        />
       </Flex>
       <Flex className="mt-2">
         <List>

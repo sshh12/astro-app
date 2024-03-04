@@ -105,6 +105,7 @@ const IMAGE_MODES = [
         style={{ width: "100%", ...style }}
         src={object.imgURL}
         alt="Astro image"
+        crossorigin="anonymous"
       />
     ),
   },
@@ -126,6 +127,7 @@ const IMAGE_MODES = [
           style={{ width: "100%", ...style }}
           src={object.imgURL}
           alt="Astro image"
+          crossorigin="anonymous"
         />
       ),
   }))

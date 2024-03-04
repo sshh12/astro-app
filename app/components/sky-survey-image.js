@@ -5,7 +5,7 @@ export default function SkySurveyImage({
   hips,
   fov = 1.0,
   aspectRatio = 1.0,
-  style={}
+  style = {},
 }) {
   const width = 1000;
   const height = Math.floor(width / aspectRatio);
@@ -16,6 +16,7 @@ export default function SkySurveyImage({
         object.ra * 15
       }&dec=${object.dec}&format=jpg`}
       alt="Astro image"
+      crossorigin="anonymous"
     />
   );
 }

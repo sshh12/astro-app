@@ -95,6 +95,7 @@ function GOESCard({ wfo }) {
           alt="Placeholder"
           width="600"
           height="600"
+          crossorigin="anonymous"
         ></img>
       )}
       {wfo && supportsStatic && viewStatic && (
@@ -104,6 +105,7 @@ function GOESCard({ wfo }) {
             onError={() => setSupportsStatic(false)}
             onLoad={() => setLoading(false)}
             alt={"image of clouds"}
+            crossorigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
           />
         </Flex>
@@ -115,6 +117,7 @@ function GOESCard({ wfo }) {
             onError={() => setSupportsGOES18(false)}
             onLoad={() => setLoading(false)}
             alt={"image of clouds"}
+            crossorigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
         </Flex>
@@ -126,6 +129,7 @@ function GOESCard({ wfo }) {
             onError={() => setSupportsGOES16(false)}
             onLoad={() => setLoading(false)}
             alt={"image of clouds"}
+            crossorigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
         </Flex>
