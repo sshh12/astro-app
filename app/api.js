@@ -9,7 +9,7 @@ import React, {
 export const APIContext = React.createContext({});
 
 export const BASE_URL = "https://astro.sshh.io";
-const APP_VERSION = "0.0.1";
+export const APP_VERSION = "0.0.1";
 const MODAL_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
 const VIEW_MODE_KEY = "astro-app:viewMode";
@@ -64,6 +64,10 @@ export function useAPIControl() {
     setReady(false);
     return post(func, args)
       .then((result) => {
+        if (result.error) {
+          alert("Error " + result.error);
+          return { error: result.error };
+        }
         return post("get_user")
           .then((user) => {
             if (user.error) {

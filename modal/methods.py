@@ -1,5 +1,5 @@
 from typing import List, Dict
-from prisma import Prisma, models
+from prisma import Prisma, models, errors
 from prisma.enums import SpaceObjectType, Color
 import context
 import random
@@ -280,12 +280,15 @@ async def update_user(
     ctx: context.Context,
     name: str,
 ) -> Dict:
-    await ctx.prisma.user.update(
-        where={"id": ctx.user.id},
-        data={
-            "name": name,
-        },
-    )
+    try:
+        await ctx.prisma.user.update(
+            where={"id": ctx.user.id},
+            data={
+                "name": name,
+            },
+        )
+    except errors.UniqueViolationError:
+        return {"error": "Name already in use"}
     return {}
 
 

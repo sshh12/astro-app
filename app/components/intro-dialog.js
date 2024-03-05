@@ -1,11 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogPanel, Title, Button, Flex } from "@tremor/react";
+import {
+  Dialog,
+  DialogPanel,
+  Title,
+  Button,
+  Flex,
+  List,
+  ListItem,
+} from "@tremor/react";
 import { useNav } from "../nav";
-import { useAnalytics } from "../api";
+import { useAnalytics, APP_VERSION } from "../api";
 
 const SEEN_KEY = "astro-app:introSlides";
+const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
+
+const UPDATE_TEXT = {
+  title: "Updates",
+  updates: [
+    "Fixed issue with lists showing random items. As a result, some lists had to be to be reset.",
+  ],
+};
 
 const INTRO_SLIDES = [
   {
@@ -58,15 +74,20 @@ const INTRO_SLIDES = [
 
 export default function IntroDialog() {
   const [open, setOpen] = useState(false);
+  const [openUpdates, setOpenUpdates] = useState(false);
   const [slideIdx, setSlideIdx] = useState(0);
   const { setPage } = useNav();
   const emitEvent = useAnalytics();
 
   useEffect(() => {
     const seen = localStorage.getItem(SEEN_KEY);
+    const seenUpdates = localStorage.getItem(SEEN_UPDATES_KEY);
     if (!seen) {
       setOpen(true);
+    } else if (!seenUpdates) {
+      setOpenUpdates(true);
     }
+    console.log(SEEN_UPDATES_KEY, localStorage.getItem(SEEN_UPDATES_KEY));
   }, []);
 
   const slide = INTRO_SLIDES[slideIdx];
@@ -75,6 +96,7 @@ export default function IntroDialog() {
     setOpen(false);
     emitEvent("intro_close");
     localStorage.setItem(SEEN_KEY, "true");
+    localStorage.setItem(SEEN_UPDATES_KEY, "true");
   };
   const nextSlide = () => {
     if (slideIdx < INTRO_SLIDES.length - 1) {
@@ -98,37 +120,74 @@ export default function IntroDialog() {
   const onClickOptions = { close, nextSlide, skipToEnd, goToUpdateLocation };
 
   return (
-    <Dialog open={open} onClose={() => skipToEnd()} static={true}>
+    <Dialog
+      open={open || openUpdates}
+      onClose={() => {
+        if (open) {
+          skipToEnd();
+        } else {
+          close();
+        }
+      }}
+      static={true}
+    >
       <DialogPanel>
-        <Title className="mb-3">{slide.title}</Title>
-        {slide.text}
-        {slide.image && (
-          <img
-            src={slide.image}
-            alt={slide.title + " image"}
-            className="mt-2"
-          />
+        {open && (
+          <>
+            <Title className="mb-3">{slide.title}</Title>
+            {slide.text}
+            {slide.image && (
+              <img
+                src={slide.image}
+                alt={slide.title + " image"}
+                className="mt-2"
+              />
+            )}
+            <Flex className="mt-3">
+              {slideIdx > 0 && (
+                <Button
+                  variant="secondary"
+                  onClick={() => back()}
+                  color="slate"
+                >
+                  Back
+                </Button>
+              )}
+              <Button
+                variant="light"
+                onClick={() => slide.skipOnClick(onClickOptions)}
+                color="slate"
+              >
+                Skip
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => slide.nextOnClick(onClickOptions)}
+              >
+                {slide.nextText}
+              </Button>
+            </Flex>
+          </>
         )}
-        <Flex className="mt-3">
-          {slideIdx > 0 && (
-            <Button variant="secondary" onClick={() => back()} color="slate">
-              Back
-            </Button>
-          )}
-          <Button
-            variant="light"
-            onClick={() => slide.skipOnClick(onClickOptions)}
-            color="slate"
-          >
-            Skip
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => slide.nextOnClick(onClickOptions)}
-          >
-            {slide.nextText}
-          </Button>
-        </Flex>
+        {openUpdates && (
+          <>
+            <Title className="mb-3">{UPDATE_TEXT.title}</Title>
+            <List>
+              {UPDATE_TEXT.updates.map((item, idx) => (
+                <ListItem key={idx}>{item}</ListItem>
+              ))}
+            </List>
+            <Flex className="mt-3">
+              <Button
+                variant="light"
+                onClick={() => setOpen(false)}
+                color="slate"
+              >
+                Close
+              </Button>
+            </Flex>
+          </>
+        )}
       </DialogPanel>
     </Dialog>
   );
