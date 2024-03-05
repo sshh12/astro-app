@@ -35,12 +35,16 @@ export default function SettingsCard({
   const [showCurLocation, setShowCurLocation] = useState(false);
   useEffect(() => {
     if (open) {
-      setEditValues(
-        items.reduce((acc, item) => {
-          acc[item.key] = item.value;
-          return acc;
-        }, {})
-      );
+      const editVals = items.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const tzExists = TIMEZONES.find((t) => t.name === tz);
+      if (tzExists && editVals.timezone) {
+        editVals.timezone = tz;
+      }
+      setEditValues(editVals);
     } else {
       setEditValues({});
     }

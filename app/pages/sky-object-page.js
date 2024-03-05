@@ -18,9 +18,14 @@ import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
 
+const USEFUL_PREFIXES = ["NAME ", "M ", "UGC ", "NGC ", "APG "];
+
 function NameCard({ object }) {
   const names = object.names.filter(
-    (name) => name.length > 0 && !name.startsWith("[")
+    (name) =>
+      name.length > 0 &&
+      !name.startsWith("[") &&
+      USEFUL_PREFIXES.some((v) => name.startsWith(v))
   );
   names.sort((a, b) => {
     let aScore = a.length;
@@ -33,6 +38,7 @@ function NameCard({ object }) {
     }
     return aScore - bScore;
   });
+
   return (
     <Card>
       <Flex alignItems="start">
@@ -40,7 +46,7 @@ function NameCard({ object }) {
           <Text color="white">Identifiers</Text>
         </div>
       </Flex>
-      <List>
+      <List style={{ color: "grey-200" }}>
         {names.map((objName) => {
           const [key, ...value] = objName.split(" ");
           return (

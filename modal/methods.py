@@ -365,13 +365,17 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
 async def update_space_object_lists(
     ctx: context.Context, list_ids: List[str], new_list_title: str, object_id: str
 ) -> Dict:
+    user_lists = await ctx.prisma.listsonusers.find_many(
+        where={"userId": ctx.user.id},
+    )
     obj = await ctx.prisma.spaceobject.find_unique(
-        where={"id": object_id},
+        where={
+            "id": object_id,
+        },
         include={
             "lists": {
-                "include": {
-                    "List": True,
-                }
+                "where": {"listId": {"in": [list_.listId for list_ in user_lists]}},
+                "include": {"List": True},
             }
         },
     )
