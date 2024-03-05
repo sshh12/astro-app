@@ -94,6 +94,7 @@ export default function IntroDialog() {
 
   const close = () => {
     setOpen(false);
+    setOpenUpdates(false);
     emitEvent("intro_close");
     localStorage.setItem(SEEN_KEY, "true");
     localStorage.setItem(SEEN_UPDATES_KEY, "true");
