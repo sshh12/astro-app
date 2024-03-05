@@ -179,11 +179,7 @@ export default function IntroDialog() {
               ))}
             </List>
             <Flex className="mt-3">
-              <Button
-                variant="light"
-                onClick={() => setOpen(false)}
-                color="slate"
-              >
+              <Button variant="light" onClick={() => close()} color="slate">
                 Close
               </Button>
             </Flex>
