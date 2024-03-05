@@ -10,7 +10,7 @@ const SEEN_KEY = "astro-app:introSlides";
 const INTRO_SLIDES = [
   {
     title: "Astro App",
-    text: "Update: If you are coming from hacker news, the server is currently struggling... if you run into issues, please check it out later in the day. Welcome! The Astro App (early access) is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
+    text: "Welcome! The Astro App (early access) is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
     nextText: "Next",
     nextOnClick: ({ nextSlide }) => nextSlide(),
     skipOnClick: ({ skipToEnd }) => skipToEnd(),

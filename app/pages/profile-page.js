@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { Grid } from "@tremor/react";
 import {
   MapPinIcon,
@@ -75,7 +75,7 @@ export default function ProfilePage() {
             {
               name: "ELEVATION (m)",
               key: "elevation",
-              value: user?.elevation,
+              value: user?.elevation || 0,
               type: "number",
             },
           ]}

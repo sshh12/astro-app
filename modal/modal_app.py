@@ -18,6 +18,7 @@ class BackendArgs(BaseModel):
     image=image_base,
     mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
     container_idle_timeout=500,
+    allow_concurrent_inputs=10,
 )
 class AstroApp:
     @modal.enter()

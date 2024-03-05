@@ -16,6 +16,62 @@ DEFAULT_LAT = 34.118330
 DEFAULT_LON = -118.300333
 DEFAULT_ELEVATION = 0.0
 
+DEFAULT_LISTS = {
+    ("Favorites", Color.RED): [
+        "944241942959718401",
+        "944241943363649537",
+        "944241943867162625",
+        "944241952512442369",
+        "944241955830530049",
+        "944241965995786241",
+    ],
+    ("Popular Nebulas", Color.RED): [
+        "944241955830530049",
+        "944241958223970305",
+        "944241962644766721",
+        "944241965995786241",
+        "944241968814784513",
+        "944241971144065025",
+        "944241973560868865",
+        "944241976047599617",
+        "944241978420101121",
+        "944241982988746753",
+        "944241985593442305",
+        "944241988150820865",
+        "944241990489964545",
+        "944241993160130561",
+        "944241995678580737",
+        "944241998345437185",
+    ],
+    ("Popular Galaxies", Color.BLUE): [
+        "944242002229231617",
+        "944242005918744577",
+        "944242009715900417",
+        "944242012176351233",
+        "944242016663961601",
+        "944242351239495681",
+        "944242354172428289",
+        "944242358486532097",
+        "944242361449775105",
+        "944242363892203521",
+        "944242445538164737",
+        "948083556061446145",
+        "948752825148604417",
+    ],
+    ("Solar System", Color.YELLOW): [
+        "944241942959718401",
+        "944241943064412161",
+        "944241943171366913",
+        "944241943273340929",
+        "944241943363649537",
+        "944241943455465473",
+        "944241943558094849",
+        "944241943667408897",
+        "944241943765680129",
+        "944241943867162625",
+    ],
+}
+
 
 def method(require_login: bool = True):
     def wrap(func):
@@ -101,22 +157,19 @@ def clean_search_term(term: str) -> str:
     return re.sub(r"[\s\-'_]+", "", term.lower())
 
 
-async def _duplicate_list(
-    prisma: Prisma, list: models.List, user: models.User
-) -> models.List:
-    new_list = await prisma.list.create(
-        data={
-            "title": list.title,
-            "commonTemplate": False,
-            "color": list.color,
-            "objects": {
-                "create": [
-                    {"spaceObjectId": obj.SpaceObject.id} for obj in list.objects
-                ]
+async def _create_default_lists(prisma: Prisma, user: models.User) -> List[models.List]:
+    new_lists = []
+    for (title, color), objIds in DEFAULT_LISTS.items():
+        new_list = await prisma.list.create(
+            data={
+                "title": title,
+                "commonTemplate": True,
+                "color": color,
+                "objects": {"create": [{"spaceObjectId": objId} for objId in objIds]},
+                "users": {"create": [{"userId": user.id}]},
             },
-        },
-    )
-    await prisma.listsonusers.create({"userId": user.id, "listId": list.id})
+        )
+        new_lists.append(new_list)
     return new_list
 
 
@@ -131,20 +184,7 @@ async def _create_user(prisma: Prisma) -> models.User:
             "elevation": DEFAULT_ELEVATION,
         },
     )
-    default_lists = await prisma.list.find_many(
-        where={
-            "commonTemplate": True,
-        },
-        include={
-            "objects": {
-                "include": {
-                    "SpaceObject": True,
-                }
-            }
-        },
-    )
-    for list_ in default_lists:
-        await _duplicate_list(prisma, list_, new_user)
+    await _create_default_lists(prisma, new_user)
     return new_user
 
 

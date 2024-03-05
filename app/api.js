@@ -9,6 +9,7 @@ import React, {
 export const APIContext = React.createContext({});
 
 export const BASE_URL = "https://astro.sshh.io";
+const APP_VERSION = "0.0.1";
 const MODAL_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
 const VIEW_MODE_KEY = "astro-app:viewMode";
@@ -131,7 +132,7 @@ export function usePostWithCache(func, args = {}) {
   const [ready, setReady] = useState();
   const [result, setResult] = useState();
   const argsStr = JSON.stringify(args);
-  const key = `astro-app:${func}:${argsStr}`;
+  const key = `astro-app:${APP_VERSION}:${func}:${argsStr}`;
   useEffect(() => {
     if (func) {
       if (localStorage.getItem(key)) {
