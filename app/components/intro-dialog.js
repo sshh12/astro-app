@@ -19,7 +19,7 @@ const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 const UPDATE_TEXT = {
   title: "Updates",
   updates: [
-    "Fixed issue with lists showing random items. As a result, some lists had to be to be reset.",
+    "Fixed issue with lists showing random items. As a result, some lists had be reset.",
   ],
 };
 
