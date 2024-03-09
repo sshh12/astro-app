@@ -15,7 +15,7 @@ function LoadingBar({ loading }) {
   const loadingInterval = useRef(null);
   const [pct, setPct] = useState(0);
   useEffect(() => {
-    if (loading && !loadingInterval.current) {
+    if (loading) {
       loadingInterval.current = setInterval(() => {
         setPct((pct) => {
           pct += 0.2;

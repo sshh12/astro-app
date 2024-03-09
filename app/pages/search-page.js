@@ -97,7 +97,7 @@ export default function SearchPage() {
             </div>
             <Flex className="overflow-x-scroll flex-col">
               {publicListsRows.map((row, i) => (
-                <Flex key={i} className="mb-2">
+                <Flex key={i} className="mb-2 justify-start flex-row">
                   {row.map((list) => (
                     <ListBadge
                       key={list.id}

@@ -6,14 +6,16 @@ import {
   ShareIcon,
   PlusIcon,
   TrashIcon,
+  LinkIcon,
 } from "@heroicons/react/24/solid";
-import { Grid, Title } from "@tremor/react";
+import { Grid, Title, Flex } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ObjectCard from "../components/object-card";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { useAPI, usePostWithCache } from "../api";
+import LinkCard from "../components/link-card";
 
 export default function SkyListPage() {
   const { pageParams, setPage } = useNav();
@@ -90,24 +92,38 @@ export default function SkyListPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      {list && (
-        <>
-          <div className="mt-5 ml-2 mr-2">
-            <Title>Sky Objects</Title>
-          </div>
-          {list && (
-            <Grid
-              numItemsMd={2}
-              numItemsLg={3}
-              className="mt-2 gap-1 ml-2 mr-2"
-            >
-              {list.objects.map((obj) => (
-                <ObjectCard key={obj.id} object={obj} orbits={list.orbits} />
-              ))}
-            </Grid>
-          )}
-        </>
-      )}
+      <div className="ml-2 mr-2">
+        {list && (
+          <>
+            <div className="mt-5">
+              <Title>Sky Objects</Title>
+            </div>
+            {list && (
+              <Grid
+                numItemsMd={2}
+                numItemsLg={3}
+                className="mt-2 gap-1"
+              >
+                {list.objects.map((obj) => (
+                  <ObjectCard key={obj.id} object={obj} orbits={list.orbits} />
+                ))}
+              </Grid>
+            )}
+          </>
+        )}
+
+        {list && list.credit && !ownedList && (
+          <Flex className="mt-3">
+            <LinkCard
+              title={"View Source"}
+              subtitle={list?.credit}
+              link={list?.credit}
+              color={"purple"}
+              icon={LinkIcon}
+            />
+          </Flex>
+        )}
+      </div>
     </div>
   );
 }

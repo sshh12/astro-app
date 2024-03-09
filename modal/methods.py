@@ -251,21 +251,25 @@ async def query_and_import_simbad(
             title = names[0]
         if override_name is not None:
             title = override_name
-        obj = await prisma.spaceobject.create(
-            data={
-                "name": title,
-                "searchKey": "|".join([clean_search_term(id_) for id_ in idents])
-                .lower()
-                .replace(" ", ""),
-                "solarSystemKey": None,
-                "type": SpaceObjectType.STAR_OBJECT,
-                "ra": ra,
-                "dec": dec,
-                "names": idents,
-                "color": _random_color(),
-                "simbadName": simbad_title,
-            },
-        )
+
+        obj = await prisma.spaceobject.find_first(where={"name": title})
+
+        if not obj:
+            obj = await prisma.spaceobject.create(
+                data={
+                    "name": title,
+                    "searchKey": "|".join([clean_search_term(id_) for id_ in idents])
+                    .lower()
+                    .replace(" ", ""),
+                    "solarSystemKey": None,
+                    "type": SpaceObjectType.STAR_OBJECT,
+                    "ra": ra,
+                    "dec": dec,
+                    "names": idents,
+                    "color": _random_color(),
+                    "simbadName": simbad_title,
+                },
+            )
     return obj
 
 
