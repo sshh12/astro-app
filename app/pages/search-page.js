@@ -79,7 +79,7 @@ export default function SearchPage() {
 
         {results && (
           <>
-            <div className="mt-5 ml-2 mr-2">
+            <div className="mt-5">
               <Title>Results</Title>
             </div>
             <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1">
