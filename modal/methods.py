@@ -11,13 +11,15 @@ import space_util
 
 METHODS = {}
 
+FAVORITES = "Favorites"
+
 DEFAULT_TZ = "America/Los_Angeles"
 DEFAULT_LAT = 34.118330
 DEFAULT_LON = -118.300333
 DEFAULT_ELEVATION = 0.0
 
 DEFAULT_LISTS = {
-    ("Favorites", Color.RED): [
+    (FAVORITES, Color.RED): [
         "944241942959718401",
         "944241943363649537",
         "944241943867162625",
@@ -124,7 +126,7 @@ def _space_object_to_dict(obj: models.SpaceObject, expand: bool = False) -> dict
     return props
 
 
-def _list_to_dict(list: models.List) -> dict:
+def _list_to_dict(list: models.List, show_objects: bool = True) -> dict:
     list_dict = {
         "id": str(list.id),
         "title": list.title,
@@ -132,7 +134,7 @@ def _list_to_dict(list: models.List) -> dict:
         "credit": list.credit,
         "imgURL": list.imgURL,
     }
-    if list.objects:
+    if show_objects and list.objects:
         list_dict["objects"] = [
             _space_object_to_dict(obj.SpaceObject) for obj in list.objects
         ]
@@ -141,7 +143,7 @@ def _list_to_dict(list: models.List) -> dict:
 
 def _get_favorite_objects(user: models.User) -> List:
     fav_list = next(
-        (list.List for list in user.lists if list.List.title == "Favorites"), None
+        (list.List for list in user.lists if list.List.title == FAVORITES), None
     )
     fav_list_objects = [obj.SpaceObject for obj in fav_list.objects]
     return fav_list_objects
@@ -155,7 +157,10 @@ def _user_to_dict(user: models.User) -> dict:
         "lat": float(user.lat),
         "lon": float(user.lon),
         "elevation": float(user.elevation),
-        "lists": [_list_to_dict(list.List) for list in user.lists],
+        "lists": [
+            _list_to_dict(list.List, show_objects=list.List.title == FAVORITES)
+            for list in user.lists
+        ],
     }
 
 
@@ -399,7 +404,7 @@ async def update_space_object_lists(
         await ctx.prisma.spaceobjectsonlists.delete_many(
             where={"listId": int(list_id), "spaceObjectId": obj.id}
         )
-    if new_list_title:
+    if new_list_title and new_list_title != FAVORITES:
         new_list = await ctx.prisma.list.create(
             data={"title": new_list_title, "color": _random_color()}
         )

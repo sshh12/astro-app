@@ -34,10 +34,11 @@ export default function SkyListPage() {
   };
 
   const deleteList = () => {
-    postThenUpdateUser("delete_list", { id: pageParams.id }).then(() => {
-      setLoading(false);
-      setPage("/sky");
-    });
+    window.confirm("Are you sure you want to delete this list?") &&
+      postThenUpdateUser("delete_list", { id: pageParams.id }).then(() => {
+        setLoading(false);
+        setPage("/sky");
+      });
   };
 
   const ownedList = user && user.lists.find((l) => l.id === pageParams.id);
