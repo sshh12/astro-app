@@ -101,19 +101,26 @@ def _random_color() -> Color:
     return random.choice(list(Color))
 
 
-def _space_object_to_dict(obj: models.SpaceObject, expand: bool = False) -> dict:
+def _space_object_to_dict(
+    obj: models.SpaceObject, expand: bool = False, show_content: bool = True
+) -> dict:
     props = {
         "id": str(obj.id),
-        "name": obj.name,
-        "names": obj.names,
-        "searchKey": obj.searchKey,
-        "solarSystemKey": obj.solarSystemKey,
-        "color": obj.color,
-        "type": obj.type,
-        "imgURL": obj.imgURL,
-        "ra": float(obj.ra) if obj.ra else None,
-        "dec": float(obj.dec) if obj.dec else None,
     }
+    if show_content:
+        props.update(
+            {
+                "name": obj.name,
+                "names": obj.names,
+                "searchKey": obj.searchKey,
+                "solarSystemKey": obj.solarSystemKey,
+                "color": obj.color,
+                "type": obj.type,
+                "imgURL": obj.imgURL,
+                "ra": float(obj.ra) if obj.ra else None,
+                "dec": float(obj.dec) if obj.dec else None,
+            }
+        )
     if expand:
         props.update(
             {
@@ -134,9 +141,10 @@ def _list_to_dict(list: models.List, show_objects: bool = True) -> dict:
         "credit": list.credit,
         "imgURL": list.imgURL,
     }
-    if show_objects and list.objects:
+    if list.objects:
         list_dict["objects"] = [
-            _space_object_to_dict(obj.SpaceObject) for obj in list.objects
+            _space_object_to_dict(obj.SpaceObject, show_content=show_objects)
+            for obj in list.objects
         ]
     return list_dict
 
@@ -498,9 +506,11 @@ async def add_list(ctx: context.Context, id: str) -> Dict:
 
 @method()
 async def delete_list(ctx: context.Context, id: str) -> Dict:
-    await ctx.prisma.listsonusers.delete_many(
+    cnt = await ctx.prisma.listsonusers.delete_many(
         where={"listId": id, "userId": ctx.user.id},
     )
+    if cnt == 0:
+        return {"error": "List not found"}
     await ctx.prisma.spaceobjectsonlists.delete_many(
         where={"listId": id},
     )
