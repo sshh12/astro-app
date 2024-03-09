@@ -36,11 +36,13 @@ export default function SkyListPage() {
   };
 
   const deleteList = () => {
-    window.confirm("Are you sure you want to delete this list?") &&
+    if (window.confirm("Are you sure you want to delete this list?")) {
+      setLoading(true);
       postThenUpdateUser("delete_list", { id: pageParams.id }).then(() => {
         setLoading(false);
         setPage("/sky");
       });
+    }
   };
 
   const ownedList = user && user.lists.find((l) => l.id === pageParams.id);
@@ -99,11 +101,7 @@ export default function SkyListPage() {
               <Title>Sky Objects</Title>
             </div>
             {list && (
-              <Grid
-                numItemsMd={2}
-                numItemsLg={3}
-                className="mt-2 gap-1"
-              >
+              <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1">
                 {list.objects.map((obj) => (
                   <ObjectCard key={obj.id} object={obj} orbits={list.orbits} />
                 ))}
