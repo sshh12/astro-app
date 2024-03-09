@@ -69,12 +69,11 @@ LISTS = {
 
 
 async def create_list(prisma: Prisma, title: str, items: List):
-    list_ = await prisma.list.find_first(where={"title": title, "commonTemplate": True})
+    list_ = await prisma.list.find_first(where={"title": title})
     if list_ is None:
         list_ = await prisma.list.create(
             {
                 "title": title,
-                "commonTemplate": True,
                 "color": random.choice(list(Color)),
             }
         )

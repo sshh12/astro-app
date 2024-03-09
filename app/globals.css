@@ -97,3 +97,7 @@ body {
   transform: translateX(100%);
   transition: transform 300ms ease-in-out;
 }
+
+.moon-badge > p {
+  color: #e5e7eb;
+}

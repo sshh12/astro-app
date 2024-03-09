@@ -11,13 +11,15 @@ import space_util
 
 METHODS = {}
 
+FAVORITES = "Favorites"
+
 DEFAULT_TZ = "America/Los_Angeles"
 DEFAULT_LAT = 34.118330
 DEFAULT_LON = -118.300333
 DEFAULT_ELEVATION = 0.0
 
 DEFAULT_LISTS = {
-    ("Favorites", Color.RED): [
+    (FAVORITES, Color.RED): [
         "944241942959718401",
         "944241943363649537",
         "944241943867162625",
@@ -99,19 +101,26 @@ def _random_color() -> Color:
     return random.choice(list(Color))
 
 
-def _space_object_to_dict(obj: models.SpaceObject, expand: bool = False) -> dict:
+def _space_object_to_dict(
+    obj: models.SpaceObject, expand: bool = False, show_content: bool = True
+) -> dict:
     props = {
         "id": str(obj.id),
-        "name": obj.name,
-        "names": obj.names,
-        "searchKey": obj.searchKey,
-        "solarSystemKey": obj.solarSystemKey,
-        "color": obj.color,
-        "type": obj.type,
-        "imgURL": obj.imgURL,
-        "ra": float(obj.ra) if obj.ra else None,
-        "dec": float(obj.dec) if obj.dec else None,
     }
+    if show_content:
+        props.update(
+            {
+                "name": obj.name,
+                "names": obj.names,
+                "searchKey": obj.searchKey,
+                "solarSystemKey": obj.solarSystemKey,
+                "color": obj.color,
+                "type": obj.type,
+                "imgURL": obj.imgURL,
+                "ra": float(obj.ra) if obj.ra else None,
+                "dec": float(obj.dec) if obj.dec else None,
+            }
+        )
     if expand:
         props.update(
             {
@@ -124,18 +133,25 @@ def _space_object_to_dict(obj: models.SpaceObject, expand: bool = False) -> dict
     return props
 
 
-def _list_to_dict(list: models.List) -> dict:
-    return {
+def _list_to_dict(list: models.List, show_objects: bool = True) -> dict:
+    list_dict = {
         "id": str(list.id),
         "title": list.title,
         "color": list.color,
-        "objects": [_space_object_to_dict(obj.SpaceObject) for obj in list.objects],
+        "credit": list.credit,
+        "imgURL": list.imgURL,
     }
+    if list.objects:
+        list_dict["objects"] = [
+            _space_object_to_dict(obj.SpaceObject, show_content=show_objects)
+            for obj in list.objects
+        ]
+    return list_dict
 
 
 def _get_favorite_objects(user: models.User) -> List:
     fav_list = next(
-        (list.List for list in user.lists if list.List.title == "Favorites"), None
+        (list.List for list in user.lists if list.List.title == FAVORITES), None
     )
     fav_list_objects = [obj.SpaceObject for obj in fav_list.objects]
     return fav_list_objects
@@ -149,7 +165,10 @@ def _user_to_dict(user: models.User) -> dict:
         "lat": float(user.lat),
         "lon": float(user.lon),
         "elevation": float(user.elevation),
-        "lists": [_list_to_dict(list.List) for list in user.lists],
+        "lists": [
+            _list_to_dict(list.List, show_objects=list.List.title == FAVORITES)
+            for list in user.lists
+        ],
     }
 
 
@@ -159,13 +178,12 @@ def clean_search_term(term: str) -> str:
 
 async def _create_default_lists(prisma: Prisma, user: models.User) -> List[models.List]:
     new_lists = []
-    for (title, color), objIds in DEFAULT_LISTS.items():
+    for (title, color), obj_ids in DEFAULT_LISTS.items():
         new_list = await prisma.list.create(
             data={
                 "title": title,
-                "commonTemplate": True,
                 "color": color,
-                "objects": {"create": [{"spaceObjectId": objId} for objId in objIds]},
+                "objects": {"create": [{"spaceObjectId": objId} for objId in obj_ids]},
                 "users": {"create": [{"userId": user.id}]},
             },
         )
@@ -233,21 +251,25 @@ async def query_and_import_simbad(
             title = names[0]
         if override_name is not None:
             title = override_name
-        obj = await prisma.spaceobject.create(
-            data={
-                "name": title,
-                "searchKey": "|".join([clean_search_term(id_) for id_ in idents])
-                .lower()
-                .replace(" ", ""),
-                "solarSystemKey": None,
-                "type": SpaceObjectType.STAR_OBJECT,
-                "ra": ra,
-                "dec": dec,
-                "names": idents,
-                "color": _random_color(),
-                "simbadName": simbad_title,
-            },
-        )
+
+        obj = await prisma.spaceobject.find_first(where={"name": title})
+
+        if not obj:
+            obj = await prisma.spaceobject.create(
+                data={
+                    "name": title,
+                    "searchKey": "|".join([clean_search_term(id_) for id_ in idents])
+                    .lower()
+                    .replace(" ", ""),
+                    "solarSystemKey": None,
+                    "type": SpaceObjectType.STAR_OBJECT,
+                    "ra": ra,
+                    "dec": dec,
+                    "names": idents,
+                    "color": _random_color(),
+                    "simbadName": simbad_title,
+                },
+            )
     return obj
 
 
@@ -394,7 +416,7 @@ async def update_space_object_lists(
         await ctx.prisma.spaceobjectsonlists.delete_many(
             where={"listId": int(list_id), "spaceObjectId": obj.id}
         )
-    if new_list_title:
+    if new_list_title and new_list_title != FAVORITES:
         new_list = await ctx.prisma.list.create(
             data={"title": new_list_title, "color": _random_color()}
         )
@@ -435,7 +457,7 @@ async def search(ctx: context.Context, term: str) -> Dict:
         objs.append(obj)
     except Exception as e:
         print(e)
-    objs = list({obj.id: obj for obj in objs}.values())
+    objs = list({obj.id: obj for obj in objs}.values())[:20]
     orbits = space_util.get_orbit_calculations(
         objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
@@ -452,3 +474,51 @@ async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict
         ctx.user.elevation,
     )
     return {"location_details": week}
+
+
+@method()
+async def get_public_lists(ctx: context.Context) -> Dict:
+    lists = await ctx.prisma.list.find_many(
+        where={"publicTemplate": True},
+    )
+    return {"lists": [_list_to_dict(list) for list in lists]}
+
+
+@method()
+async def add_list(ctx: context.Context, id: str) -> Dict:
+    list = await ctx.prisma.list.find_unique(
+        where={"id": id},
+        include={"objects": True},
+    )
+    if list is None or not list.publicTemplate:
+        return {"error": "List not found"}
+    new_list = await ctx.prisma.list.create(
+        data={
+            "title": list.title,
+            "color": list.color,
+            "objects": {
+                "create": [
+                    {"spaceObjectId": obj_on_list.spaceObjectId}
+                    for obj_on_list in list.objects
+                ]
+            },
+            "users": {"create": [{"userId": ctx.user.id}]},
+        },
+    )
+    return _list_to_dict(new_list)
+
+
+@method()
+async def delete_list(ctx: context.Context, id: str) -> Dict:
+    cnt = await ctx.prisma.listsonusers.delete_many(
+        where={"listId": id, "userId": ctx.user.id},
+    )
+    if cnt == 0:
+        return {"error": "List not found"}
+    await ctx.prisma.spaceobjectsonlists.delete_many(
+        where={"listId": id},
+    )
+    await ctx.prisma.list.delete(
+        where={"id": id},
+    )
+    return {"deleted": True}

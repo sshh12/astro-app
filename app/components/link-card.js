@@ -13,7 +13,7 @@ export default function LinkCard({ title, subtitle, icon, color, onClick }) {
         </div>
         <BadgeIconRound icon={icon} color={color} />
       </Flex>
-      <Flex className="mt-4 space-x-2">
+      <Flex className="mt-4 space-x-2 truncate">
         <div>
           <Text className="truncate">{subtitle}</Text>
         </div>

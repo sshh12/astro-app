@@ -78,8 +78,12 @@ model SpaceObject {
 model List {
   id             BigInt  @id @default(autoincrement())
   title          String
-  commonTemplate Boolean @default(false)
-  color          Color   @default(SLATE)
+  commonTemplate Boolean @default(false) // deprecated
+  publicTemplate Boolean @default(false)
+  imgURL         String?
+  credit         String?
+
+  color Color @default(SLATE)
 
   users   ListsOnUsers[]
   objects SpaceObjectsOnLists[]

@@ -236,7 +236,10 @@ function WeatherCard({ dateInfo, timezone }) {
         </div>
       </Flex>
       <Flex className="mb-3">
-        <Badge color={moonIlluminationToColor(dateInfo.moon_illumination)}>
+        <Badge
+          className="moon-badge"
+          color={moonIlluminationToColor(dateInfo.moon_illumination)}
+        >
           {Math.round(dateInfo.moon_illumination)}% Moon
         </Badge>
       </Flex>

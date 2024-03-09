@@ -64,10 +64,15 @@ const TextLabel = ({ text, position, color }) => {
     canvas.width = 100 * width;
     canvas.height = 100;
     context.font = "100px Verdana, sans-serif";
-    context.fillStyle = color;
     context.textAlign = "center";
     context.textBaseline = "middle";
+
+    context.strokeStyle = "black";
+    context.lineWidth = 14;
+    context.strokeText(text, canvas.width / 2, canvas.height / 2);
+    context.fillStyle = color;
     context.fillText(text, canvas.width / 2, canvas.height / 2);
+
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
   }, [text, color, width]);

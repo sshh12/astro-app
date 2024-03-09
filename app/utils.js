@@ -74,6 +74,7 @@ export function objectAKA(object) {
   const M = object.names.find((x) => x.startsWith("M "));
   const PGC = object.names.find((x) => x.startsWith("PGC "));
   const UGC = object.names.find((x) => x.startsWith("UGC "));
+  const IC = object.names.find((x) => x.startsWith("IC "));
 
   let names = object.names
     .filter(
@@ -92,7 +93,7 @@ export function objectAKA(object) {
     .filter((x) => x && x.trim() !== "");
 
   let aka = [...names];
-  for (let val of [M, NGC, PGC, UGC]) {
+  for (let val of [M, NGC, PGC, UGC, IC]) {
     if (val) {
       aka.push(val);
     }

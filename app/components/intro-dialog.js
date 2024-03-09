@@ -17,9 +17,12 @@ const SEEN_KEY = "astro-app:introSlides";
 const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 
 const UPDATE_TEXT = {
-  title: "Updates",
+  title: "List Updates",
   updates: [
-    "Fixed issue with lists showing random items. As a result, some lists had be reset.",
+    "See pre-curated lists of objects on the search page.",
+    "Can now add and delete existing lists.",
+    "Added object sorting.",
+    "Minor performance optimizations.",
   ],
 };
 
@@ -52,6 +55,14 @@ const INTRO_SLIDES = [
     text: "You can use lists to group objects. When you click on the list you'll be able to see the altitude chart for all the objects in that list.",
     nextText: "Next",
     image: "/intro/list.png",
+    nextOnClick: ({ nextSlide }) => nextSlide(),
+    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+  },
+  {
+    title: "Search",
+    text: "You can search for objects or look at pre-curated lists.",
+    nextText: "Next",
+    image: "/intro/search.png",
     nextOnClick: ({ nextSlide }) => nextSlide(),
     skipOnClick: ({ skipToEnd }) => skipToEnd(),
   },
