@@ -54,7 +54,7 @@ export default function ObjectsList({ title, objects, orbits }) {
     const objectsSorted = [...objects];
     objectsSorted.sort((a, b) => sortMode.sort({ a, b, orbits }));
     return objectsSorted;
-  }, [objects, orbits, objectViewMode]);
+  }, [objects, orbits, objectViewMode, fullSorts]);
 
   return (
     <div>

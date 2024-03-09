@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowUturnLeftIcon,
   ShareIcon,
@@ -13,7 +13,7 @@ import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ShareLinkDialog from "../components/share-link-dialog";
-import { useAPI, usePostWithCache } from "../api";
+import { useAPI, usePostWithCache, useAnalytics } from "../api";
 import LinkCard from "../components/link-card";
 import ObjectsList from "../components/objects-list";
 
@@ -22,10 +22,17 @@ export default function SkyListPage() {
   const [openShare, setOpenShare] = useState(false);
   const { user, postThenUpdateUser } = useAPI();
   const [loading, setLoading] = useState(false);
+  const emitEvent = useAnalytics();
 
   const [listReady, list] = usePostWithCache(pageParams.id && "get_list", {
     id: pageParams.id,
   });
+
+  useEffect(() => {
+    if (listReady) {
+      emitEvent(`list_view_${list.title}`);
+    }
+  }, [listReady, list, emitEvent]);
 
   const addList = () => {
     setLoading(true);

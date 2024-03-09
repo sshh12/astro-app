@@ -155,20 +155,11 @@ export function usePostWithCache(func, args = {}) {
 }
 
 export function useAnalytics() {
-  const [gtagFunc, setGtagFunc] = useState(null);
-  useEffect(() => {
+  const emitEvent = useCallback((name) => {
+    console.log("event", name);
     if (window.gtag) {
-      setGtagFunc(window.gtag);
+      window.gtag("event", name);
     }
   }, []);
-  const emitEvent = useCallback(
-    (name) => {
-      console.log("event", name);
-      if (gtagFunc) {
-        gtagFunc("event", name);
-      }
-    },
-    [gtagFunc]
-  );
   return emitEvent;
 }

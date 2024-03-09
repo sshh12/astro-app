@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PlusIcon,
   ArrowUturnLeftIcon,
@@ -11,7 +11,7 @@ import { Card, Flex, Text, List, ListItem, Grid } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import { useAPI, usePostWithCache } from "../api";
+import { useAPI, useAnalytics, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
 import SkySurveyImage from "../components/sky-survey-image";
 import SkyAltChart from "../components/sky-alt-chart";
@@ -166,6 +166,7 @@ export default function SkyObjectPage() {
   const { user, ready } = useAPI();
   const [openListDialog, setOpenListDialog] = useState(false);
   const [openShare, setOpenShare] = useState(false);
+  const emitEvent = useAnalytics();
 
   const [objectReady, object] = usePostWithCache(
     pageParams.id && "get_space_object",
@@ -179,6 +180,12 @@ export default function SkyObjectPage() {
       id: pageParams.id,
     }
   );
+
+  useEffect(() => {
+    if (objectReady) {
+      emitEvent(`object_view_${object.name}`);
+    }
+  }, [objectReady, object, emitEvent]);
 
   const isOnList = user?.lists.find((list) =>
     list.objects.find((obj) => obj.id === pageParams.id)
