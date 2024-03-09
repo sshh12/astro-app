@@ -10,9 +10,10 @@ export const APIContext = React.createContext({});
 
 export const BASE_URL = "https://astro.sshh.io";
 export const APP_VERSION = "0.0.1";
-const API_ENDPOINT = (window && window.location.host.startsWith("localhost"))
-  ? "http://localhost:9000/"
-  : "https://sshh12--astro-app-backend.modal.run/";
+const API_ENDPOINT =
+  window && window.location.host.startsWith("localhost")
+    ? "http://localhost:9000/"
+    : "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
 const VIEW_MODE_KEY = "astro-app:viewMode";
 const CACHED_USER_KEY = "astro-app:cachedUser";
@@ -138,7 +139,7 @@ export function usePostWithCache(func, args = {}) {
   const [ready, setReady] = useState();
   const [result, setResult] = useState();
   const argsStr = JSON.stringify(args);
-  const key = `astro-app:${APP_VERSION}:${func}:${argsStr}`;
+  const key = `astro-app:cache:${func}:${argsStr}`;
   useEffect(() => {
     if (func) {
       if (localStorage.getItem(key)) {

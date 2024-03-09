@@ -39,7 +39,6 @@ async def main(args):
             lists_to_create.append(
                 {
                     "title": TEMP_PREFIX + title,
-                    "commonTemplate": False,
                     "color": color,
                 }
             )

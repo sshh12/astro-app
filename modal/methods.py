@@ -125,12 +125,18 @@ def _space_object_to_dict(obj: models.SpaceObject, expand: bool = False) -> dict
 
 
 def _list_to_dict(list: models.List) -> dict:
-    return {
+    list_dict = {
         "id": str(list.id),
         "title": list.title,
         "color": list.color,
-        "objects": [_space_object_to_dict(obj.SpaceObject) for obj in list.objects],
+        "credit": list.credit,
+        "imgURL": list.imgURL,
     }
+    if list.objects:
+        list_dict["objects"] = [
+            _space_object_to_dict(obj.SpaceObject) for obj in list.objects
+        ]
+    return list_dict
 
 
 def _get_favorite_objects(user: models.User) -> List:
@@ -159,13 +165,12 @@ def clean_search_term(term: str) -> str:
 
 async def _create_default_lists(prisma: Prisma, user: models.User) -> List[models.List]:
     new_lists = []
-    for (title, color), objIds in DEFAULT_LISTS.items():
+    for (title, color), obj_ids in DEFAULT_LISTS.items():
         new_list = await prisma.list.create(
             data={
                 "title": title,
-                "commonTemplate": True,
                 "color": color,
-                "objects": {"create": [{"spaceObjectId": objId} for objId in objIds]},
+                "objects": {"create": [{"spaceObjectId": objId} for objId in obj_ids]},
                 "users": {"create": [{"userId": user.id}]},
             },
         )
@@ -452,3 +457,49 @@ async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict
         ctx.user.elevation,
     )
     return {"location_details": week}
+
+
+@method()
+async def get_public_lists(ctx: context.Context) -> Dict:
+    lists = await ctx.prisma.list.find_many(
+        where={"publicTemplate": True},
+    )
+    return {"lists": [_list_to_dict(list) for list in lists]}
+
+
+@method()
+async def add_list(ctx: context.Context, id: str) -> Dict:
+    list = await ctx.prisma.list.find_unique(
+        where={"id": id},
+        include={"objects": True},
+    )
+    if list is None or not list.publicTemplate:
+        return {"error": "List not found"}
+    new_list = await ctx.prisma.list.create(
+        data={
+            "title": list.title,
+            "color": list.color,
+            "objects": {
+                "create": [
+                    {"spaceObjectId": obj_on_list.spaceObjectId}
+                    for obj_on_list in list.objects
+                ]
+            },
+            "users": {"create": [{"userId": ctx.user.id}]},
+        },
+    )
+    return _list_to_dict(new_list)
+
+
+@method()
+async def delete_list(ctx: context.Context, id: str) -> Dict:
+    await ctx.prisma.listsonusers.delete_many(
+        where={"listId": id, "userId": ctx.user.id},
+    )
+    await ctx.prisma.spaceobjectsonlists.delete_many(
+        where={"listId": id},
+    )
+    await ctx.prisma.list.delete(
+        where={"id": id},
+    )
+    return {"deleted": True}

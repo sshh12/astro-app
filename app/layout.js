@@ -4,8 +4,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Astro App",
-  description: "Astro App",
+  title: "The Astro App | Explore the Night Sky",
+  description:
+    "The Astro App (early access) is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
 };
 
 export default function RootLayout({ children }) {
@@ -16,7 +17,7 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#1e293b" />
-        <meta name="description" content="Astro App" />
+        <meta name="description" content={metadata.description} />
         <link rel="apple-touch-icon" href="/logo192.png" />
         <link rel="manifest" href="/manifest.json" />
         <script
