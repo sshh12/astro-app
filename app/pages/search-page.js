@@ -67,7 +67,7 @@ export default function SearchPage() {
         search={true}
         searchValue={searchValue}
         searchOnChange={(event) => setSearchValue(event.target.value)}
-        loading={loading || publicListsReady}
+        loading={loading || !publicLists}
       />
 
       <div className="ml-2 mr-2">

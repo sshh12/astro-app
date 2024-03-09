@@ -10,7 +10,82 @@ import {
   Flex,
 } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import LoadingBar from "react-top-loading-bar";
+
+function LoadingBar({ loading }) {
+  const loadingInterval = useRef(null);
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    if (loading && !loadingInterval.current) {
+      loadingInterval.current = setInterval(() => {
+        setPct((pct) => {
+          pct += 0.2;
+          if (pct > 100) {
+            pct = 0;
+          }
+          return pct;
+        });
+      }, 10);
+    } else if (!loading && loadingInterval.current) {
+      clearInterval(loadingInterval.current);
+      loadingInterval.current = null;
+      setPct(0);
+    }
+    return () => {
+      if (loadingInterval.current) {
+        clearInterval(loadingInterval.current);
+      }
+    };
+  }, [loading]);
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: "0px",
+        left: "0px",
+        height: "2px",
+        background: "transparent",
+        zIndex: "2147483647",
+        width: "100%",
+        opacity: loading ? 1 : 0,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          background: "rgb(34, 197, 94)",
+          width: "70%",
+          position: "absolute",
+          left: `${pct - 100}%`,
+          opacity: "1",
+          color: "rgb(34, 197, 94)",
+          transition: "all 10ms ease 0s",
+        }}
+      ></div>
+      <div
+        style={{
+          height: "100%",
+          background: "rgb(34, 197, 94)",
+          width: "70%",
+          position: "absolute",
+          left: `${pct}%`,
+          opacity: "1",
+          color: "rgb(34, 197, 94)",
+          transition: "all 10ms ease 0s",
+        }}
+      ></div>
+      <div
+        style={{
+          boxShadow:
+            "rgb(34, 197, 94) 0px 0px 5px, rgb(34, 197, 94) 0px 0px 5px",
+          width: "100%",
+          opacity: "1",
+          position: "absolute",
+          height: "100%",
+        }}
+      ></div>
+    </div>
+  );
+}
 
 export default function StickyHeader({
   title,
@@ -38,20 +113,9 @@ export default function StickyHeader({
     };
   }, []);
 
-  const loadingBarRef = useRef(null);
-
-  useEffect(() => {
-    if (loadingBarRef.current === null) return;
-    if (loading) {
-      loadingBarRef.current.continuousStart(0, 1500);
-    } else {
-      loadingBarRef.current.complete();
-    }
-  }, [loading, loadingBarRef]);
-
   return (
     <div>
-      <LoadingBar color="#22c55e" ref={loadingBarRef} />
+      <LoadingBar loading={loading} />
       <Flex
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}

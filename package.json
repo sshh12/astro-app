@@ -19,7 +19,6 @@
     "react": "^18",
     "react-dom": "^18",
     "react-three-fiber": "^6.0.13",
-    "react-top-loading-bar": "^2.3.1",
     "react-transition-group": "^4.4.5",
     "three": "^0.161.0",
     "workbox-build": "^7.0.0",
