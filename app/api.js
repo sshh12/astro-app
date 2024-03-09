@@ -1,17 +1,11 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  use,
-} from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 
 export const APIContext = React.createContext({});
 
 export const BASE_URL = "https://astro.sshh.io";
 export const APP_VERSION = "0.0.1";
 const API_ENDPOINT =
-  window && window.location.host.startsWith("localhost")
+  typeof window !== "undefined" && window.location.host.startsWith("localhost")
     ? "http://localhost:9000/"
     : "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
