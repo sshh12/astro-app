@@ -7,8 +7,8 @@ import { useNav } from "../nav";
 import { useAPI } from "../api";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import ObjectCard from "../components/object-card";
 import ListCard from "../components/list-card";
+import ObjectsList from "../components/objects-list";
 import { useTimestamp, formatTime } from "../utils";
 
 export default function SkyPage() {
@@ -63,25 +63,22 @@ export default function SkyPage() {
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
       {user && (
-        <>
-          <div className="mt-5 ml-2 mr-2">
-            <Title>Favorites</Title>
-          </div>
-          <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-            {favListObjects.map((obj) => (
-              <ObjectCard key={obj.id} object={obj} orbits={user.orbits} />
-            ))}
-          </Grid>
+        <div className="ml-2 mr-2">
+          <ObjectsList
+            title="Favorites"
+            objects={favListObjects}
+            orbits={user.orbits}
+          />
 
-          <div className="mt-5 ml-2 mr-2">
+          <div className="mt-5">
             <Title>Lists</Title>
           </div>
-          <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
+          <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1">
             {lists.map((list) => (
               <ListCard list={list} key={list.id} />
             ))}
           </Grid>
-        </>
+        </div>
       )}
     </div>
   );

@@ -8,14 +8,14 @@ import {
   TrashIcon,
   LinkIcon,
 } from "@heroicons/react/24/solid";
-import { Grid, Title, Flex } from "@tremor/react";
+import { Flex } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import ObjectCard from "../components/object-card";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { useAPI, usePostWithCache } from "../api";
 import LinkCard from "../components/link-card";
+import ObjectsList from "../components/objects-list";
 
 export default function SkyListPage() {
   const { pageParams, setPage } = useNav();
@@ -96,18 +96,11 @@ export default function SkyListPage() {
 
       <div className="ml-2 mr-2">
         {list && (
-          <>
-            <div className="mt-5">
-              <Title>Sky Objects</Title>
-            </div>
-            {list && (
-              <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1">
-                {list.objects.map((obj) => (
-                  <ObjectCard key={obj.id} object={obj} orbits={list.orbits} />
-                ))}
-              </Grid>
-            )}
-          </>
+          <ObjectsList
+            title="Sky Objects"
+            objects={list.objects}
+            orbits={list.orbits}
+          />
         )}
 
         {list && list.credit && !ownedList && (

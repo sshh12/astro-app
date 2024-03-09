@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Grid, Title, Text, Flex, Badge } from "@tremor/react";
+import { Title, Text, Flex, Badge } from "@tremor/react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI, usePostWithCache } from "../api";
 import StickyHeader from "../components/sticky-header";
 import { useDebounce } from "../utils";
-import ObjectCard from "../components/object-card";
+import ObjectsList from "../components/objects-list";
 
 function ListBadge({ list, onClick }) {
   return (
@@ -78,16 +78,11 @@ export default function SearchPage() {
         )}
 
         {results && (
-          <>
-            <div className="mt-5">
-              <Title>Results</Title>
-            </div>
-            <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1">
-              {results.objects.map((obj) => (
-                <ObjectCard key={obj.id} object={obj} orbits={results.orbits} />
-              ))}
-            </Grid>
-          </>
+          <ObjectsList
+            title="Results"
+            objects={results.objects}
+            orbits={results.orbits}
+          />
         )}
 
         {publicLists && (

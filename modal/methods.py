@@ -457,7 +457,7 @@ async def search(ctx: context.Context, term: str) -> Dict:
         objs.append(obj)
     except Exception as e:
         print(e)
-    objs = list({obj.id: obj for obj in objs}.values())
+    objs = list({obj.id: obj for obj in objs}.values())[:20]
     orbits = space_util.get_orbit_calculations(
         objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
