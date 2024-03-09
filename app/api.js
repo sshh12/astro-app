@@ -43,6 +43,9 @@ export function useAPIControl() {
     if (!localMode.sizeMode) {
       localMode.sizeMode = "full";
     }
+    if (!localMode.sortMode) {
+      localMode.sortMode = "name";
+    }
     _setObjectViewMode(localMode);
     _setCachedUser(JSON.parse(localStorage.getItem(CACHED_USER_KEY) || "null"));
   }, []);
