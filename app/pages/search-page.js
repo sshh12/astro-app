@@ -102,7 +102,9 @@ export default function SearchPage() {
                     <ListBadge
                       key={list.id}
                       list={list}
-                      onClick={() => setPage("/sky/list", { id: list.id })}
+                      onClick={() =>
+                        setPage("/sky/list", { id: list.id, title: list.title })
+                      }
                     />
                   ))}
                 </Flex>

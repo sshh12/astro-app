@@ -17,9 +17,11 @@ const SEEN_KEY = "astro-app:introSlides";
 const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 
 const UPDATE_TEXT = {
-  title: "Updates",
+  title: "List Updates",
   updates: [
-    "Fixed issue with lists showing random items. As a result, some lists had be reset.",
+    "Click the search icon to see pre-curated lists of objects.",
+    "You can now add and delete existing lists.",
+    "Minor performance optimizations."
   ],
 };
 
