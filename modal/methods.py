@@ -250,15 +250,23 @@ async def query_and_import_simbad(
     flux_v_match = re.search(r"Flux V : ([\d\.]+) ", output)
     flux_v = float(flux_v_match.group(1)) if flux_v_match else None
 
-    size_match = re.search(r"Angular size: ([\d\.]+) ([\d\.]+)  ([\d\.]+) ", output)
+    size_match = re.search(
+        r"Angular size:\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+) ", output
+    )
     if size_match:
         size_major = float(size_match.group(1))
         size_minor = float(size_match.group(2))
         size_pa = float(size_match.group(3))
     else:
-        size_major = None
-        size_minor = None
-        size_pa = None
+        size_match = re.search(r"Angular size: ([\d\.]+) ([\d\.]+)   ~", output)
+        if size_match:
+            size_major = float(size_match.group(1))
+            size_minor = float(size_match.group(2))
+            size_pa = None
+        else:
+            size_major = None
+            size_minor = None
+            size_pa = None
 
     obj = await prisma.spaceobject.find_first(where={"simbadName": simbad_title})
     if not obj:

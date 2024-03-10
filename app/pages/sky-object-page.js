@@ -166,7 +166,6 @@ function SurveyCard({ object }) {
               <SkySurveyImage
                 object={object}
                 hips={survey.hips}
-                fov={1.0}
                 aspectRatio={1.0}
               />
             </Flex>

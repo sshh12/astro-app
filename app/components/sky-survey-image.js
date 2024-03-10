@@ -9,6 +9,9 @@ export default function SkySurveyImage({
 }) {
   const width = 1000;
   const height = Math.floor(width / aspectRatio);
+  if (object.sizeMajor) {
+    fov = object.sizeMajor * (1 / 50);
+  }
   return (
     <img
       style={{ width: "100%", ...style }}

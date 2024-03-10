@@ -118,7 +118,6 @@ const IMAGE_MODES = [
         <SkySurveyImage
           object={object}
           hips={survey.hips}
-          fov={1.0}
           aspectRatio={16 / 9}
           style={style}
         />
