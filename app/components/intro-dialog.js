@@ -49,7 +49,7 @@ const INTRO_SLIDES = [
     title: "Space Objects",
     text: "Space objects will be shown with their name(s), tonight's max altitude, and a sky survey. You can edit this view by tapping the colored badge in the top right of these cards.",
     nextText: "Next",
-    image: "/intro_icons/object.png",
+    image: "/intro_icons/object.gif",
     nextOnClick: ({ nextSlide }) => nextSlide(),
     skipOnClick: ({ skipToEnd }) => skipToEnd(),
   },
