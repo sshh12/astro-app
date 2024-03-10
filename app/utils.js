@@ -100,3 +100,13 @@ export function objectAKA(object) {
   }
   return aka;
 }
+
+export function objectSize(object) {
+  const major = object.sizeMajor;
+  const minor = object.sizeMinor;
+  if (major > 1) {
+    return `${major.toFixed(2)}′ × ${minor.toFixed(2)}′`;
+  } else {
+    return `${(major * 60).toFixed(2)}″ × ${(minor * 60).toFixed(2)}″`;
+  }
+}

@@ -17,6 +17,7 @@ import SkySurveyImage from "../components/sky-survey-image";
 import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
+import { objectSize } from "../utils";
 
 const USEFUL_PREFIXES = [
   "NAME ",
@@ -49,11 +50,7 @@ function PositionCard({ object }) {
         {object.sizeMajor && (
           <ListItem>
             <span>SIZE</span>
-            <span>
-              {object.sizeMajor.toFixed(3)}
-              {"'"} x {object.sizeMinor.toFixed(3)}
-              {"'"}
-            </span>
+            <span>{objectSize(object)}</span>
           </ListItem>
         )}
         {object.fluxV && (

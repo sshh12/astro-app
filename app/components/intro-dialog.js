@@ -23,6 +23,7 @@ const UPDATE_TEXT = {
     "Can now add and delete existing lists.",
     "Added object sorting.",
     "Added comets.",
+    "Added brightness and size data.",
     "Minor performance optimizations.",
   ],
 };

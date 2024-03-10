@@ -31,7 +31,25 @@ const LIST_SORTS = [
         orbitAltB,
         (i) => orbits.time_state[i] > 0 && orbits.time_state[i] < 7
       );
-      return maxAltB - maxAltA;
+      return maxAltA - maxAltB;
+    },
+  },
+  {
+    id: "brightness",
+    label: "Sort by brightness",
+    sort: ({ a, b }) => {
+      const magA = a.fluxV || 6.0;
+      const magB = b.fluxV || 6.0;
+      return magB - magA;
+    },
+  },
+  {
+    id: "size",
+    label: "Sort by size",
+    sort: ({ a, b }) => {
+      const sizeA = a.sizeMajor || 1.0;
+      const sizeB = b.sizeMajor || 1.0;
+      return sizeA - sizeB;
     },
   },
 ];
@@ -43,7 +61,7 @@ export default function ObjectsList({ title, objects, orbits }) {
     return LIST_SORTS.concat(
       LIST_SORTS.map((s) => ({
         id: `${s.id}--desc`,
-        label: `${s.label} (-)`,
+        label: `${s.label} (↓)`,
         sort: (p) => -s.sort(p),
       }))
     ).sort((a, b) => a.label.localeCompare(b.label));

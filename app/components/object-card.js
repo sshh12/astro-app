@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { BadgeDelta, Badge, Card, Flex, Text } from "@tremor/react";
+import {
+  BadgeDelta,
+  Badge,
+  Card,
+  Flex,
+  Text,
+  List,
+  ListItem,
+} from "@tremor/react";
 import { useNav } from "../nav";
 import { useAPI, useAnalytics } from "../api";
 import {
@@ -10,6 +18,7 @@ import {
   getMaxWhile,
   formatTime,
   objectAKA,
+  objectSize,
 } from "../utils";
 import ObjectViewDialog from "./object-view-dialog";
 import SkySurveyImage from "./sky-survey-image";
@@ -203,8 +212,28 @@ export default function ObjectCard({ object, orbits }) {
                 az={az}
               />
             </Flex>
-            <Flex className="mt-2" style={{ minHeight: "2.5rem" }}>
-              <Text>{objectAKA(object).join(", ")}&nbsp;</Text>
+            <Flex className="mt-2">
+              <List>
+                {objectAKA(object).length > 1 && (
+                  <ListItem>
+                    <Text color="slate-400">
+                      {objectAKA(object).join(", ")}
+                    </Text>
+                  </ListItem>
+                )}
+                {object.sizeMajor && object.fluxV && (
+                  <ListItem>
+                    <Text color="slate-400">
+                      {objectSize(object)} (magnitude: {object.fluxV})
+                    </Text>
+                  </ListItem>
+                )}
+                {object.sizeMajor && !object.fluxV && (
+                  <ListItem>
+                    <Text color="slate-400">{objectSize(object)}</Text>
+                  </ListItem>
+                )}
+              </List>
             </Flex>
             {ImageElement !== null && (
               <Flex className="border-solid border-2 border-gray-700 mt-2">
