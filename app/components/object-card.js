@@ -21,7 +21,7 @@ import {
   objectSize,
 } from "../utils";
 import ObjectViewDialog from "./object-view-dialog";
-import SkySurveyImage from "./sky-survey-image";
+import ObjectImage from "./object-image";
 import { SKY_SURVEYS } from "../sky-surveys";
 
 function altToDelta(alt) {
@@ -109,12 +109,12 @@ const IMAGE_MODES = [
   {
     id: "wiki",
     label: "Show Wiki Image",
-    render: ({ object, style = {} }) => (
-      <img
+    render: ({ fov, object, style = {} }) => (
+      <ObjectImage
         style={{ width: "100%", ...style }}
-        src={object.imgURL || "/600.png"}
-        alt="Astro image"
-        crossorigin="anonymous"
+        object={object}
+        source="wiki"
+        fov={fov}
       />
     ),
   },
@@ -122,22 +122,15 @@ const IMAGE_MODES = [
   SKY_SURVEYS.map((survey) => ({
     id: survey.name.toLowerCase(),
     label: `Show ${survey.name} Sky Survey`,
-    render: ({ object, style = {} }) =>
-      !!object.ra ? (
-        <SkySurveyImage
-          object={object}
-          hips={survey.hips}
-          aspectRatio={16 / 9}
-          style={style}
-        />
-      ) : (
-        <img
-          style={{ width: "100%", ...style }}
-          src={object.imgURL || "/600.png"}
-          alt="Astro image"
-          crossorigin="anonymous"
-        />
-      ),
+    render: ({ fov, object, style = {} }) => (
+      <ObjectImage
+        object={object}
+        source={survey.hips}
+        aspectRatio={16 / 9}
+        style={style}
+        fov={fov}
+      />
+    ),
   }))
 );
 
@@ -237,7 +230,15 @@ export default function ObjectCard({ object, orbits }) {
             </Flex>
             {ImageElement !== null && (
               <Flex className="border-solid border-2 border-gray-700 mt-2">
-                <ImageElement object={object} />
+                <ImageElement
+                  object={object}
+                  fov={
+                    2000 /
+                    ((objectViewMode.imageFocalLength &&
+                      parseFloat(objectViewMode.imageFocalLength)) ||
+                      2000)
+                  }
+                />
               </Flex>
             )}
           </>

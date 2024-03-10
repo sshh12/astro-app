@@ -8,6 +8,7 @@ import {
   Button,
   Select,
   SelectItem,
+  NumberInput,
 } from "@tremor/react";
 
 export default function ObjectViewDialog({
@@ -81,7 +82,21 @@ export default function ObjectViewDialog({
           ))}
         </Select>
 
-        <div style={{ marginTop: "12rem" }}>
+        <label className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+          Image Focal Length
+        </label>
+        <NumberInput
+          value={objectViewMode.imageFocalLength}
+          enableStepper={false}
+          onChange={(e) =>
+            setObjectViewMode({
+              ...objectViewMode,
+              imageFocalLength: e.target.value,
+            })
+          }
+        />
+
+        <div style={{ marginTop: "10rem" }}>
           <Button variant="light" onClick={() => close()}>
             Close
           </Button>

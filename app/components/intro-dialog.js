@@ -24,6 +24,7 @@ const UPDATE_TEXT = {
     "Added object sorting.",
     "Added comets.",
     "Added brightness and size data.",
+    "Added scaled planet rendering and focal length options.",
     "Minor performance optimizations.",
   ],
 };

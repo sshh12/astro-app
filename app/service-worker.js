@@ -51,6 +51,7 @@ workbox.routing.registerRoute(
     ) ||
     url.href.startsWith("https://upload.wikimedia.org/") ||
     url.href.contains("list_icons") ||
+    url.href.contains("object_icons") ||
     url.href.contains("intro_icons"),
   new workbox.strategies.CacheFirst()
 );

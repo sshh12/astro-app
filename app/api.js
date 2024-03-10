@@ -40,6 +40,9 @@ export function useAPIControl() {
     if (!localMode.imageMode) {
       localMode.imageMode = "dss2";
     }
+    if (!localMode.imageFocalLength) {
+      localMode.imageFocalLength = 2000;
+    }
     if (!localMode.sizeMode) {
       localMode.sizeMode = "full";
     }

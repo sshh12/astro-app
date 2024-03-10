@@ -13,7 +13,7 @@ import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import { useAPI, useAnalytics, usePostWithCache } from "../api";
 import ListDialog from "../components/list-dialog";
-import SkySurveyImage from "../components/sky-survey-image";
+import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
@@ -160,9 +160,9 @@ function SurveyCard({ object }) {
           <Flex className="flex-col" key={survey.hips}>
             <Text>{survey.name}</Text>
             <Flex className="border-solid border-2 border-gray-700">
-              <SkySurveyImage
+              <ObjectImage
                 object={object}
-                hips={survey.hips}
+                source={survey.hips}
                 aspectRatio={1.0}
               />
             </Flex>
