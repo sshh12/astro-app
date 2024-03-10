@@ -51,7 +51,8 @@ function PositionCard({ object }) {
             <span>SIZE</span>
             <span>
               {object.sizeMajor.toFixed(3)}
-              {"'"} x {object.sizeMinor.toFixed(3)}'
+              {"'"} x {object.sizeMinor.toFixed(3)}
+              {"'"}
             </span>
           </ListItem>
         )}
