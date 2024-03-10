@@ -6,7 +6,9 @@ import numpy as np
 from skyfield import almanac
 from skyfield.api import wgs84, Loader, Star, Angle
 from skyfield.framelib import ecliptic_frame
+from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from skyfield.searchlib import find_maxima, find_minima
+from skyfield.data import mpc
 
 
 CACHE_DIR = "/root/cache/"
@@ -59,9 +61,14 @@ def date_to_weekday(dt_obj: dt.datetime) -> str:
     return dt_obj.strftime("%A")
 
 
-def space_object_to_observables(eph, object):
+def space_object_to_observables(ts, eph, object):
     if object.solarSystemKey is not None:
         return eph[object.solarSystemKey]
+    if object.cometKey is not None:
+        with Loader(CACHE_DIR).open(mpc.COMET_URL) as f:
+            comets = mpc.load_comets_dataframe(f).set_index("designation", drop=False)
+        comet = eph["sun"] + mpc.comet_orbit(comets.loc[object.cometKey], ts, GM_SUN)
+        return comet
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
 
 
@@ -105,7 +112,7 @@ def get_orbit_calculations(
     )
 
     observables = {
-        object.id: space_object_to_observables(eph, object) for object in objects
+        object.id: space_object_to_observables(ts, eph, object) for object in objects
     }
 
     cur = start
@@ -224,7 +231,7 @@ def get_longterm_orbit_calculations(
     earth = eph["earth"]
     loc_place = earth + loc
 
-    obj = space_object_to_observables(eph, object)
+    obj = space_object_to_observables(ts, eph, object)
 
     def alt_at(t):
         return loc_place.at(t).observe(obj).apparent().altaz()[0].degrees

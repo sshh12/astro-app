@@ -40,3 +40,4 @@ env.bat
 __pycache__
 de421.bsp
 *.cache.json
+CometEls.txt
