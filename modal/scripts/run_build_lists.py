@@ -148,6 +148,20 @@ LISTS = {
         "Vela SNR",
     ],
     (
+        "Comets",
+        "/list_icons/comets.jpg",
+        "https://skyandtelescope.org/astronomy-news/the-best-comets-in-2024/",
+        Color.GREEN,
+    ): [
+        "12P/Pons-Brooks",
+        "144P/Kushida",
+        "62P/Tsuchinshan",
+        "29P/Schwassmann-Wachmann",
+        "13P/Olbers",
+        "C/2023 A3 (Tsuchinshan-ATLAS)",
+        "333P/LINEAR",
+    ],
+    (
         "Black Holes",
         "/list_icons/black-hole.jpg",
         "https://www.go-astronomy.com/black-holes.php",

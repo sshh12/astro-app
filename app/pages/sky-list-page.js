@@ -114,8 +114,8 @@ export default function SkyListPage() {
           <Flex className="mt-3">
             <LinkCard
               title={"View Source"}
-              subtitle={list?.credit}
-              link={list?.credit}
+              subtitle={list.credit}
+              link={list.credit}
               color={"purple"}
               icon={LinkIcon}
             />
