@@ -207,25 +207,23 @@ export default function ObjectCard({ object, orbits }) {
             </Flex>
             <Flex className="mt-2">
               <List>
-                {objectAKA(object).length > 1 && (
-                  <ListItem>
-                    <Text color="slate-400">
-                      {objectAKA(object).join(", ")}
-                    </Text>
-                  </ListItem>
-                )}
-                {object.sizeMajor && object.fluxV && (
-                  <ListItem>
-                    <Text color="slate-400">
-                      {objectSize(object)} (magnitude: {object.fluxV})
-                    </Text>
-                  </ListItem>
-                )}
-                {object.sizeMajor && !object.fluxV && (
-                  <ListItem>
-                    <Text color="slate-400">{objectSize(object)}</Text>
-                  </ListItem>
-                )}
+                <ListItem>
+                  <Text color="slate-400">
+                    {objectAKA(object).join(", ") || object.name}
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text color="slate-400">
+                    {object.sizeMajor && object.fluxV && (
+                      <>
+                        {objectSize(object)} (magnitude: {object.fluxV})
+                      </>
+                    )}
+                    {object.sizeMajor && !object.fluxV && (
+                      <>{objectSize(object)}</>
+                    )}
+                  </Text>
+                </ListItem>
               </List>
             </Flex>
             {ImageElement !== null && (
