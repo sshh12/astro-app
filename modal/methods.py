@@ -119,6 +119,10 @@ def _space_object_to_dict(
                 "imgURL": obj.imgURL,
                 "ra": float(obj.ra) if obj.ra else None,
                 "dec": float(obj.dec) if obj.dec else None,
+                "fluxV": float(obj.fluxV) if obj.fluxV else None,
+                "sizeMajor": float(obj.sizeMajor) if obj.sizeMajor else None,
+                "sizeMinor": float(obj.sizeMinor) if obj.sizeMinor else None,
+                "sizeAngle": float(obj.sizeAngle) if obj.sizeAngle else None,
             }
         )
     if expand:
@@ -243,6 +247,19 @@ async def query_and_import_simbad(
         )
     ).degrees
 
+    flux_v_match = re.search(r"Flux V : ([\d\.]+) ", output)
+    flux_v = float(flux_v_match.group(1)) if flux_v_match else None
+
+    size_match = re.search(r"Angular size: ([\d\.]+) ([\d\.]+)  ([\d\.]+) ", output)
+    if size_match:
+        size_major = float(size_match.group(1))
+        size_minor = float(size_match.group(2))
+        size_pa = float(size_match.group(3))
+    else:
+        size_major = None
+        size_minor = None
+        size_pa = None
+
     obj = await prisma.spaceobject.find_first(where={"simbadName": simbad_title})
     if not obj:
         title = simbad_title
@@ -265,9 +282,13 @@ async def query_and_import_simbad(
                     "type": SpaceObjectType.STAR_OBJECT,
                     "ra": ra,
                     "dec": dec,
+                    "fluxV": flux_v,
                     "names": idents,
                     "color": _random_color(),
                     "simbadName": simbad_title,
+                    "sizeMajor": size_major,
+                    "sizeMinor": size_minor,
+                    "sizeAngle": size_pa,
                 },
             )
     return obj

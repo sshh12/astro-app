@@ -17,11 +17,12 @@ const SEEN_KEY = "astro-app:introSlides";
 const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 
 const UPDATE_TEXT = {
-  title: "List Updates",
+  title: "Updates",
   updates: [
     "See pre-curated lists of objects on the search page.",
     "Can now add and delete existing lists.",
     "Added object sorting.",
+    "Added comets.",
     "Minor performance optimizations.",
   ],
 };

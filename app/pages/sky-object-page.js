@@ -29,6 +29,42 @@ const USEFUL_PREFIXES = [
   "DESIGNATION ",
 ];
 
+function PositionCard({ object }) {
+  return (
+    <Card>
+      <Flex alignItems="start">
+        <div className="truncate">
+          <Text color="white">Position</Text>
+        </div>
+      </Flex>
+      <List style={{ color: "grey-200" }}>
+        {object.ra && (
+          <ListItem>
+            <span>POSITION</span>
+            <span>
+              RA {object.ra.toFixed(2)} / DEC {object.dec.toFixed(2)}
+            </span>
+          </ListItem>
+        )}
+        {object.sizeMajor && (
+          <ListItem>
+            <span>SIZE</span>
+            <span>
+              {object.sizeMajor.toFixed(3)}' x {object.sizeMinor.toFixed(3)}'
+            </span>
+          </ListItem>
+        )}
+        {object.fluxV && (
+          <ListItem>
+            <span>APPARENT MAGNITUDE</span>
+            <span>{object.fluxV.toFixed(2)}</span>
+          </ListItem>
+        )}
+      </List>
+    </Card>
+  );
+}
+
 function NameCard({ object }) {
   const names = object.names.filter(
     (name) =>
@@ -147,7 +183,7 @@ function DetailsCard({ details, detailsReady, timezone }) {
           <Text color="white">Annual Night Altitude</Text>
         </div>
       </Flex>
-      {!detailsReady && <Text>Calculating...</Text>}
+      {!detailsReady && <Text>Calculating (up to 5m)...</Text>}
       {details && timezone && (
         <SkyAltChart
           timezone={timezone}
@@ -269,6 +305,7 @@ export default function SkyObjectPage() {
             detailsReady={objectDetailsReady}
             timezone={user.timezone}
           />
+          {object && <PositionCard object={object} />}
           {object.names.length > 0 && <NameCard object={object} />}
         </Grid>
       )}
