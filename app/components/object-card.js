@@ -222,6 +222,7 @@ export default function ObjectCard({ object, orbits }) {
                     {object.sizeMajor && !object.fluxV && (
                       <>{objectSize(object)}</>
                     )}
+                    {!object.sizeMajor && <>&nbsp;</>}
                   </Text>
                 </ListItem>
               </List>
