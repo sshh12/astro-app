@@ -103,7 +103,7 @@ const IMAGE_MODES = [
     render: ({ object, style = {} }) => (
       <img
         style={{ width: "100%", ...style }}
-        src={object.imgURL}
+        src={object.imgURL || "/600.png"}
         alt="Astro image"
         crossorigin="anonymous"
       />
@@ -125,7 +125,7 @@ const IMAGE_MODES = [
       ) : (
         <img
           style={{ width: "100%", ...style }}
-          src={object.imgURL}
+          src={object.imgURL || "/600.png"}
           alt="Astro image"
           crossorigin="anonymous"
         />
