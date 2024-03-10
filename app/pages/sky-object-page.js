@@ -50,7 +50,8 @@ function PositionCard({ object }) {
           <ListItem>
             <span>SIZE</span>
             <span>
-              {object.sizeMajor.toFixed(3)}' x {object.sizeMinor.toFixed(3)}'
+              {object.sizeMajor.toFixed(3)}
+              {"'"} x {object.sizeMinor.toFixed(3)}'
             </span>
           </ListItem>
         )}
@@ -120,8 +121,8 @@ function OverviewCard({ object }) {
       <Flex className="border-solid border-2 border-gray-700 mt-2">
         <img
           style={{ width: "100%" }}
-          src={object.imgURL}
-          alt="Astro image"
+          src={object.imgURL || "/600.png"}
+          alt={object.name}
           crossorigin="anonymous"
         />
       </Flex>
