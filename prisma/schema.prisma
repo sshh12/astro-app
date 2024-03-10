@@ -26,6 +26,7 @@ model User {
 enum SpaceObjectType {
   SOLAR_SYSTEM_OBJECT
   STAR_OBJECT
+  COMET
 }
 
 enum Color {
@@ -60,13 +61,20 @@ model SpaceObject {
   searchKey String
   createdAt DateTime @default(now())
 
-  ra                Decimal?
-  dec               Decimal?
-  solarSystemKey    String?
-  type              SpaceObjectType
+  ra        Decimal?
+  dec       Decimal?
+  fluxV     Decimal?
+  sizeMajor Decimal?
+  sizeMinor Decimal?
+  sizeAngle Decimal?
+
+  solarSystemKey String?
+  cometKey       String?
+  type           SpaceObjectType
+
   simbadName        String?
-  color             Color           @default(SLATE)
-  description       String?         @db.String(2000)
+  color             Color   @default(SLATE)
+  description       String? @db.String(2000)
   descriptionCredit String?
   imgURL            String?
   imgCredit         String?

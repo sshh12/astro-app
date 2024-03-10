@@ -60,7 +60,7 @@ export default function ObjectsList({ title, objects, orbits }) {
     <div>
       <div className="mt-5">
         <Title>{title}</Title>
-        <div className="w-24 mt-1">
+        <div className="mt-1" style={{ width: "14rem" }}>
           <Select
             enableClear={false}
             value={objectViewMode.sortMode}
