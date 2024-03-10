@@ -1,6 +1,7 @@
 from typing import Tuple, List, Dict
 import datetime as dt
 import pytz
+import tqdm
 import numpy as np
 
 from skyfield import almanac
@@ -241,7 +242,7 @@ def get_longterm_orbit_calculations(
     days = []
 
     start_noon, start_next_noon = get_todays_noons(timezone)
-    for i in range(0, nb_days):
+    for i in tqdm.tqdm(list(range(0, nb_days))):
         most_recent_noon = round_datetime_to_hour(start_noon + dt.timedelta(days=i))
         next_noon = round_datetime_to_hour(
             start_next_noon + dt.timedelta(days=i), round_up=True

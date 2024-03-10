@@ -8,10 +8,11 @@ image_base = (
         "pytz==2024.1",
         "modal~=0.61.0",
         "pandas==2.2.1",
+        "tqdm==4.66.2",
     )
     .apt_install("curl")
     .run_commands(
-        "curl https://raw.githubusercontent.com/sshh12/astro-app/main/prisma/schema.prisma?53 > /root/schema.prisma",
+        "curl https://raw.githubusercontent.com/sshh12/astro-app/main/prisma/schema.prisma?54 > /root/schema.prisma",
         "prisma generate --schema /root/schema.prisma",
         "python -c \"from skyfield.api import Loader; from skyfield.data import mpc; load = Loader('/root/cache/'); load('de421.bsp'); load.open(mpc.COMET_URL)\"",
     )

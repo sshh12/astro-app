@@ -351,8 +351,14 @@ async def get_space_object(ctx: context.Context, id: str) -> Dict:
 @method()
 async def get_space_object_details(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
+    nb_days = 365
     long_term_details = space_util.get_longterm_orbit_calculations(
-        obj, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
+        obj,
+        ctx.user.timezone,
+        ctx.user.lat,
+        ctx.user.lon,
+        ctx.user.elevation,
+        nb_days=nb_days,
     )
     return {"details": long_term_details}
 
