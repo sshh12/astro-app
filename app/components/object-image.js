@@ -129,7 +129,7 @@ export default function ObjectImage({
   }
   if (source != "wiki" && !object.ra && override && object.sizeMajor) {
     const width = 1000;
-    const scale = object.sizeMajor / 10 / fov;
+    const scale = object.sizeMajor / 18 / fov;
     const height = Math.floor(width / aspectRatio);
     return (
       <ImageWithBackgound
