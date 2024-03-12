@@ -177,7 +177,9 @@ def _user_to_dict(user: models.User) -> dict:
 
 
 def clean_search_term(term: str) -> str:
-    return re.sub(r"[\s\-'_]+", "", term.lower())
+    if term.startswith('NAME '):
+        term = term[5:]
+    return re.sub(r"[^\w0-9]+", "", term.lower())
 
 
 async def _create_default_lists(prisma: Prisma, user: models.User) -> List[models.List]:
