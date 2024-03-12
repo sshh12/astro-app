@@ -135,11 +135,10 @@ const SkyChart = React.forwardRef((props, ref) => {
     setActiveDot(undefined);
   }
 
-  const nowX =
-    TEN_MINS *
-    Math.floor(
-      Math.min(Math.max(ts, times[0]), times[times.length - 1]) / TEN_MINS
-    );
+  const nowX = Math.min(
+    Math.max(Math.floor(ts / TEN_MINS) * TEN_MINS, times[0]),
+    times[times.length - 1]
+  );
 
   return (
     <div
