@@ -136,8 +136,8 @@ export function useAPI() {
 }
 
 export function usePostWithCache(func, args = {}) {
-  const [ready, setReady] = useState();
-  const [result, setResult] = useState();
+  const [ready, setReady] = useState(false);
+  const [result, setResult] = useState(null);
   const argsStr = JSON.stringify(args);
   const key = `astro-app:cache:${func}:${argsStr}`;
   useEffect(() => {
@@ -155,6 +155,34 @@ export function usePostWithCache(func, args = {}) {
     }
   }, [func, argsStr, key]);
   return [ready, result];
+}
+
+export function useControlledPostWithCache(func, args = {}) {
+  const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const argsStr = JSON.stringify(args);
+  const key = `astro-app:cache:${func}:${argsStr}`;
+  const load = useCallback(() => {
+    setLoading(true);
+    post(func, args).then((val) => {
+      if (!val.error) {
+        localStorage.setItem(key, JSON.stringify(val));
+        setResult(val);
+        setReady(true);
+      }
+      setLoading(false);
+    });
+  }, [func, args, key]);
+  useEffect(() => {
+    if (func) {
+      if (localStorage.getItem(key)) {
+        setResult(JSON.parse(localStorage.getItem(key)));
+        setReady(true);
+      }
+    }
+  }, [func, argsStr, key]);
+  return [load, ready, loading, result];
 }
 
 export function useAnalytics() {

@@ -6,12 +6,18 @@ import {
   ArrowUturnLeftIcon,
   ListBulletIcon,
   ShareIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/solid";
-import { Card, Flex, Text, List, ListItem, Grid } from "@tremor/react";
+import { Card, Flex, Text, List, ListItem, Grid, Button } from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import { useAPI, useAnalytics, usePostWithCache } from "../api";
+import {
+  useAPI,
+  useAnalytics,
+  usePostWithCache,
+  useControlledPostWithCache,
+} from "../api";
 import ListDialog from "../components/list-dialog";
 import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
@@ -121,7 +127,7 @@ function OverviewCard({ object }) {
           style={{ width: "100%" }}
           src={object.imgURL || "/600.png"}
           alt={object.name}
-          crossorigin="anonymous"
+          crossorigin={object.imgURL ? "anonymous" : null}
         />
       </Flex>
       <Flex className="mt-2">
@@ -173,7 +179,15 @@ function SurveyCard({ object }) {
   );
 }
 
-function DetailsCard({ details, detailsReady, timezone }) {
+function AltitudeCard({ object, timezone }) {
+  const [
+    objectDetailsLoad,
+    objectDetailsReady,
+    objectDetailsLoading,
+    objectDetails,
+  ] = useControlledPostWithCache(object && "get_space_object_details", {
+    id: object.id,
+  });
   return (
     <Card>
       <Flex alignItems="start" className="mb-2">
@@ -181,24 +195,46 @@ function DetailsCard({ details, detailsReady, timezone }) {
           <Text color="white">Annual Night Altitude</Text>
         </div>
       </Flex>
-      {!detailsReady && <Text>Calculating (up to 5m)...</Text>}
-      {details && timezone && (
+      {objectDetailsLoading && <Text>Calculating (up to 5m)...</Text>}
+      {!objectDetailsLoading && objectDetailsReady && timezone && (
         <SkyAltChart
           timezone={timezone}
-          times={details.details.map((detail) => detail.start)}
+          times={objectDetails.details.map((detail) => detail.start)}
           alts={[
             {
               name: "Max Altitude",
               color: "blue",
-              alts: details.details.map((detail) => detail.max_alt),
+              alts: objectDetails.details.map((detail) => detail.max_alt),
             },
             {
               name: "Min Altitude",
               color: "orange",
-              alts: details.details.map((detail) => detail.min_alt),
+              alts: objectDetails.details.map((detail) => detail.min_alt),
             },
           ]}
         />
+      )}
+      {!objectDetailsLoading && objectDetailsReady && (
+        <Flex className="justify-end mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="primary"
+            onClick={() => objectDetailsLoad()}
+          >
+            Refresh
+          </Button>
+        </Flex>
+      )}
+      {!objectDetailsLoading && !objectDetailsReady && (
+        <Flex className="justify-around mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="secondary"
+            onClick={() => objectDetailsLoad()}
+          >
+            Load
+          </Button>
+        </Flex>
       )}
     </Card>
   );
@@ -213,12 +249,6 @@ export default function SkyObjectPage() {
 
   const [objectReady, object] = usePostWithCache(
     pageParams.id && "get_space_object",
-    {
-      id: pageParams.id,
-    }
-  );
-  const [objectDetailsReady, objectDetails] = usePostWithCache(
-    pageParams.id && objectReady && "get_space_object_details",
     {
       id: pageParams.id,
     }
@@ -298,11 +328,9 @@ export default function SkyObjectPage() {
         <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
           {object.description && <OverviewCard object={object} />}
           {object.ra && <SurveyCard object={object} />}
-          <DetailsCard
-            details={objectDetails}
-            detailsReady={objectDetailsReady}
-            timezone={user.timezone}
-          />
+          {object && user && (
+            <AltitudeCard object={object} timezone={user.timezone} />
+          )}
           {object && <PositionCard object={object} />}
           {object.names.length > 0 && <NameCard object={object} />}
         </Grid>

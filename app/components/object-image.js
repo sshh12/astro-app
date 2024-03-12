@@ -97,7 +97,7 @@ function ImageWithBackgound({ src, width, height, alt, fill, scale }) {
     image.onerror = (e) => {
       console.error("Image loading error:", e);
     };
-  }, [src, width, height, scale]);
+  }, [src, width, height, scale, fill]);
 
   return (
     <img
