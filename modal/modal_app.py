@@ -19,6 +19,7 @@ class BackendArgs(BaseModel):
     mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
     container_idle_timeout=500,
     allow_concurrent_inputs=10,
+    cpu=0.5,
 )
 class AstroApp:
     @modal.enter()

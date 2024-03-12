@@ -18,8 +18,10 @@ async def index():
     await prisma.connect()
     func_name = request.json["func"]
     func_args = request.json["args"]
+    print("start", func_name)
     async with context.Context(prisma, request.json["api_key"]) as ctx:
         result = await methods.METHODS[func_name](ctx, **func_args)
+    print("end", func_name)
     return jsonify(result)
 
 

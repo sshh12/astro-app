@@ -18,13 +18,13 @@ function LoadingBar({ loading }) {
     if (loading) {
       loadingInterval.current = setInterval(() => {
         setPct((pct) => {
-          pct += 0.2;
+          pct += 10;
           if (pct > 100) {
             pct = 0;
           }
           return pct;
         });
-      }, 10);
+      }, 500);
     } else if (!loading && loadingInterval.current) {
       clearInterval(loadingInterval.current);
       loadingInterval.current = null;
@@ -58,7 +58,7 @@ function LoadingBar({ loading }) {
           left: `${pct - 100}%`,
           opacity: "1",
           color: "rgb(34, 197, 94)",
-          transition: "all 10ms ease 0s",
+          transition: "all 550ms ease 0s",
         }}
       ></div>
       <div
@@ -70,7 +70,7 @@ function LoadingBar({ loading }) {
           left: `${pct}%`,
           opacity: "1",
           color: "rgb(34, 197, 94)",
-          transition: "all 10ms ease 0s",
+          transition: "all 550ms ease 0s",
         }}
       ></div>
       <div

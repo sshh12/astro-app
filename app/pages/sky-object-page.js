@@ -218,7 +218,7 @@ export default function SkyObjectPage() {
     }
   );
   const [objectDetailsReady, objectDetails] = usePostWithCache(
-    pageParams.id && "get_space_object_details",
+    pageParams.id && objectReady && "get_space_object_details",
     {
       id: pageParams.id,
     }
