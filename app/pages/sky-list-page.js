@@ -115,7 +115,7 @@ export default function SkyListPage() {
             <LinkCard
               title={"View Source"}
               subtitle={list.credit}
-              link={list.credit}
+              onClick={() => (window.location.href = list.credit)}
               color={"purple"}
               icon={LinkIcon}
             />

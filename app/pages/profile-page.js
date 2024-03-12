@@ -6,12 +6,14 @@ import {
   MapPinIcon,
   UserCircleIcon,
   FlagIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/solid";
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
 import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
 import { useNav } from "../nav";
+import { SEEN_INTRO_KEY } from "../components/intro-dialog";
 
 export default function ProfilePage() {
   const { ready, user, postThenUpdateUser } = useAPI();
@@ -88,6 +90,16 @@ export default function ProfilePage() {
           onClick={() =>
             (window.location.href = "https://forms.gle/KFnRddtrbLVANPdJA")
           }
+        />
+        <LinkCard
+          title="Tutorial"
+          subtitle="Tap to play the intro tutorial."
+          color="green"
+          icon={AcademicCapIcon}
+          onClick={() => {
+            localStorage.setItem(SEEN_INTRO_KEY, "");
+            window.location.reload();
+          }}
         />
       </Grid>
     </div>

@@ -13,7 +13,7 @@ import {
 import { useNav } from "../nav";
 import { useAnalytics, APP_VERSION } from "../api";
 
-const SEEN_KEY = "astro-app:introSlides";
+export const SEEN_INTRO_KEY = "astro-app:introSlides";
 const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 
 const UPDATE_TEXT = {
@@ -94,7 +94,7 @@ export default function IntroDialog() {
   const emitEvent = useAnalytics();
 
   useEffect(() => {
-    const seen = localStorage.getItem(SEEN_KEY);
+    const seen = localStorage.getItem(SEEN_INTRO_KEY);
     const seenUpdates = localStorage.getItem(SEEN_UPDATES_KEY);
     if (!seen) {
       setOpen(true);
@@ -110,7 +110,7 @@ export default function IntroDialog() {
     setOpen(false);
     setOpenUpdates(false);
     emitEvent("intro_close");
-    localStorage.setItem(SEEN_KEY, "true");
+    localStorage.setItem(SEEN_INTRO_KEY, "true");
     localStorage.setItem(SEEN_UPDATES_KEY, "true");
   };
   const nextSlide = () => {
