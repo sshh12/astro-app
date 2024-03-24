@@ -139,6 +139,9 @@ def get_longterm_orbit_calculations(
     def alt_at(t):
         return loc_place.at(t).observe(obj).apparent().altaz()[0].degrees
 
+    def az_at(t):
+        return loc_place.at(t).observe(obj).apparent().altaz()[1].degrees
+
     alt_at.step_days = 0.1
 
     days = []
@@ -169,19 +172,23 @@ def get_longterm_orbit_calculations(
         n0 = times[night_idx[0]]
         n1 = times[night_idx[-1]]
 
-        _, max_alts = find_maxima(n0, n1, alt_at)
-        if len(max_alts) > 0:
-            max_alt = max(max_alts)
-        else:
-            max_alt = max(alt_at(n0), alt_at(n1))
+        max_alt_times, max_alts = find_maxima(n0, n1, alt_at)
+        if len(max_alts) == 0:
+            max_alt_times = [n0, n1]
+        max_alt_ts = max(max_alt_times, key=lambda t: alt_at(t))
+        max_alt = alt_at(max_alt_ts)
         day_info["max_alt"] = round(max_alt, 2)
+        day_info["az_at_max_alt"] = round(az_at(max_alt_ts), 2)
+        day_info["ts_at_max_alt"] = int(max_alt_ts.utc_datetime().timestamp() * 1000)
 
-        _, min_alts = find_minima(n0, n1, alt_at)
-        if len(min_alts) > 0:
-            min_alt = min(min_alts)
-        else:
-            min_alt = min(alt_at(n0), alt_at(n1))
+        min_alt_times, min_alts = find_minima(n0, n1, alt_at)
+        if len(min_alts) == 0:
+            min_alt_times = [n0, n1]
+        min_alt_ts = min(min_alt_times, key=lambda t: alt_at(t))
+        min_alt = alt_at(min_alt_ts)
         day_info["min_alt"] = round(min_alt, 2)
+        day_info["az_at_min_alt"] = round(az_at(min_alt_ts), 2)
+        day_info["ts_at_min_alt"] = int(min_alt_ts.utc_datetime().timestamp() * 1000)
 
         days.append(day_info)
 

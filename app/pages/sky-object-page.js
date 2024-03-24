@@ -23,7 +23,7 @@ import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
-import { objectSize } from "../utils";
+import { objectSize, formatTime } from "../utils";
 
 const USEFUL_PREFIXES = [
   "NAME ",
@@ -176,20 +176,18 @@ function SurveyCard({ object }) {
   );
 }
 
-function AltitudeCard({ object, timezone }) {
-  const [
-    objectDetailsLoad,
-    objectDetailsReady,
-    objectDetailsLoading,
-    objectDetails,
-  ] = useControlledPostWithCache(object && "get_space_object_details", {
-    id: object.id,
-  });
+function AltitudeCard({
+  objectDetailsLoad,
+  objectDetailsLoading,
+  objectDetailsReady,
+  objectDetails,
+  timezone,
+}) {
   return (
     <Card>
       <Flex alignItems="start" className="mb-2">
         <div className="truncate">
-          <Text color="white">Annual Night Altitude</Text>
+          <Text color="white">Annual Min/Max Altitude</Text>
         </div>
       </Flex>
       {objectDetailsLoading && <Text>Calculating (up to 5m)...</Text>}
@@ -197,6 +195,14 @@ function AltitudeCard({ object, timezone }) {
         <SkyAltChart
           timezone={timezone}
           times={objectDetails.details.map((detail) => detail.start)}
+          notes={objectDetails.details.map(
+            (detail) =>
+              `Max at ${formatTime(
+                detail.ts_at_max_alt || 0,
+                timezone,
+                true
+              )}, AZ ${Math.round(detail.az_at_max_alt || 0)}°`
+          )}
           alts={[
             {
               name: "Max Altitude",
@@ -256,6 +262,15 @@ export default function SkyObjectPage() {
       emitEvent(`object_view_${object.name}`);
     }
   }, [objectReady, object, emitEvent]);
+
+  const [
+    objectDetailsLoad,
+    objectDetailsReady,
+    objectDetailsLoading,
+    objectDetails,
+  ] = useControlledPostWithCache(object && "get_space_object_details", {
+    id: object?.id,
+  });
 
   const isOnList = user?.lists.find((list) =>
     list.objects.find((obj) => obj.id === pageParams.id)
@@ -326,7 +341,13 @@ export default function SkyObjectPage() {
           {object.description && <OverviewCard object={object} />}
           {object.ra && <SurveyCard object={object} />}
           {object && user && (
-            <AltitudeCard object={object} timezone={user.timezone} />
+            <AltitudeCard
+              objectDetailsLoad={objectDetailsLoad}
+              objectDetailsLoading={objectDetailsLoading}
+              objectDetailsReady={objectDetailsReady}
+              objectDetails={objectDetails}
+              timezone={user.timezone}
+            />
           )}
           {object && <PositionCard object={object} />}
           {object.names.length > 0 && <NameCard object={object} />}

@@ -27,6 +27,7 @@ const altValueFormatter = (number) => `${number}°`;
 
 const SkyAltChart = React.forwardRef((props, ref) => {
   const {
+    notes,
     times,
     timezone,
     alts,
@@ -59,7 +60,6 @@ const SkyAltChart = React.forwardRef((props, ref) => {
 
   const categories = alts.map((a) => a.name);
   const colors = alts.map((a) => a.color);
-  const CustomTooltip = customTooltip;
   const paddingValue = !showXAxis && !showYAxis ? 0 : 20;
   const [activeDot, setActiveDot] = useState(undefined);
   const [activeLegend, setActiveLegend] = useState(undefined);
@@ -207,35 +207,26 @@ const SkyAltChart = React.forwardRef((props, ref) => {
               wrapperStyle={{ outline: "none" }}
               isAnimationActive={false}
               cursor={{ stroke: "#d1d5db", strokeWidth: 1 }}
-              content={
-                showTooltip ? (
-                  ({ active, payload, label }) =>
-                    CustomTooltip ? (
-                      <CustomTooltip
-                        payload={payload?.map((payloadItem) => ({
-                          ...payloadItem,
-                          color:
-                            categoryColors.get(payloadItem.dataKey) ??
-                            BaseColors.Gray,
-                        }))}
-                        active={active}
-                        label={label}
-                      />
-                    ) : (
-                      <ChartTooltip
-                        active={active}
-                        payload={payload}
-                        label={new Date(label).toLocaleDateString("en-US", {
-                          timeZone: timezone,
-                        })}
-                        valueFormatter={valueFormatter}
-                        categoryColors={categoryColors}
-                      />
-                    )
-                ) : (
-                  <></>
-                )
-              }
+              content={({ active, payload, label }) => {
+                let note = "";
+                if (payload[0]) {
+                  const idx = times.indexOf(payload[0].payload.time);
+                  note = notes[idx];
+                }
+                const dateLabel = new Date(label).toLocaleDateString("en-US", {
+                  timeZone: timezone,
+                });
+                const itemLabel = `${dateLabel} (${note})`;
+                return (
+                  <ChartTooltip
+                    active={active}
+                    payload={payload}
+                    label={itemLabel}
+                    valueFormatter={valueFormatter}
+                    categoryColors={categoryColors}
+                  />
+                );
+              }}
               position={{ y: 0 }}
             />
             {categories.map((category) => (
