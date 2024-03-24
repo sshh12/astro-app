@@ -27,6 +27,7 @@ enum SpaceObjectType {
   SOLAR_SYSTEM_OBJECT
   STAR_OBJECT
   COMET
+  EARTH_SATELLITE
 }
 
 enum Color {
@@ -70,9 +71,10 @@ model SpaceObject {
 
   solarSystemKey String?
   cometKey       String?
+  celestrakKey   String?
+  simbadName     String?
   type           SpaceObjectType
 
-  simbadName        String?
   color             Color   @default(SLATE)
   description       String? @db.String(2000)
   descriptionCredit String?
