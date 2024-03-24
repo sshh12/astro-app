@@ -29,8 +29,6 @@ import { minMaxIdx, useTimestamp } from "../utils";
 
 const altValueFormatter = (number) => `${number}°`;
 
-const ONE_MIN = 1000 * 60 * 1;
-
 const SkyChart = React.forwardRef((props, ref) => {
   const {
     times,
@@ -135,8 +133,9 @@ const SkyChart = React.forwardRef((props, ref) => {
     setActiveDot(undefined);
   }
 
+  const resolution = times[1] - times[0];
   const nowX = Math.min(
-    Math.max(Math.floor(ts / ONE_MIN) * ONE_MIN, times[0]),
+    Math.max(Math.floor(ts / resolution) * resolution, times[0]),
     times[times.length - 1]
   );
 
