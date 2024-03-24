@@ -113,17 +113,21 @@ model Equipment {
 
   teleFocalLength   Decimal?
   teleAperture      Decimal?
+  teleName          String?
   camWidth          Int?
   camHeight         Int?
   camPixelWidth     Decimal?
   camPixelHeight    Decimal?
+  camName           String?
   barlow            Decimal?
   binning           Int?
   eyeFocalLength    Decimal?
   eyeFOV            Decimal?
+  eyeName           String?
   binoAperture      Decimal?
   binoMagnification Decimal?
   binoActualFOV     Decimal?
+  binoName          String?
 
   createdAt DateTime @default(now())
   User      User?    @relation(fields: [userId], references: [id])
