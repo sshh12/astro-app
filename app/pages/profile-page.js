@@ -7,6 +7,7 @@ import {
   UserCircleIcon,
   FlagIcon,
   AcademicCapIcon,
+  HeartIcon,
 } from "@heroicons/react/24/solid";
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
@@ -83,6 +84,16 @@ export default function ProfilePage() {
           ]}
         />
         <LinkCard
+          title="Tutorial"
+          subtitle="Tap to play the intro tutorial."
+          color="green"
+          icon={AcademicCapIcon}
+          onClick={() => {
+            localStorage.setItem(SEEN_INTRO_KEY, "");
+            window.location.reload();
+          }}
+        />
+        <LinkCard
           title="Feedback"
           subtitle="Share feedback or submit a feature request."
           color="purple"
@@ -92,13 +103,13 @@ export default function ProfilePage() {
           }
         />
         <LinkCard
-          title="Tutorial"
-          subtitle="Tap to play the intro tutorial."
-          color="green"
-          icon={AcademicCapIcon}
+          title="Acknowledgements"
+          subtitle="Thanks to HiPS2FITS for sky survey data and wikipedia for object descriptions."
+          color="red"
+          icon={HeartIcon}
+          truncate={false}
           onClick={() => {
-            localStorage.setItem(SEEN_INTRO_KEY, "");
-            window.location.reload();
+            alert("❤️");
           }}
         />
       </Grid>

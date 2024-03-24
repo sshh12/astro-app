@@ -138,9 +138,6 @@ function OverviewCard({ object }) {
           <ListItem>
             <span>Image: {object.imgCredit}</span>
           </ListItem>
-          <ListItem>
-            <span>Sky Surveys: HiPS2FITS</span>
-          </ListItem>
         </List>
       </Flex>
     </Card>
