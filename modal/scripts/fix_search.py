@@ -15,8 +15,7 @@ async def main(args):
     space_objects = await prisma.spaceobject.find_many()
     for space_object in space_objects:
         print(space_object.name)
-        names = set(space_object.names + [space_object.name])
-        key = "|".join(methods_web.clean_search_term(name) for name in names)
+        key = methods_web.build_search_key(space_object.name, space_object.names)
         print(key)
 
         if key != space_object.searchKey:

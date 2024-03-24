@@ -10,7 +10,6 @@ import re
 
 from skyfield.api import Angle
 import methods_cpu
-import space_util
 
 METHODS = {}
 
@@ -79,7 +78,7 @@ DEFAULT_LISTS = {
 }
 
 
-def method(require_login: bool = True):
+def method_web(require_login: bool = True):
     def wrap(func):
         async def wrapper(ctx: context.Context, **kwargs):
             if require_login and not ctx.user:
@@ -186,17 +185,23 @@ def clean_search_term(term: str) -> str:
     return re.sub(r"[^\w0-9]+", "", term.lower())
 
 
+def build_search_key(name: str, names: List[str]) -> str:
+    names_full = set(names + [name])
+    key = "|".join(clean_search_term(name) for name in names_full)
+    return key
+
+
 def chunk(list: List, size: int) -> List[List]:
     return [list[i : i + size] for i in range(0, len(list), size)]
 
 
 async def get_orbit_calculations_batch(
-    objects: List,
+    objects: List[models.SpaceObject],
     timezone: str,
     lat: float,
     lon: float,
     elevation: float,
-    batch_size: int = 4,
+    batch_size: int = 8,
 ):
     if len(objects) <= batch_size:
         results_combined = await methods_cpu.get_orbit_calculations.remote(
@@ -219,6 +224,32 @@ async def get_orbit_calculations_batch(
         results_combined = results[0]
         for result in results[1:]:
             results_combined["objects"].update(result["objects"])
+    return results_combined
+
+
+async def get_longterm_orbit_calculations_batch(
+    object: models.SpaceObject,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    batch_size: int = 20,
+):
+    results = await asyncio.gather(
+        *[
+            methods_cpu.get_longterm_orbit_calculations.remote(
+                object=object,
+                timezone=timezone,
+                lat=lat,
+                lon=lon,
+                elevation=elevation,
+                start_days=day_chunk[0],
+                offset_days=len(day_chunk),
+            )
+            for day_chunk in chunk(list(range(365)), batch_size)
+        ]
+    )
+    results_combined = [day for result in results for day in result]
     return results_combined
 
 
@@ -325,9 +356,7 @@ async def query_and_import_simbad(
             obj = await prisma.spaceobject.create(
                 data={
                     "name": title,
-                    "searchKey": "|".join([clean_search_term(id_) for id_ in idents])
-                    .lower()
-                    .replace(" ", ""),
+                    "searchKey": build_search_key(title, idents),
                     "solarSystemKey": None,
                     "type": SpaceObjectType.STAR_OBJECT,
                     "ra": ra,
@@ -344,7 +373,7 @@ async def query_and_import_simbad(
     return obj
 
 
-@method(require_login=False)
+@method_web(require_login=False)
 async def create_user(ctx: context.Context) -> Dict:
     user = await _create_user(ctx.prisma)
     user = await context.fetch_user(ctx.prisma, user.apiKey)
@@ -359,7 +388,7 @@ async def create_user(ctx: context.Context) -> Dict:
     }
 
 
-@method()
+@method_web()
 async def get_user(ctx: context.Context) -> Dict:
     fav_objects = _get_favorite_objects(ctx.user)
     orbits = await get_orbit_calculations_batch(
@@ -368,7 +397,7 @@ async def get_user(ctx: context.Context) -> Dict:
     return {**_user_to_dict(ctx.user), "orbits": orbits}
 
 
-@method()
+@method_web()
 async def update_user(
     ctx: context.Context,
     name: str,
@@ -385,7 +414,7 @@ async def update_user(
     return {}
 
 
-@method()
+@method_web()
 async def update_user_location(
     ctx: context.Context,
     elevation: int,
@@ -405,7 +434,7 @@ async def update_user_location(
     return {}
 
 
-@method(require_login=False)
+@method_web(require_login=False)
 async def get_space_object(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
     if ctx.user:
@@ -419,22 +448,20 @@ async def get_space_object(ctx: context.Context, id: str) -> Dict:
     return {**_space_object_to_dict(obj, expand=True), "orbits": orbits}
 
 
-@method()
+@method_web()
 async def get_space_object_details(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    nb_days = 365
-    long_term_details = space_util.get_longterm_orbit_calculations(
+    long_term_details = await get_longterm_orbit_calculations_batch(
         obj,
         ctx.user.timezone,
         ctx.user.lat,
         ctx.user.lon,
         ctx.user.elevation,
-        nb_days=nb_days,
     )
     return {"details": long_term_details}
 
 
-@method(require_login=False)
+@method_web(require_login=False)
 async def get_list(ctx: context.Context, id: str) -> Dict:
     list_ = await ctx.prisma.list.find_unique(
         where={"id": id},
@@ -460,7 +487,7 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
     return {**_list_to_dict(list_), "orbits": orbits}
 
 
-@method()
+@method_web()
 async def update_space_object_lists(
     ctx: context.Context, list_ids: List[str], new_list_title: str, object_id: str
 ) -> Dict:
@@ -522,7 +549,7 @@ async def update_space_object_lists(
     }
 
 
-@method()
+@method_web()
 async def search(ctx: context.Context, term: str) -> Dict:
     print("search/", repr(term))
     term = clean_search_term(term)
@@ -541,19 +568,19 @@ async def search(ctx: context.Context, term: str) -> Dict:
     return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}
 
 
-@method()
+@method_web()
 async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict:
-    week = space_util.get_week_info_with_weather_data(
-        weather_data,
-        ctx.user.timezone,
-        ctx.user.lat,
-        ctx.user.lon,
-        ctx.user.elevation,
+    week = await methods_cpu.get_week_info_with_weather_data.remote(
+        weather_data=weather_data,
+        timezone=ctx.user.timezone,
+        lat=ctx.user.lat,
+        lon=ctx.user.lon,
+        elevation=ctx.user.elevation,
     )
     return {"location_details": week}
 
 
-@method()
+@method_web()
 async def get_public_lists(ctx: context.Context) -> Dict:
     lists = await ctx.prisma.list.find_many(
         where={"publicTemplate": True},
@@ -561,7 +588,7 @@ async def get_public_lists(ctx: context.Context) -> Dict:
     return {"lists": [_list_to_dict(list) for list in lists]}
 
 
-@method()
+@method_web()
 async def add_list(ctx: context.Context, id: str) -> Dict:
     list = await ctx.prisma.list.find_unique(
         where={"id": id},
@@ -585,7 +612,7 @@ async def add_list(ctx: context.Context, id: str) -> Dict:
     return _list_to_dict(new_list)
 
 
-@method()
+@method_web()
 async def delete_list(ctx: context.Context, id: str) -> Dict:
     cnt = await ctx.prisma.listsonusers.delete_many(
         where={"listId": id, "userId": ctx.user.id},
