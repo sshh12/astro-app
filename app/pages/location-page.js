@@ -217,7 +217,7 @@ function WeatherCard({ dateInfo, timezone }) {
     });
   }
   const cloudData = [];
-  if (dataInfo.cloud_cover) {
+  if (dateInfo.cloud_cover) {
     for (let i in dateInfo.time) {
       if (i < nowIndex - 1) {
         continue;
