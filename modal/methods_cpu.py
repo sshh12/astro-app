@@ -79,12 +79,12 @@ def get_orbit_calculations(
     states = list(checkpoints.keys())
     assert len(states) == 8
 
-    start = space_util.round_datetime(checkpoints["Day-"]) - dt.timedelta(
-        minutes=resolution_mins * 2
-    )
-    end = space_util.round_datetime(checkpoints["Day+"]) + dt.timedelta(
-        minutes=resolution_mins * 3
-    )
+    start = space_util.round_datetime(
+        checkpoints["Day-"], mins=resolution_mins
+    ) - dt.timedelta(minutes=resolution_mins * 2)
+    end = space_util.round_datetime(
+        checkpoints["Day+"], mins=resolution_mins
+    ) + dt.timedelta(minutes=resolution_mins * 3)
 
     observables = {
         object.id: space_util.space_object_to_observables(ts, eph, object)

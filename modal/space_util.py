@@ -48,8 +48,8 @@ def get_todays_noons(timezone: str) -> Tuple:
         return yesterdays_noon, upcoming_noon
 
 
-def round_datetime(dt_obj: dt.datetime) -> Tuple:
-    round_to = dt.timedelta(minutes=TIME_RESOLUTION_MINS)
+def round_datetime(dt_obj: dt.datetime, mins: int = 1) -> Tuple:
+    round_to = dt.timedelta(minutes=mins)
     seconds = (
         dt_obj - dt_obj.replace(hour=0, minute=0, second=0, microsecond=0)
     ).seconds
