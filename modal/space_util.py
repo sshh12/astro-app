@@ -10,7 +10,7 @@ from skyfield.sgp4lib import EarthSatellite
 
 
 CACHE_DIR = "/root/cache/"
-TIME_RESOLUTION_MINS = 10
+TIME_RESOLUTION_MINS = 1
 
 
 def get_loader() -> Loader:

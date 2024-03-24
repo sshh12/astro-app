@@ -29,7 +29,7 @@ import { minMaxIdx, useTimestamp } from "../utils";
 
 const altValueFormatter = (number) => `${number}°`;
 
-const TEN_MINS = 1000 * 60 * 10;
+const ONE_MIN = 1000 * 60 * 1;
 
 const SkyChart = React.forwardRef((props, ref) => {
   const {
@@ -136,7 +136,7 @@ const SkyChart = React.forwardRef((props, ref) => {
   }
 
   const nowX = Math.min(
-    Math.max(Math.floor(ts / TEN_MINS) * TEN_MINS, times[0]),
+    Math.max(Math.floor(ts / ONE_MIN) * ONE_MIN, times[0]),
     times[times.length - 1]
   );
 
