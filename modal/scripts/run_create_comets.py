@@ -15,7 +15,7 @@ from skyfield.api import load
 from skyfield.data import mpc
 import re
 
-import methods
+import methods_web
 
 
 def comet_apparent_magnitude_at_perihelion(
@@ -53,9 +53,9 @@ async def main():
         ref = row["reference"]
         ref = re.sub(r"\s+", " ", ref)
         sk = (
-            methods.clean_search_term(row["designation"])
+            methods_web.clean_search_term(row["designation"])
             + "|"
-            + methods.clean_search_term(ref)
+            + methods_web.clean_search_term(ref)
         )
         am = comet_apparent_magnitude_at_perihelion(
             row["magnitude_g"], row["magnitude_k"], row["perihelion_distance_au"]

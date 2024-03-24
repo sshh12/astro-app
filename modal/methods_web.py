@@ -1,12 +1,15 @@
 from typing import List, Dict
 from prisma import Prisma, models, errors
 from prisma.enums import SpaceObjectType, Color
+from decimal import Decimal
 import context
 import random
 import aiohttp
+import asyncio
 import re
 
 from skyfield.api import Angle
+import methods_cpu
 import space_util
 
 METHODS = {}
@@ -26,6 +29,7 @@ DEFAULT_LISTS = {
         "944241952512442369",
         "944241955830530049",
         "944241965995786241",
+        "950079201617838082",
     ],
     ("Popular Nebulas", Color.RED): [
         "944241955830530049",
@@ -177,9 +181,45 @@ def _user_to_dict(user: models.User) -> dict:
 
 
 def clean_search_term(term: str) -> str:
-    if term.startswith('NAME '):
+    if term.startswith("NAME "):
         term = term[5:]
     return re.sub(r"[^\w0-9]+", "", term.lower())
+
+
+def chunk(list: List, size: int) -> List[List]:
+    return [list[i : i + size] for i in range(0, len(list), size)]
+
+
+async def get_orbit_calculations_batch(
+    objects: List,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    batch_size: int = 4,
+):
+    if len(objects) <= batch_size:
+        results_combined = await methods_cpu.get_orbit_calculations.remote(
+            objects=objects, timezone=timezone, lat=lat, lon=lon, elevation=elevation
+        )
+    else:
+        objs = sorted(objects, key=lambda obj: str(obj.type))
+        results = await asyncio.gather(
+            *[
+                methods_cpu.get_orbit_calculations.remote(
+                    objects=obj_chunk,
+                    timezone=timezone,
+                    lat=lat,
+                    lon=lon,
+                    elevation=elevation,
+                )
+                for obj_chunk in chunk(objs, batch_size)
+            ]
+        )
+        results_combined = results[0]
+        for result in results[1:]:
+            results_combined["objects"].update(result["objects"])
+    return results_combined
 
 
 async def _create_default_lists(prisma: Prisma, user: models.User) -> List[models.List]:
@@ -309,7 +349,7 @@ async def create_user(ctx: context.Context) -> Dict:
     user = await _create_user(ctx.prisma)
     user = await context.fetch_user(ctx.prisma, user.apiKey)
     fav_objects = _get_favorite_objects(user)
-    orbits = space_util.get_orbit_calculations(
+    orbits = await get_orbit_calculations_batch(
         fav_objects, user.timezone, user.lat, user.lon, user.elevation
     )
     return {
@@ -322,7 +362,7 @@ async def create_user(ctx: context.Context) -> Dict:
 @method()
 async def get_user(ctx: context.Context) -> Dict:
     fav_objects = _get_favorite_objects(ctx.user)
-    orbits = space_util.get_orbit_calculations(
+    orbits = await get_orbit_calculations_batch(
         fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
     return {**_user_to_dict(ctx.user), "orbits": orbits}
@@ -356,9 +396,9 @@ async def update_user_location(
     await ctx.prisma.user.update(
         where={"id": ctx.user.id},
         data={
-            "elevation": elevation,
-            "lat": lat,
-            "lon": lon,
+            "elevation": Decimal(elevation),
+            "lat": Decimal(lat),
+            "lon": Decimal(lon),
             "timezone": timezone,
         },
     )
@@ -369,11 +409,11 @@ async def update_user_location(
 async def get_space_object(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
     if ctx.user:
-        orbits = space_util.get_orbit_calculations(
+        orbits = await get_orbit_calculations_batch(
             [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
         )
     else:
-        orbits = space_util.get_orbit_calculations(
+        orbits = await get_orbit_calculations_batch(
             [obj], DEFAULT_TZ, DEFAULT_LAT, DEFAULT_LON, DEFAULT_ELEVATION
         )
     return {**_space_object_to_dict(obj, expand=True), "orbits": orbits}
@@ -410,11 +450,11 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
         return {"error": "List not found"}
     objs = [obj.SpaceObject for obj in list_.objects]
     if ctx.user:
-        orbits = space_util.get_orbit_calculations(
+        orbits = await get_orbit_calculations_batch(
             objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
         )
     else:
-        orbits = space_util.get_orbit_calculations(
+        orbits = await get_orbit_calculations_batch(
             objs, DEFAULT_TZ, DEFAULT_LAT, DEFAULT_LON, DEFAULT_ELEVATION
         )
     return {**_list_to_dict(list_), "orbits": orbits}
@@ -495,7 +535,7 @@ async def search(ctx: context.Context, term: str) -> Dict:
     except Exception as e:
         print(e)
     objs = list({obj.id: obj for obj in objs}.values())[:20]
-    orbits = space_util.get_orbit_calculations(
+    orbits = await get_orbit_calculations_batch(
         objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
     )
     return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}

@@ -9,7 +9,7 @@ import argparse
 import json
 from prisma import Prisma
 from prisma.enums import Color
-import methods
+import methods_web
 
 CACHE_FN = "spaceobject.cache.json"
 
@@ -364,7 +364,7 @@ LISTS = {
 async def resolve_object(prisma, obj_name):
     obj = await prisma.spaceobject.find_unique(where={"name": obj_name})
     if not obj:
-        obj = await methods.query_and_import_simbad(prisma, obj_name)
+        obj = await methods_web.query_and_import_simbad(prisma, obj_name)
     if not obj:
         raise Exception("Could not find " + obj_name + " in SIMBAD")
     return obj.id

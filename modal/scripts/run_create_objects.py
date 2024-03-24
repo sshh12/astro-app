@@ -5,7 +5,7 @@ import random
 from prisma import Prisma
 from prisma.enums import SpaceObjectType, Color
 
-import methods
+import methods_web
 
 
 SOLAR_SYSTEM = {
@@ -80,7 +80,7 @@ async def create_list(prisma: Prisma, title: str, items: List):
     for item_name in items:
         obj = await prisma.spaceobject.find_first(where={"name": item_name})
         if obj is None and item_name not in SOLAR_SYSTEM_NAMES:
-            obj = await methods.query_and_import_simbad(
+            obj = await methods_web.query_and_import_simbad(
                 prisma, item_name, override_name=item_name
             )
         try:
@@ -105,7 +105,7 @@ async def main():
                 data={
                     "name": name,
                     "names": [f"NAME {name}"],
-                    "searchKey": methods.clean_search_term(name),
+                    "searchKey": methods_web.clean_search_term(name),
                     "solarSystemKey": key,
                     "type": SpaceObjectType.SOLAR_SYSTEM_OBJECT,
                     "color": color,

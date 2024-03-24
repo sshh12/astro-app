@@ -6,7 +6,7 @@ import asyncio
 import argparse
 from prisma import Prisma
 
-from methods import DEFAULT_LISTS
+from modal.methods_web import DEFAULT_LISTS
 
 TEMP_PREFIX = "TEMP+++"
 

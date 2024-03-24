@@ -16,10 +16,14 @@ class BackendArgs(BaseModel):
 @stub.cls(
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
-    mounts=[modal.Mount.from_local_python_packages("context", "methods", "space_util")],
+    mounts=[
+        modal.Mount.from_local_python_packages(
+            "context", "methods_web", "methods_cpu", "space_util"
+        )
+    ],
     container_idle_timeout=500,
     allow_concurrent_inputs=10,
-    cpu=0.5,
+    cpu=0.25,
 )
 class AstroApp:
     @modal.enter()
@@ -32,13 +36,29 @@ class AstroApp:
     @modal.web_endpoint(method="POST", label="astro-app-backend")
     async def backend(self, args: BackendArgs):
         import context
-        import methods
+        import methods_web
 
         async with context.Context(self.prisma, args.api_key) as ctx:
-            result = await methods.METHODS[args.func](ctx, **args.args)
+            result = await methods_web.METHODS[args.func](ctx, **args.args)
 
         return Response(content=json.dumps(result), media_type="application/json")
 
     @modal.exit()
     async def close_connection(self):
         await self.prisma.disconnect()
+
+
+@stub.function(
+    secrets=[modal.Secret.from_name("astro-app-secret")],
+    image=image_base,
+    mounts=[modal.Mount.from_local_python_packages("methods_cpu", "space_util")],
+    container_idle_timeout=500,
+    allow_concurrent_inputs=1,
+    cpu=1.0,
+)
+def astro_app_backend_cpu(func: str, kwargs: Dict):
+    import methods_cpu
+
+    result = methods_cpu.METHODS[func](**kwargs)
+
+    return result

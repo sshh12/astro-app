@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(__file__) + "/../")
 import asyncio
 import argparse
 from prisma import Prisma
-import methods
+import methods_web
 
 
 async def main(args):
@@ -16,7 +16,7 @@ async def main(args):
     for space_object in space_objects:
         print(space_object.name)
         names = set(space_object.names + [space_object.name])
-        key = "|".join(methods.clean_search_term(name) for name in names)
+        key = "|".join(methods_web.clean_search_term(name) for name in names)
         print(key)
 
         if key != space_object.searchKey:

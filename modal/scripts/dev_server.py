@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, request, jsonify
 from prisma import Prisma
 import context
-import methods
+import methods_web
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ async def index():
     func_args = request.json["args"]
     print("start", func_name)
     async with context.Context(prisma, request.json["api_key"]) as ctx:
-        result = await methods.METHODS[func_name](ctx, **func_args)
+        result = await methods_web.METHODS[func_name](ctx, **func_args)
     print("end", func_name)
     return jsonify(result)
 
