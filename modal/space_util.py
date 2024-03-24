@@ -1,10 +1,12 @@
-from typing import Tuple
+from typing import Tuple, Dict
 import datetime as dt
+import pandas as pd
 import pytz
 
 from skyfield.api import Loader, Star, Angle
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from skyfield.data import mpc
+from skyfield.sgp4lib import EarthSatellite
 
 
 CACHE_DIR = "/root/cache/"
@@ -14,6 +16,18 @@ TIME_RESOLUTION_MINS = 10
 def get_loader() -> Loader:
     load = Loader(CACHE_DIR)
     return load
+
+
+def get_comets() -> pd.DataFrame:
+    with Loader(CACHE_DIR).open(mpc.COMET_URL) as f:
+        comets = mpc.load_comets_dataframe(f).set_index("designation", drop=False)
+    return comets
+
+
+def get_satellites() -> Dict[str, EarthSatellite]:
+    stations_url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
+    satellites = get_loader().tle_file(stations_url, filename="celestrak-active")
+    return {s.name: s for s in satellites}
 
 
 def get_todays_noons(timezone: str) -> Tuple:
@@ -66,8 +80,9 @@ def space_object_to_observables(ts, eph, object):
     if object.solarSystemKey is not None:
         return eph[object.solarSystemKey]
     if object.cometKey is not None:
-        with Loader(CACHE_DIR).open(mpc.COMET_URL) as f:
-            comets = mpc.load_comets_dataframe(f).set_index("designation", drop=False)
+        comets = get_comets()
         comet = eph["sun"] + mpc.comet_orbit(comets.loc[object.cometKey], ts, GM_SUN)
         return comet
+    if object.celestrakKey is not None:
+        return eph["earth"] + get_satellites()[object.celestrakKey]
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
