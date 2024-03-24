@@ -12,6 +12,8 @@ from skyfield.sgp4lib import EarthSatellite
 CACHE_DIR = "/root/cache/"
 TIME_RESOLUTION_MINS = 1
 
+DUMMY_STAR = Star(ra=Angle(hours=0), dec=Angle(degrees=0))
+
 
 def get_loader() -> Loader:
     load = Loader(CACHE_DIR)
@@ -81,8 +83,13 @@ def space_object_to_observables(ts, eph, object):
         return eph[object.solarSystemKey]
     if object.cometKey is not None:
         comets = get_comets()
-        comet = eph["sun"] + mpc.comet_orbit(comets.loc[object.cometKey], ts, GM_SUN)
-        return comet
+        try:
+            return eph["sun"] + mpc.comet_orbit(comets.loc[object.cometKey], ts, GM_SUN)
+        except KeyError:
+            return DUMMY_STAR
     if object.celestrakKey is not None:
-        return eph["earth"] + get_satellites()[object.celestrakKey]
+        try:
+            return eph["earth"] + get_satellites()[object.celestrakKey]
+        except KeyError:
+            return DUMMY_STAR
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
