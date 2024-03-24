@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from prisma import Prisma, models, errors
 from prisma.enums import SpaceObjectType, Color
 from decimal import Decimal
@@ -202,10 +202,21 @@ async def get_orbit_calculations_batch(
     lon: float,
     elevation: float,
     batch_size: int = 8,
+    resolution_mins: Optional[int] = None,
 ):
+    if resolution_mins is None:
+        if any(obj.type == SpaceObjectType.EARTH_SATELLITE for obj in objects):
+            resolution_mins = 1
+        else:
+            resolution_mins = 10
     if len(objects) <= batch_size:
         results_combined = await methods_cpu.get_orbit_calculations.remote(
-            objects=objects, timezone=timezone, lat=lat, lon=lon, elevation=elevation
+            objects=objects,
+            timezone=timezone,
+            lat=lat,
+            lon=lon,
+            elevation=elevation,
+            resolution_mins=resolution_mins,
         )
     else:
         objs = sorted(objects, key=lambda obj: str(obj.type))
@@ -217,6 +228,7 @@ async def get_orbit_calculations_batch(
                     lat=lat,
                     lon=lon,
                     elevation=elevation,
+                    resolution_mins=resolution_mins,
                 )
                 for obj_chunk in chunk(objs, batch_size)
             ]
@@ -563,7 +575,12 @@ async def search(ctx: context.Context, term: str) -> Dict:
         print(e)
     objs = list({obj.id: obj for obj in objs}.values())[:20]
     orbits = await get_orbit_calculations_batch(
-        objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
+        objs,
+        ctx.user.timezone,
+        ctx.user.lat,
+        ctx.user.lon,
+        ctx.user.elevation,
+        resolution_mins=10,
     )
     return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}
 

@@ -44,7 +44,12 @@ def method_cpu():
 
 @method_cpu()
 def get_orbit_calculations(
-    objects: List, timezone: str, lat: float, lon: float, elevation: float
+    objects: List,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    resolution_mins: int,
 ) -> Dict:
     zone = pytz.timezone(timezone)
     most_recent_noon, next_noon = space_util.get_todays_noons(timezone)
@@ -75,10 +80,10 @@ def get_orbit_calculations(
     assert len(states) == 8
 
     start = space_util.round_datetime(checkpoints["Day-"]) - dt.timedelta(
-        minutes=space_util.TIME_RESOLUTION_MINS * 2
+        minutes=resolution_mins * 2
     )
     end = space_util.round_datetime(checkpoints["Day+"]) + dt.timedelta(
-        minutes=space_util.TIME_RESOLUTION_MINS * 3
+        minutes=resolution_mins * 3
     )
 
     observables = {
@@ -110,7 +115,7 @@ def get_orbit_calculations(
             resp["objects"][oid]["alt"].append(round(alt, 2))
             resp["objects"][oid]["az"].append(round(az, 2))
 
-        cur += dt.timedelta(minutes=space_util.TIME_RESOLUTION_MINS)
+        cur += dt.timedelta(minutes=resolution_mins)
 
     return resp
 

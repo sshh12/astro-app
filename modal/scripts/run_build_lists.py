@@ -242,6 +242,18 @@ LISTS = {
         "333P/LINEAR",
     ],
     (
+        "Space Stations",
+        "/list_icons/stations.jpg",
+        "https://celestrak.org/NORAD/elements/table.php?GROUP=stations&FORMAT=tle",
+        Color.SLATE,
+    ): [
+        "ISS (ZARYA)",
+        "SHENZHOU-17 (SZ-17)",
+        "TIANZHOU-7",
+        "CSS (TIANHE)",
+        "SOYUZ-MS 24",
+    ],
+    (
         "Black Holes",
         "/list_icons/black-hole.jpg",
         "https://www.go-astronomy.com/black-holes.php",
