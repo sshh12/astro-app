@@ -236,7 +236,8 @@ def get_week_info_with_weather_data(
         except KeyError:
             continue
         for k in weather_fields:
-            date_info[k] = [weather_data["hourly"][k][hi] for hi in h_idxs]
+            if k in weather_data["hourly"]:
+                date_info[k] = [weather_data["hourly"][k][hi] for hi in h_idxs]
 
         start_date = most_recent_noon.isoformat()[:10]
         date_info["weather_code"] = date_to_weather_code[start_date]

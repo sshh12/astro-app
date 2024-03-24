@@ -217,34 +217,42 @@ function WeatherCard({ dateInfo, timezone }) {
     });
   }
   const cloudData = [];
-  for (let i in dateInfo.time) {
-    if (i < nowIndex - 1) {
-      continue;
+  if (dataInfo.cloud_cover) {
+    for (let i in dateInfo.time) {
+      if (i < nowIndex - 1) {
+        continue;
+      }
+      cloudData.push({
+        tooltip: `${dateInfo.cloud_cover[i]}% at ${timeAtIndex(i)}`,
+        color: cloudCoverToColor(dateInfo.cloud_cover[i]),
+      });
     }
-    cloudData.push({
-      tooltip: `${dateInfo.cloud_cover[i]}% at ${timeAtIndex(i)}`,
-      color: cloudCoverToColor(dateInfo.cloud_cover[i]),
-    });
   }
   const precipitationData = [];
-  for (let i in dateInfo.time) {
-    if (i < nowIndex - 1) {
-      continue;
+  if (dateInfo.precipitation_probability) {
+    for (let i in dateInfo.time) {
+      if (i < nowIndex - 1) {
+        continue;
+      }
+      precipitationData.push({
+        tooltip: `${dateInfo.precipitation_probability[i]}% at ${timeAtIndex(
+          i
+        )}`,
+        color: precipitationToColor(dateInfo.precipitation_probability[i]),
+      });
     }
-    precipitationData.push({
-      tooltip: `${dateInfo.precipitation_probability[i]}% at ${timeAtIndex(i)}`,
-      color: precipitationToColor(dateInfo.precipitation_probability[i]),
-    });
   }
   const visabilityData = [];
-  for (let i in dateInfo.time) {
-    if (i < nowIndex - 1) {
-      continue;
+  if (dateInfo.visibility) {
+    for (let i in dateInfo.time) {
+      if (i < nowIndex - 1) {
+        continue;
+      }
+      visabilityData.push({
+        tooltip: `${dateInfo.visibility[i]} km at ${timeAtIndex(i)}`,
+        color: visabilityToColor(dateInfo.visibility[i]),
+      });
     }
-    visabilityData.push({
-      tooltip: `${dateInfo.visibility[i]} km at ${timeAtIndex(i)}`,
-      color: visabilityToColor(dateInfo.visibility[i]),
-    });
   }
   return (
     <Card>
