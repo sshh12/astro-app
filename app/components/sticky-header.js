@@ -136,7 +136,7 @@ export default function StickyHeader({
           }}
         >
           <Title>{title}</Title>
-          <Subtitle>{subtitle}</Subtitle>
+          <Subtitle color="slate-400">{subtitle}</Subtitle>
         </div>
         {search && (
           <TextInput
@@ -169,7 +169,7 @@ export default function StickyHeader({
         style={{ padding: "0px 10px 0px 12px", marginTop: "4rem" }}
       >
         <Title>{title}</Title>
-        {!bigSubtitle && <Subtitle>{subtitle}</Subtitle>}
+        {!bigSubtitle && <Subtitle color="slate-400">{subtitle}</Subtitle>}
         {bigSubtitle && <Metric>{subtitle}</Metric>}
       </div>
     </div>

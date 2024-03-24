@@ -192,7 +192,7 @@ def get_longterm_orbit_calculations(
 def get_week_info_with_weather_data(
     weather_data: Dict, timezone: str, lat: float, lon: float, elevation: float
 ) -> Dict:
-    weather_fields = ["cloud_cover", "precipitation_probability"]
+    weather_fields = ["cloud_cover", "precipitation_probability", "visibility"]
     zone = pytz.timezone(timezone)
 
     load = space_util.get_loader()

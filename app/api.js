@@ -101,22 +101,31 @@ export function useAPIControl() {
     }
     window.initRunning = true;
     if (!localStorage.getItem(API_KEY_KEY)) {
-      post("create_user").then((user) => {
-        if (!user.api_key) {
-          alert("Error loading account details -- try again later");
-          return;
-        }
-        localStorage.setItem(API_KEY_KEY, user.api_key);
-        setReady(true);
-        setUser(user);
-        setCachedUser(user);
-      });
+      post("create_user")
+        .then((user) => {
+          if (!user.api_key) {
+            alert("Error loading account details -- try again later");
+            return;
+          }
+          localStorage.setItem(API_KEY_KEY, user.api_key);
+          setReady(true);
+          setUser(user);
+          setCachedUser(user);
+        })
+        .catch((e) => {
+          alert("Error fetching details -- app is offine, try again later");
+        });
     } else {
-      post("get_user").then((user) => {
-        setReady(true);
-        setUser(user);
-        setCachedUser(user);
-      });
+      post("get_user")
+        .then((user) => {
+          setReady(true);
+          setUser(user);
+          setCachedUser(user);
+        })
+        .catch((e) => {
+          alert("Error fetching details so app is offine, try again later");
+          setReady(true);
+        });
     }
   }, []);
 

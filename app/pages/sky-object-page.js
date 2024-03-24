@@ -44,25 +44,25 @@ function PositionCard({ object }) {
           <Text color="white">Position</Text>
         </div>
       </Flex>
-      <List style={{ color: "grey-200" }}>
+      <List>
         {object.ra && (
           <ListItem>
-            <span>POSITION</span>
-            <span>
+            <Text color="slate-400">POSITION</Text>
+            <Text color="slate-400">
               RA {object.ra.toFixed(2)} / DEC {object.dec.toFixed(2)}
-            </span>
+            </Text>
           </ListItem>
         )}
         {object.sizeMajor && (
           <ListItem>
-            <span>SIZE</span>
-            <span>{objectSize(object)}</span>
+            <Text color="slate-400">SIZE</Text>
+            <Text color="slate-400">{objectSize(object)}</Text>
           </ListItem>
         )}
         {object.fluxV && (
           <ListItem>
-            <span>APPARENT MAGNITUDE</span>
-            <span>{object.fluxV.toFixed(2)}</span>
+            <Text color="slate-400">APPARENT MAGNITUDE</Text>
+            <Text color="slate-400">{object.fluxV.toFixed(2)}</Text>
           </ListItem>
         )}
       </List>
@@ -96,13 +96,13 @@ function NameCard({ object }) {
           <Text color="white">Identifiers</Text>
         </div>
       </Flex>
-      <List style={{ color: "grey-200" }}>
+      <List>
         {names.map((objName) => {
           const [key, ...value] = objName.split(" ");
           return (
             <ListItem key={objName}>
-              <span>{key}</span>
-              <span>{value.join(" ")}</span>
+              <Text color="slate-400">{key}</Text>
+              <Text color="slate-400">{value.join(" ")}</Text>
             </ListItem>
           );
         })}

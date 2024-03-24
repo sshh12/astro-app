@@ -158,8 +158,8 @@ export default function SettingsCard({
           {items.map((item) => {
             return (
               <ListItem key={item.name}>
-                <span>{item.name}</span>
-                <span>{item.value}</span>
+                <Text color="slate-400">{item.name}</Text>
+                <Text color="slate-400">{item.value}</Text>
               </ListItem>
             );
           })}

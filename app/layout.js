@@ -15,7 +15,10 @@ export default function RootLayout({ children }) {
       <head>
         <meta charSet="utf-8" />
         <link rel="icon" href="favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
         <meta name="theme-color" content="#1e293b" />
         <meta name="description" content={metadata.description} />
         <link rel="apple-touch-icon" href="/logo192.png" />

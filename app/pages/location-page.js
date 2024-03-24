@@ -35,7 +35,7 @@ const useWeather = (lat, lon, timezone) => {
     setWeather(JSON.parse(localStorage.getItem(key)) || null);
     async function fetchWeather() {
       const weatherResp = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability,cloud_cover&daily=weather_code&timezone=${timezone}`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${timezone}`
       );
       const weatherData = await weatherResp.json();
       const apiResult = await post("get_location_details", {
@@ -174,6 +174,16 @@ function precipitationToColor(precipitation) {
   }
 }
 
+function visabilityToColor(visability) {
+  if (visability < 4000) {
+    return "red";
+  } else if (visability < 10000) {
+    return "yellow";
+  } else {
+    return "green";
+  }
+}
+
 function moonIlluminationToColor(moonIllumination) {
   if (moonIllumination < 30) {
     return "gray-600";
@@ -226,6 +236,16 @@ function WeatherCard({ dateInfo, timezone }) {
       color: precipitationToColor(dateInfo.precipitation_probability[i]),
     });
   }
+  const visabilityData = [];
+  for (let i in dateInfo.time) {
+    if (i < nowIndex - 1) {
+      continue;
+    }
+    visabilityData.push({
+      tooltip: `${dateInfo.visibility[i]} km at ${timeAtIndex(i)}`,
+      color: visabilityToColor(dateInfo.visibility[i]),
+    });
+  }
   return (
     <Card>
       <Flex alignItems="start" className="mb-3">
@@ -244,16 +264,20 @@ function WeatherCard({ dateInfo, timezone }) {
         </Badge>
       </Flex>
       <div>
-        <Text color="gray-500">Sky</Text>
+        <Text color="slate-400">Sky</Text>
         <Tracker data={skyData} className="mt-2 mb-2" />
       </div>
       <div>
-        <Text color="gray-500">Clouds</Text>
+        <Text color="slate-400">Clouds</Text>
         <Tracker data={cloudData} className="mt-2 mb-2" />
       </div>
       <div>
-        <Text color="gray-500">Precipitation</Text>
-        <Tracker data={precipitationData} className="mt-2" />
+        <Text color="slate-400">Precipitation</Text>
+        <Tracker data={precipitationData} className="mt-2  mb-2" />
+      </div>
+      <div>
+        <Text color="slate-400">Visability</Text>
+        <Tracker data={visabilityData} className="mt-2" />
       </div>
     </Card>
   );

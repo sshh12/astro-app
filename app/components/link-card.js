@@ -15,7 +15,9 @@ export default function LinkCard({ title, subtitle, icon, color, onClick }) {
       </Flex>
       <Flex className="mt-4 space-x-2 truncate">
         <div>
-          <Text className="truncate">{subtitle}</Text>
+          <Text color="slate-400" className="truncate">
+            {subtitle}
+          </Text>
         </div>
       </Flex>
     </Card>
