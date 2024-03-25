@@ -133,6 +133,56 @@ export function equipmentToDimensions(equipment) {
       height: renderHeight,
       fov: Math.max(fovWidthDegrees, fovHeightDegrees),
       title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.camName} (${equipment.camHeight}x${equipment.camWidth}) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
+      details: [
+        {
+          name: "Aperture",
+          value: `${equipment.teleAperture.toFixed(2)} mm`,
+        },
+        {
+          name: "Max Magnification",
+          value: `${Math.min(2.5 * equipment.teleAperture, 350).toFixed(2)}x`,
+        },
+        {
+          name: "Field of View",
+          value: `${fovWidthDegrees.toFixed(2)}° × ${fovHeightDegrees.toFixed(
+            2
+          )}°`,
+        },
+        {
+          name: "Focal Ratio",
+          value: `${(effectiveFocalLength / equipment.teleAperture).toFixed(
+            2
+          )}`,
+        },
+        {
+          name: "Dawes' Limit",
+          value: `${(116 / equipment.teleAperture).toFixed(2)} arcsecs`,
+        },
+        {
+          name: "Rayleigh Limit",
+          value: `${(138 / equipment.teleAperture).toFixed(2)} arcsecs`,
+        },
+        {
+          name: "Limiting Magnitude",
+          value: `${(
+            7.7 +
+            (5 * Math.log(equipment.teleAperture / 10)) / Math.LN10
+          ).toFixed(2)}`,
+        },
+        {
+          name: "Human Eye Light Grasp",
+          value: `${(
+            Math.pow(equipment.teleAperture, 2) / Math.pow(7, 2)
+          ).toFixed(2)}x`,
+        },
+        {
+          name: "Resolution",
+          value: `${equipment.camHeight} px x ${equipment.camWidth} px (${(
+            (equipment.camHeight * equipment.camWidth) /
+            1000000
+          ).toFixed(2)} MP)`,
+        },
+      ],
     };
   } else if (equipment && equipment.type === "VISUAL") {
     const effectiveFocalLength = equipment.teleFocalLength * equipment.barlow;
@@ -143,6 +193,44 @@ export function equipmentToDimensions(equipment) {
       height: 1000,
       fov: tfov,
       title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.eyeName} (${equipment.eyeFocalLength}mm) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
+      details: [
+        {
+          name: "Aperture",
+          value: `${equipment.teleAperture.toFixed(2)} mm`,
+        },
+        {
+          name: "Magnification",
+          value: `${magnification.toFixed(2)}x`,
+        },
+        {
+          name: "Max Magnification",
+          value: `${Math.min(2.5 * equipment.teleAperture, 350).toFixed(2)}x`,
+        },
+        {
+          name: "Field of View",
+          value: `${tfov.toFixed(2)}°`,
+        },
+        {
+          name: "Focal Ratio",
+          value: `${(effectiveFocalLength / equipment.teleAperture).toFixed(
+            2
+          )}`,
+        },
+        {
+          name: "Dawes' Limit",
+          value: `${(116 / equipment.teleAperture).toFixed(2)} arcsecs`,
+        },
+        {
+          name: "Rayleigh Limit",
+          value: `${(138 / equipment.teleAperture).toFixed(2)} arcsecs`,
+        },
+        {
+          name: "Human Eye Light Grasp",
+          value: `${(
+            Math.pow(equipment.teleAperture, 2) / Math.pow(7, 2)
+          ).toFixed(2)}x`,
+        },
+      ],
     };
   } else if (equipment && equipment.type === "BINOCULARS") {
     return {
@@ -150,8 +238,26 @@ export function equipmentToDimensions(equipment) {
       height: 1000,
       fov: equipment.binoActualFOV,
       title: `${equipment.binoName} (${equipment.binoMagnification}x)`,
+      details: [
+        {
+          name: "Field of View",
+          value: `${equipment.binoActualFOV.toFixed(2)}°`,
+        },
+        {
+          name: "Real Field of View @ 1000m",
+          value: `${(
+            Math.tan(equipment.binoActualFOV * (Math.PI / 180)) * 1000
+          ).toFixed(2)} m`,
+        },
+      ],
     };
   } else {
-    return { width: 1000, height: 1000, fov: 1.0, title: "Equipment" };
+    return {
+      width: 1000,
+      height: 1000,
+      fov: 1.0,
+      title: "Equipment",
+      details: [],
+    };
   }
 }

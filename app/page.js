@@ -10,6 +10,8 @@ import SearchPage from "./pages/search-page";
 import SkyListPage from "./pages/sky-list-page";
 import LocationPage from "./pages/location-page";
 import IntroDialog from "./components/intro-dialog";
+import ImagePage from "./pages/image-page";
+
 import { NavContext, useNavControl, useNav } from "./nav";
 import { APIContext, useAPIControl } from "./api";
 
@@ -23,6 +25,7 @@ export function App() {
           <CSSTransition key={page} classNames={pageTransition} timeout={300}>
             <>
               {page === "/sky" && <SkyPage />}
+              {page === "/image" && <ImagePage />}
               {page === "/profile" && <ProfilePage />}
               {page === "/location" && <LocationPage />}
               {page === "/sky/search" && <SearchPage />}

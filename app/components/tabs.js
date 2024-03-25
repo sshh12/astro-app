@@ -6,6 +6,7 @@ import { useAnalytics } from "../api";
 
 const TABS = [
   { label: "Sky", path: "/sky" },
+  { label: "Image", path: "/image" },
   { label: "Location", path: "/location" },
   { label: "Profile", path: "/profile" },
 ];
