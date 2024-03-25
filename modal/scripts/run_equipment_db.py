@@ -63,7 +63,7 @@ def extract_telescopes(html: str) -> List[Dict]:
     scopes = []
     for m in re.findall(r'<option value="([^"]+)">([^<]+)<\/option>', text):
         parts = m[0].split("|")
-        make, model, focal_length, aperature, _ = parts
+        make, model, aperature, focal_length, _ = parts
         scopes.append(
             {
                 "teleName": clean(m[1]),

@@ -78,8 +78,8 @@ DEFAULT_LISTS = {
 }
 
 DEFAULT_EQUIPMENT = {
-    "teleFocalLength": 50,
-    "teleAperture": 250,
+    "teleFocalLength": 250,
+    "teleAperture": 50,
     "teleName": "Seestar - S50",
     "camName": "Seestar - S50 (IMX462)",
     "camWidth": 1080,
