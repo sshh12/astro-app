@@ -25,6 +25,7 @@ import {
 import BadgeIconRound from "../components/badge-icon-round";
 import { useAPI } from "../api";
 import { TELESCOPES, EYE_PIECES, BARLOWS, CAMERAS, BINOS } from "../equipment";
+import { equipmentToDimensions } from "../utils";
 
 const EQUIP_MODES = [
   {
@@ -391,16 +392,6 @@ const FIELDS = {
   ),
 };
 
-function equipName(equip) {
-  if (equip.type === "VISUAL") {
-    return `${equip.teleName} (${equip.teleFocalLength}mm) / ${equip.eyeName} (${equip.eyeFocalLength}mm)`;
-  } else if (equip.type === "CAMERA") {
-    return `${equip.teleName} (${equip.teleFocalLength}mm) / ${equip.camName}`;
-  } else if (equip.type === "BINOCULARS") {
-    return `${equip.binoName} (${equip.binoMagnification}x) / ${equip.camName}`;
-  }
-}
-
 export default function EquipSettingsCard({
   title,
   icon,
@@ -480,7 +471,9 @@ export default function EquipSettingsCard({
               <List>
                 {existingEquipment.map((eq) => (
                   <ListItem className="flex-col items-start" key={eq.id}>
-                    <Text color="slate-400">{equipName(eq)}</Text>
+                    <Text color="slate-400">
+                      {equipmentToDimensions(eq).title}
+                    </Text>
                     <Flex className="mt-2">
                       {existingEquipment.length > 1 && (
                         <Button
@@ -590,10 +583,12 @@ export default function EquipSettingsCard({
             <ListItem key={eq.id}>
               {eq.active && (
                 <Text color="slate-400">
-                  <b>{equipName(eq)}</b>
+                  <b>{equipmentToDimensions(eq).title}</b>
                 </Text>
               )}
-              {!eq.active && <Text color="slate-400">{equipName(eq)}</Text>}
+              {!eq.active && (
+                <Text color="slate-400">{equipmentToDimensions(eq).title}</Text>
+              )}
             </ListItem>
           ))}
         </List>

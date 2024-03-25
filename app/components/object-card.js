@@ -109,12 +109,11 @@ const IMAGE_MODES = [
   {
     id: "wiki",
     label: "Show Wiki Image",
-    render: ({ fov, object, style = {} }) => (
+    render: ({ object, style = {} }) => (
       <ObjectImage
         style={{ width: "100%", ...style }}
         object={object}
         source="wiki"
-        fov={fov}
       />
     ),
   },
@@ -122,14 +121,8 @@ const IMAGE_MODES = [
   SKY_SURVEYS.map((survey) => ({
     id: survey.name.toLowerCase(),
     label: `Show ${survey.name} Sky Survey`,
-    render: ({ fov, object, style = {} }) => (
-      <ObjectImage
-        object={object}
-        source={survey.hips}
-        aspectRatio={16 / 9}
-        style={style}
-        fov={fov}
-      />
+    render: ({ object, style = {} }) => (
+      <ObjectImage object={object} source={survey.hips} style={style} />
     ),
   }))
 );
@@ -205,7 +198,7 @@ export default function ObjectCard({ object, orbits }) {
                 az={az}
               />
             </Flex>
-            <Flex className="mt-2">
+            <Flex className="mt-2" style={{ minHeight: "5.8rem" }}>
               <List>
                 <ListItem>
                   <Text color="slate-400">
@@ -229,15 +222,7 @@ export default function ObjectCard({ object, orbits }) {
             </Flex>
             {ImageElement !== null && (
               <Flex className="border-solid border-2 border-gray-700 mt-2">
-                <ImageElement
-                  object={object}
-                  fov={
-                    2000 /
-                    ((objectViewMode.imageFocalLength &&
-                      parseFloat(objectViewMode.imageFocalLength)) ||
-                      2000)
-                  }
-                />
+                <ImageElement object={object} />
               </Flex>
             )}
           </>

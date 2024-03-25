@@ -82,21 +82,7 @@ export default function ObjectViewDialog({
           ))}
         </Select>
 
-        <label className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-          Image Focal Length
-        </label>
-        <NumberInput
-          value={objectViewMode.imageFocalLength}
-          enableStepper={false}
-          onChange={(e) =>
-            setObjectViewMode({
-              ...objectViewMode,
-              imageFocalLength: e.target.value,
-            })
-          }
-        />
-
-        <div style={{ marginTop: "10rem" }}>
+        <div style={{ marginTop: "12rem" }}>
           <Button variant="light" onClick={() => close()}>
             Close
           </Button>

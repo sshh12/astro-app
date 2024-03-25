@@ -40,9 +40,6 @@ export function useAPIControl() {
     if (!localMode.imageMode) {
       localMode.imageMode = "dss2";
     }
-    if (!localMode.imageFocalLength) {
-      localMode.imageFocalLength = 2000;
-    }
     if (!localMode.sizeMode) {
       localMode.sizeMode = "full";
     }
@@ -129,8 +126,12 @@ export function useAPIControl() {
     }
   }, []);
 
+  const userObj = user || cachedUser;
+  const equipment = !!userObj ? userObj.equipment.find((v) => v.active) : null;
+
   return {
-    user: user || cachedUser,
+    user: userObj,
+    equipment,
     ready,
     post,
     postThenUpdateUser,

@@ -110,3 +110,48 @@ export function objectSize(object) {
     return `${(major * 60).toFixed(2)}″ × ${(minor * 60).toFixed(2)}″`;
   }
 }
+
+export function equipmentToDimensions(equipment) {
+  const baseWidth = 1000;
+  if (equipment && equipment.type === "CAMERA") {
+    const effectiveFocalLength = equipment.teleFocalLength * equipment.barlow;
+    const aspectRatio = equipment.camHeight / equipment.camWidth;
+    const height = Math.round(aspectRatio * baseWidth);
+    const sensorWidthMM = equipment.camWidth * (equipment.camPixelWidth / 1000);
+    const sensorHeightMM =
+      equipment.camHeight * (equipment.camPixelHeight / 1000);
+    const fovWidthDegrees =
+      ((sensorWidthMM / effectiveFocalLength) * (180 / Math.PI)) /
+      equipment.binning;
+    const fovHeightDegrees =
+      ((sensorHeightMM / effectiveFocalLength) * (180 / Math.PI)) /
+      equipment.binning;
+    const renderWidth = baseWidth > height ? baseWidth : height;
+    const renderHeight = baseWidth > height ? height : baseWidth;
+    return {
+      width: renderWidth,
+      height: renderHeight,
+      fov: Math.max(fovWidthDegrees, fovHeightDegrees),
+      title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.camName} (${equipment.camHeight}x${equipment.camWidth}) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
+    };
+  } else if (equipment && equipment.type === "VISUAL") {
+    const effectiveFocalLength = equipment.teleFocalLength * equipment.barlow;
+    const magnification = effectiveFocalLength / equipment.eyeFocalLength;
+    const tfov = equipment.eyeFOV / magnification;
+    return {
+      width: 1000,
+      height: 1000,
+      fov: tfov,
+      title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.eyeName} (${equipment.eyeFocalLength}mm) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
+    };
+  } else if (equipment && equipment.type === "BINOCULARS") {
+    return {
+      width: 1000,
+      height: 1000,
+      fov: equipment.binoActualFOV,
+      title: `${equipment.binoName} (${equipment.binoMagnification}x)`,
+    };
+  } else {
+    return { width: 1000, height: 1000, fov: 1.0, title: "Equipment" };
+  }
+}

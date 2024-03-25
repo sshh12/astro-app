@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import SkySurveyImage from "./sky-survey-image";
+import { useAPI } from "../api";
+import { equipmentToDimensions } from "../utils";
 
 const OVERRIDES = [
   {
@@ -108,29 +110,24 @@ function ImageWithBackgound({ src, width, height, alt, fill, scale }) {
   );
 }
 
-export default function ObjectImage({
-  object,
-  source,
-  aspectRatio = 1.0,
-  fov = 1.0,
-  style = {},
-}) {
+export default function ObjectImage({ object, source, style = {} }) {
+  const { equipment } = useAPI();
+  const { width, height, fov } = equipmentToDimensions(equipment);
   const override = OVERRIDES.find((o) => o.id === object.id);
   if (source != "wiki" && !!object.ra) {
     return (
       <SkySurveyImage
         object={object}
         hips={source}
-        aspectRatio={aspectRatio}
+        width={width}
+        height={height}
         style={style}
         fov={fov}
       />
     );
   }
   if (source != "wiki" && !object.ra && override && object.sizeMajor) {
-    const width = 1000;
-    const scale = object.sizeMajor / 18 / fov;
-    const height = Math.floor(width / aspectRatio);
+    const scale = object.sizeMajor / 35 / fov;
     return (
       <ImageWithBackgound
         src={override.imgURL}
@@ -143,11 +140,13 @@ export default function ObjectImage({
     );
   }
   return (
-    <img
-      style={{ width: "100%", ...style }}
-      src={object.imgURL || "/600.png"}
+    <ImageWithBackgound
+      src={"/600.png"}
+      width={width}
+      height={height}
       alt={"image of " + object.name}
-      crossorigin="anonymous"
+      fill={"#000000"}
+      scale={0}
     />
   );
 }

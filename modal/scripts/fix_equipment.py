@@ -21,6 +21,8 @@ async def main(args):
 
     users = await prisma.user.find_many()
 
+    # await prisma.equipment.delete_many()
+
     for user in tqdm.tqdm(users):
         await methods_web._create_default_equipment(prisma, user)
 

@@ -163,11 +163,7 @@ function SurveyCard({ object }) {
           <Flex className="flex-col" key={survey.hips}>
             <Text>{survey.name}</Text>
             <Flex className="border-solid border-2 border-gray-700">
-              <ObjectImage
-                object={object}
-                source={survey.hips}
-                aspectRatio={1.0}
-              />
+              <ObjectImage object={object} source={survey.hips} />
             </Flex>
           </Flex>
         ))}

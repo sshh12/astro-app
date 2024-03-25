@@ -3,12 +3,11 @@ const ENDPOINT = "https://alasky.cds.unistra.fr/hips-image-services/hips2fits";
 export default function SkySurveyImage({
   object,
   hips,
+  width,
+  height,
   fov = 1.0,
-  aspectRatio = 1.0,
   style = {},
 }) {
-  const width = 1000;
-  const height = Math.floor(width / aspectRatio);
   return (
     <img
       style={{ width: "100%", ...style }}
