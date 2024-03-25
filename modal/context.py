@@ -19,6 +19,7 @@ async def fetch_user(prisma: Prisma, api_key: str) -> models.User:
                 },
             },
             "objects": True,
+            "equipment": True,
         },
     )
     return user

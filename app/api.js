@@ -90,7 +90,7 @@ export function useAPIControl() {
       })
       .catch((e) => {
         setReady(true);
-        alert("Error " + e);
+        // alert("Error " + e);
         return { error: e };
       });
   }, []);
@@ -113,7 +113,7 @@ export function useAPIControl() {
           setCachedUser(user);
         })
         .catch((e) => {
-          alert("Error fetching details -- app is offine, try again later");
+          // alert("Error fetching details -- app is offine, try again later");
         });
     } else {
       post("get_user")
@@ -123,7 +123,7 @@ export function useAPIControl() {
           setCachedUser(user);
         })
         .catch((e) => {
-          alert("Error fetching details so app is offine, try again later");
+          // alert("Error fetching details so app is offine, try again later");
           setReady(true);
         });
     }

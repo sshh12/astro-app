@@ -8,9 +8,11 @@ import {
   FlagIcon,
   AcademicCapIcon,
   HeartIcon,
+  CameraIcon,
 } from "@heroicons/react/24/solid";
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
+import EquipSettingsCard from "../components/equip-settings-card";
 import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
 import { useNav } from "../nav";
@@ -22,6 +24,7 @@ export default function ProfilePage() {
 
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);
+  const [equipSettingsOpen, setEquipSettingsOpen] = React.useState(false);
 
   const saveAccountSettings = (settings) => {
     setAccountSettingsOpen(false);
@@ -31,6 +34,23 @@ export default function ProfilePage() {
   const saveLocationSettings = (settings) => {
     setLocationSettingsOpen(false);
     postThenUpdateUser("update_user_location", settings);
+  };
+
+  const addEquipment = (equip) => {
+    setEquipSettingsOpen(false);
+    postThenUpdateUser("add_equipment", { equipment_details: equip });
+  };
+
+  const deleteEquipment = (equip) => {
+    if (confirm(`Are you sure you want to delete?`)) {
+      setEquipSettingsOpen(false);
+      postThenUpdateUser("delete_equipment", { id: equip.id });
+    }
+  };
+
+  const setActiveEquipment = (equip) => {
+    setEquipSettingsOpen(false);
+    postThenUpdateUser("set_active_equipment", { id: equip.id });
   };
 
   useEffect(() => {
@@ -83,6 +103,16 @@ export default function ProfilePage() {
             },
           ]}
         />
+        <EquipSettingsCard
+          title="Equipment"
+          icon={CameraIcon}
+          color="slate"
+          open={equipSettingsOpen}
+          setOpen={setEquipSettingsOpen}
+          onAdd={addEquipment}
+          onDelete={deleteEquipment}
+          setActive={setActiveEquipment}
+        />
         <LinkCard
           title="Tutorial"
           subtitle="Tap to play the intro tutorial."
@@ -104,7 +134,7 @@ export default function ProfilePage() {
         />
         <LinkCard
           title="Acknowledgements"
-          subtitle="Thanks to HiPS2FITS for sky survey data and wikipedia for object descriptions."
+          subtitle="Thanks to HiPS2FITS for sky survey data, wikipedia for object descriptions, and astronomy.tools for equipment data."
           color="red"
           icon={HeartIcon}
           truncate={false}

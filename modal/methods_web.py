@@ -77,6 +77,27 @@ DEFAULT_LISTS = {
     ],
 }
 
+DEFAULT_EQUIPMENT = {
+    "teleFocalLength": 50,
+    "teleAperture": 250,
+    "teleName": "Seestar - S50",
+    "camName": "Seestar - S50 (IMX462)",
+    "camWidth": 1080,
+    "camHeight": 1920,
+    "camPixelWidth": 2.90,
+    "camPixelHeight": 2.90,
+    "eyeFocalLength": None,
+    "eyeFOV": None,
+    "eyeName": "Custom",
+    "barlow": 1,
+    "binning": 1,
+    "binoAperture": None,
+    "binoMagnification": None,
+    "binoActualFOV": None,
+    "binoName": "Custom",
+    "type": "CAMERA",
+}
+
 
 def method_web(require_login: bool = True):
     def wrap(func):
@@ -156,6 +177,37 @@ def _list_to_dict(list: models.List, show_objects: bool = True) -> dict:
     return list_dict
 
 
+def _equipment_to_dict(equipment: models.Equipment) -> dict:
+    float_keys = [
+        "teleFocalLength",
+        "teleAperture",
+        "camPixelWidth",
+        "camPixelHeight",
+        "barlow",
+        "eyeFocalLength",
+        "eyeFOV",
+        "binoAperture",
+        "binoMagnification",
+        "binoActualFOV",
+    ]
+    int_keys = ["camWidth", "camHeight", "binning"]
+    str_keys = ["teleName", "camName", "eyeName", "binoName"]
+    eq_dict = {
+        "id": str(equipment.id),
+        "active": equipment.active,
+        "type": equipment.type,
+    }
+    for key in float_keys:
+        eq_dict[key] = (
+            float(getattr(equipment, key))
+            if getattr(equipment, key) is not None
+            else None
+        )
+    for key in str_keys + int_keys:
+        eq_dict[key] = getattr(equipment, key)
+    return eq_dict
+
+
 def _get_favorite_objects(user: models.User) -> List:
     fav_list = next(
         (list.List for list in user.lists if list.List.title == FAVORITES), None
@@ -176,6 +228,7 @@ def _user_to_dict(user: models.User) -> dict:
             _list_to_dict(list.List, show_objects=list.List.title == FAVORITES)
             for list in user.lists
         ],
+        "equipment": [_equipment_to_dict(equip) for equip in user.equipment],
     }
 
 
@@ -280,6 +333,19 @@ async def _create_default_lists(prisma: Prisma, user: models.User) -> List[model
     return new_list
 
 
+async def _create_default_equipment(
+    prisma: Prisma, user: models.User
+) -> List[models.Equipment]:
+    new_equip = await prisma.equipment.create(
+        data={
+            "userId": user.id,
+            "active": True,
+            **DEFAULT_EQUIPMENT,
+        },
+    )
+    return [new_equip]
+
+
 async def _create_user(prisma: Prisma) -> models.User:
     new_user = await prisma.user.create(
         data={
@@ -291,7 +357,10 @@ async def _create_user(prisma: Prisma) -> models.User:
             "elevation": DEFAULT_ELEVATION,
         },
     )
-    await _create_default_lists(prisma, new_user)
+    await asyncio.gather(
+        _create_default_lists(prisma, new_user),
+        _create_default_equipment(prisma, new_user),
+    )
     return new_user
 
 
@@ -643,3 +712,86 @@ async def delete_list(ctx: context.Context, id: str) -> Dict:
         where={"id": id},
     )
     return {"deleted": True}
+
+
+@method_web()
+async def add_equipment(ctx: context.Context, equipment_details: Dict) -> Dict:
+    existing_equip = await ctx.prisma.equipment.find_many(
+        where={
+            "userId": ctx.user.id,
+        },
+    )
+    int_keys = [
+        "binning",
+        "camWidth",
+        "camHeight",
+    ]
+    all_keys = [
+        "teleFocalLength",
+        "teleAperture",
+        "teleName",
+        "camPixelWidth",
+        "camPixelHeight",
+        "camName",
+        "barlow",
+        "eyeFocalLength",
+        "eyeFOV",
+        "eyeName",
+        "binoAperture",
+        "binoMagnification",
+        "binoActualFOV",
+        "binoName",
+        "type",
+    ] + int_keys
+    if set(equipment_details.keys()) != set(all_keys):
+        print("bad equip request", equipment_details)
+        return {"error": "Invalid request"}
+    for key in all_keys:
+        if equipment_details[key] == "":
+            equipment_details[key] = None
+    for key in int_keys:
+        if equipment_details[key] is not None:
+            equipment_details[key] = int(equipment_details[key])
+    new_equip = await ctx.prisma.equipment.create(
+        data={
+            **equipment_details,
+            "userId": ctx.user.id,
+            "active": True,
+        },
+    )
+    await ctx.prisma.equipment.update_many(
+        where={"id": {"in": [equip.id for equip in existing_equip]}},
+        data={"active": False},
+    )
+    return _equipment_to_dict(new_equip)
+
+
+@method_web()
+async def delete_equipment(ctx: context.Context, id: str) -> Dict:
+    await ctx.prisma.equipment.delete_many(
+        where={"userId": ctx.user.id, "id": id},
+    )
+    existing_equip = await ctx.prisma.equipment.find_many(
+        where={
+            "userId": ctx.user.id,
+        },
+    )
+    if len(existing_equip) > 0 and not any(equip.active for equip in existing_equip):
+        await ctx.prisma.equipment.update(
+            where={"id": existing_equip[0].id, "userId": ctx.user.id},
+            data={"active": True},
+        )
+    return {"deleted": True}
+
+
+@method_web()
+async def set_active_equipment(ctx: context.Context, id: str) -> Dict:
+    await ctx.prisma.equipment.update_many(
+        where={"userId": ctx.user.id},
+        data={"active": False},
+    )
+    await ctx.prisma.equipment.update(
+        where={"id": id, "userId": ctx.user.id},
+        data={"active": True},
+    )
+    return {"updated": True}
