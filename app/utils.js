@@ -176,9 +176,20 @@ export function equipmentToDimensions(equipment) {
           ).toFixed(2)}x`,
         },
         {
-          name: "Resolution",
-          value: `${equipment.camHeight} px x ${equipment.camWidth} px (${(
-            (equipment.camHeight * equipment.camWidth) /
+          name: "Arc Resolution",
+          value: `${(
+            (equipment.camPixelWidth / effectiveFocalLength) *
+            206.265 *
+            equipment.binning
+          ).toFixed(2)} arcsecs/px`,
+        },
+        {
+          name: "Pixel Resolution",
+          value: `${equipment.camHeight / equipment.binning} px x ${
+            equipment.camWidth / equipment.binning
+          } px (${(
+            ((equipment.camHeight / equipment.binning) *
+              (equipment.camWidth / equipment.binning)) /
             1000000
           ).toFixed(2)} MP)`,
         },
