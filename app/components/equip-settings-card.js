@@ -482,13 +482,20 @@ export default function EquipSettingsCard({
                   <ListItem className="flex-col items-start" key={eq.id}>
                     <Text color="slate-400">{equipName(eq)}</Text>
                     <Flex className="mt-2">
-                      <Button
-                        variant="light"
-                        color="red"
-                        onClick={() => onDelete(eq)}
-                      >
-                        Delete
-                      </Button>
+                      {existingEquipment.length > 1 && (
+                        <Button
+                          variant="light"
+                          color="red"
+                          onClick={() => onDelete(eq)}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                      {existingEquipment.length == 1 && (
+                        <Button variant="light" color="red" disabled>
+                          Delete
+                        </Button>
+                      )}
                       {!eq.active && (
                         <Button
                           variant="light"
