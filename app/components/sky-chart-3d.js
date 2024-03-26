@@ -189,18 +189,7 @@ const ObjectPath = ({ object, times }) => {
   let longestLength = 0;
   let points = [];
   for (let i in object.az) {
-    if (object.alt[i] > 0) {
-      points.push(altAzToCartesian(object.alt[i], object.az[i], RADIUS));
-    } else {
-      if (points.length > 0) {
-        if (points.length > longestLength) {
-          longestLength = points.length;
-          longestMidPoint = points[Math.floor(points.length / 2)];
-        }
-        lines.push(new THREE.BufferGeometry().setFromPoints(points));
-        points = [];
-      }
-    }
+    points.push(altAzToCartesian(object.alt[i], object.az[i], RADIUS));
   }
   if (points.length > 0) {
     if (points.length > longestLength) {
@@ -276,7 +265,7 @@ const CameraControls = () => {
             };
 
         window.alt = Math.min(
-          Math.max(window.alt + deltaMove.y * 0.5, 0.0),
+          Math.max(window.alt + deltaMove.y * 0.5, -89),
           89
         );
         window.az -= deltaMove.x * 0.5;
@@ -332,7 +321,7 @@ function CameraSetter() {
 
 export default function SkyChart3D({ times, timeStates, timezone, objects }) {
   return (
-    <div style={{ height: "20rem" }}>
+    <div style={{ height: "20rem", maxWidth: "40rem", margin: "auto" }}>
       <Canvas>
         <CameraSetter />
         <ambientLight intensity={0.5} />

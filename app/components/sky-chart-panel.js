@@ -1,12 +1,7 @@
-import {
-  TabGroup,
-  TabPanels,
-  TabPanel,
-  TabList,
-  Tab,
-} from "@tremor/react";
+import { TabGroup, TabPanels, TabPanel, TabList, Tab } from "@tremor/react";
 import SkyChart3D from "./sky-chart-3d";
 import SkyChart from "./sky-chart";
+import SkyChartGallery from "./sky-chart-gallery";
 
 export default function SkyChartPanel({
   times,
@@ -27,20 +22,24 @@ export default function SkyChartPanel({
             />
           </TabPanel>
           <TabPanel>
-            <SkyChart3D
-              times={times}
-              timeStates={timeStates}
-              timezone={timezone}
-              objects={objects}
-            />
+              <SkyChart3D
+                times={times}
+                timeStates={timeStates}
+                timezone={timezone}
+                objects={objects}
+              />
+          </TabPanel>
+          <TabPanel>
+            <SkyChartGallery objects={objects} />
           </TabPanel>
         </TabPanels>
         <TabList
           className="flex w-full tabs-bottom justify-center"
           style={{ padding: 0, height: "3rem" }}
         >
-          <Tab style={{ height: "3rem" }}>Altitude Chart</Tab>
-          <Tab style={{ height: "3rem" }}>3D View</Tab>
+          <Tab style={{ height: "3rem" }}>Altitude</Tab>
+          <Tab style={{ height: "3rem" }}>Orbits</Tab>
+          <Tab style={{ height: "3rem" }}>Gallery</Tab>
         </TabList>
       </TabGroup>
     </div>

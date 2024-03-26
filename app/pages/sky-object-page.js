@@ -323,6 +323,7 @@ export default function SkyObjectPage() {
                 az: object.orbits.objects[object.id].az,
                 name: object.name,
                 color: object.color,
+                object: object,
               },
             ]}
           />

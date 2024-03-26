@@ -93,6 +93,7 @@ export default function SkyListPage() {
               az: list.orbits.objects[obj.id].az,
               name: obj.name,
               color: obj.color,
+              object: obj,
             }))}
           />
         )}

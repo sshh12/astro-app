@@ -19,13 +19,14 @@ const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 const UPDATE_TEXT = {
   title: "Updates",
   updates: [
-    "See pre-curated lists of objects on the search page.",
-    "Can now add and delete existing lists.",
-    "Added object sorting.",
-    "Added comets.",
-    "Added brightness and size data.",
-    "Added scaled planet rendering and focal length options.",
-    "Minor performance optimizations.",
+    "Added equipment section to profile",
+    "All sky surveys are now rendered using equipment specs",
+    "Added Gallery view",
+    "Added Image page (more here coming soon)",
+    "Added more curated lists",
+    "Added satellites",
+    "Added faster list orbit calculations",
+    "Improved search recall",
   ],
 };
 

@@ -54,6 +54,7 @@ export default function SkyPage() {
               az: user.orbits.objects[obj.id].az,
               name: obj.name,
               color: obj.color,
+              object: obj
             }))}
           />
         )}

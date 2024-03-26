@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState, useCallback } from "react";
 export const APIContext = React.createContext({});
 
 export const BASE_URL = "https://astro.sshh.io";
-export const APP_VERSION = "0.2.0";
+export const APP_VERSION = "0.3.0";
 const API_ENDPOINT =
   typeof window !== "undefined" && window.location.host.startsWith("localhost")
     ? "http://localhost:9000/"
