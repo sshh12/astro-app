@@ -79,6 +79,14 @@ const INTRO_SLIDES = [
     skipOnClick: ({ skipToEnd }) => skipToEnd(),
   },
   {
+    title: "Equipment",
+    text: "On the profile page you can set your observing equipment, sky survey images will automatically adjust to your equipment specs.",
+    nextText: "Next",
+    image: "/intro_icons/equipment.png",
+    nextOnClick: ({ nextSlide }) => nextSlide(),
+    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+  },
+  {
     title: "Location Access",
     text: "The app requires your location and preferred timezone for accurate astronomical calculations. If not, we'll start you off with a random location.",
     nextText: "Update Location",
