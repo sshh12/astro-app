@@ -22,12 +22,12 @@ export default function SkyChartPanel({
             />
           </TabPanel>
           <TabPanel>
-              <SkyChart3D
-                times={times}
-                timeStates={timeStates}
-                timezone={timezone}
-                objects={objects}
-              />
+            <SkyChart3D
+              times={times}
+              timeStates={timeStates}
+              timezone={timezone}
+              objects={objects}
+            />
           </TabPanel>
           <TabPanel>
             <SkyChartGallery objects={objects} />
@@ -39,7 +39,14 @@ export default function SkyChartPanel({
         >
           <Tab style={{ height: "3rem" }}>Altitude</Tab>
           <Tab style={{ height: "3rem" }}>Orbits</Tab>
-          <Tab style={{ height: "3rem" }}>Gallery</Tab>
+          <Tab
+            style={{
+              height: "3rem",
+              display: objects.length > 1 ? "block" : "none",
+            }}
+          >
+            Gallery
+          </Tab>
         </TabList>
       </TabGroup>
     </div>

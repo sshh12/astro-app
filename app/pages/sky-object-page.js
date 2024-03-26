@@ -88,6 +88,9 @@ function NameCard({ object }) {
     }
     return aScore - bScore;
   });
+  if (names.length == 0) {
+    names.push(`NAME ${object.name}`);
+  }
 
   return (
     <Card>
@@ -337,7 +340,7 @@ export default function SkyObjectPage() {
         <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
           {object.description && <OverviewCard object={object} />}
           {object.ra && <SurveyCard object={object} />}
-          {object && user && (
+          {object && user && object.type != "EARTH_SATELLITE" && (
             <AltitudeCard
               objectDetailsLoad={objectDetailsLoad}
               objectDetailsLoading={objectDetailsLoading}
@@ -347,7 +350,7 @@ export default function SkyObjectPage() {
             />
           )}
           {object && <PositionCard object={object} />}
-          {object.names.length > 0 && <NameCard object={object} />}
+          {object && <NameCard object={object} />}
         </Grid>
       )}
     </div>
