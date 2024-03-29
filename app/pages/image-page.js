@@ -21,7 +21,7 @@ function EquipmentCard({ equipment }) {
       <Flex className="mt-2">
         <List>
           {details.map((detail) => (
-            <ListItem key={detail}>
+            <ListItem key={detail.name}>
               <Text color="slate-400">{detail.name}</Text>
               <Text color="slate-400">{detail.value}</Text>
             </ListItem>

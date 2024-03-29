@@ -18,7 +18,7 @@ import LinkCard from "../components/link-card";
 import ObjectsList from "../components/objects-list";
 
 export default function SkyListPage() {
-  const { pageParams, setPage } = useNav();
+  const { pageParams, setPage, goBack } = useNav();
   const [openShare, setOpenShare] = useState(false);
   const { user, postThenUpdateUser } = useAPI();
   const [loading, setLoading] = useState(false);
@@ -70,7 +70,7 @@ export default function SkyListPage() {
         title={list?.title || pageParams.title}
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
-        leftIconOnClick={() => setPage("/sky")}
+        leftIconOnClick={() => goBack()}
         loading={!listReady || loading}
         rightIcons={rightIcons}
       />

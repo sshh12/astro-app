@@ -179,7 +179,7 @@ export function useControlledPostWithCache(
   const key = `astro-app:cache:${func}:${argsStr}`;
   const load = useCallback(() => {
     setLoading(true);
-    post(func, args).then((val) => {
+    post(func, JSON.parse(argsStr)).then((val) => {
       if (!val.error) {
         localStorage.setItem(key, JSON.stringify(val));
         setResult(val);
@@ -187,7 +187,7 @@ export function useControlledPostWithCache(
       }
       setLoading(false);
     });
-  }, [func, args, key]);
+  }, [func, argsStr, key]);
   useEffect(() => {
     if (func) {
       if (localStorage.getItem(key)) {
@@ -198,7 +198,7 @@ export function useControlledPostWithCache(
         load();
       }
     }
-  }, [func, key]);
+  }, [func, key, load, proactiveRequest]);
   return [load, ready, loading, result];
 }
 

@@ -26,7 +26,7 @@ function ListBadge({ list, onClick }) {
 }
 
 export default function SearchPage() {
-  const { setPage } = useNav();
+  const { setPage, goBack } = useNav();
   const { post } = useAPI();
 
   const [searchValue, setSearchValue] = useState("");
@@ -63,7 +63,7 @@ export default function SearchPage() {
         title=""
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
-        leftIconOnClick={() => setPage("/sky")}
+        leftIconOnClick={() => goBack()}
         search={true}
         searchValue={searchValue}
         searchOnChange={(event) => setSearchValue(event.target.value)}

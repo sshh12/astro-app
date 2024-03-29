@@ -27,6 +27,7 @@ const UPDATE_TEXT = {
     "Added satellites",
     "Added faster list orbit calculations",
     "Improved search recall",
+    "Fixed back button",
   ],
 };
 

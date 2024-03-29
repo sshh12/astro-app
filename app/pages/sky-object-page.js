@@ -166,7 +166,7 @@ function OverviewCard({ object }) {
         </div>
       </Flex>
       <Flex className="mt-2">
-        <Text>{object.description}</Text>
+        <Text color="slate-400">{object.description}</Text>
       </Flex>
       <Flex className="border-solid border-2 border-gray-700 mt-2">
         <img
@@ -286,7 +286,7 @@ function AltitudeCard({
 }
 
 export default function SkyObjectPage() {
-  const { pageParams, setPage } = useNav();
+  const { pageParams, goBack } = useNav();
   const { user, ready } = useAPI();
   const [openListDialog, setOpenListDialog] = useState(false);
   const [openShare, setOpenShare] = useState(false);
@@ -350,7 +350,7 @@ export default function SkyObjectPage() {
         title={object?.name || pageParams.name}
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
-        leftIconOnClick={() => setPage("/sky")}
+        leftIconOnClick={() => goBack()}
         rightIcons={rightIcons}
         loading={!objectReady || !ready || !objectPositionReady}
       />
