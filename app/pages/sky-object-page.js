@@ -312,8 +312,6 @@ function SatellitePassesCard({
     for (let dayDetail of objectDetails.details) {
       if (!dayDetail?.satellite_passes) continue;
       passes.push(...dayDetail.satellite_passes);
-      passes.push(...dayDetail.satellite_passes);
-      passes.push(...dayDetail.satellite_passes);
     }
   }
   return (
