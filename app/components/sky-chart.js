@@ -56,7 +56,6 @@ const SkyChart = React.forwardRef((props, ref) => {
     className,
     onValueChange,
     enableLegendSlider = false,
-    customTooltip,
     rotateLabelX,
     tickGap = 5,
     ...other
@@ -64,7 +63,6 @@ const SkyChart = React.forwardRef((props, ref) => {
 
   const categories = objects.map((object) => object.name);
   const colors = objects.map((object) => object.color.toLowerCase());
-  const CustomTooltip = customTooltip;
   const paddingValue = !showXAxis && !showYAxis ? 0 : 20;
   const [activeDot, setActiveDot] = useState(undefined);
   const [activeLegend, setActiveLegend] = useState(undefined);
@@ -239,33 +237,16 @@ const SkyChart = React.forwardRef((props, ref) => {
               isAnimationActive={false}
               cursor={{ stroke: "#d1d5db", strokeWidth: 1 }}
               content={
-                showTooltip ? (
-                  ({ active, payload, label }) =>
-                    CustomTooltip ? (
-                      <CustomTooltip
-                        payload={payload?.map((payloadItem) => ({
-                          ...payloadItem,
-                          color:
-                            categoryColors.get(payloadItem.dataKey) ??
-                            BaseColors.Gray,
-                        }))}
-                        active={active}
-                        label={label}
-                      />
-                    ) : (
-                      <ChartTooltip
-                        active={active}
-                        payload={payload}
-                        label={new Date(label).toLocaleTimeString("en-US", {
-                          timeZone: timezone,
-                        })}
-                        valueFormatter={valueFormatter}
-                        categoryColors={categoryColors}
-                      />
-                    )
-                ) : (
-                  <></>
-                )
+                ({ active, payload, label }) =>
+                  <ChartTooltip
+                  active={active}
+                  payload={payload}
+                  label={new Date(label).toLocaleTimeString("en-US", {
+                    timeZone: timezone,
+                  })}
+                  valueFormatter={valueFormatter}
+                  categoryColors={categoryColors}
+                />
               }
               position={{ y: 0 }}
             />

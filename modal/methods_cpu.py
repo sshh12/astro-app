@@ -11,6 +11,7 @@ from skyfield.searchlib import find_maxima, find_minima
 from skyfield.framelib import ecliptic_frame
 from skyfield.positionlib import position_of_radec
 
+from prisma.enums import SpaceObjectType
 import space_util
 
 METHODS = {}
@@ -134,6 +135,7 @@ def get_longterm_orbit_calculations(
 
     load = space_util.get_loader()
     ts = load.timescale()
+    zone = pytz.timezone(timezone)
 
     eph = load("de421.bsp")
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
@@ -195,6 +197,43 @@ def get_longterm_orbit_calculations(
         day_info["min_alt"] = round(min_alt, 2)
         day_info["az_at_min_alt"] = round(az_at(min_alt_ts), 2)
         day_info["ts_at_min_alt"] = int(min_alt_ts.utc_datetime().timestamp() * 1000)
+        day_info["satellite_passes"] = []
+
+        if object.type == SpaceObjectType.EARTH_SATELLITE:
+            pass_t, pass_events = obj.satellite.find_events(
+                loc, n0, n1, altitude_degrees=10.0
+            )
+            pass_sunlit = obj.satellite.at(pass_t).is_sunlit(eph)
+            cur_start = None
+            cur_culm = None
+            for pass_ti, event, sunlit_flag in zip(pass_t, pass_events, pass_sunlit):
+                if event == 0:
+                    cur_start = (pass_ti, sunlit_flag == 1)
+                elif event == 1 and cur_start is not None:
+                    cur_culm = (pass_ti, sunlit_flag == 1)
+                elif event == 2 and cur_culm is not None and cur_start is not None:
+                    day_info["satellite_passes"].append(
+                        {
+                            "ts_start": int(
+                                cur_start[0].utc_datetime().timestamp() * 1000
+                            ),
+                            "ts_culminate": int(
+                                cur_culm[0].utc_datetime().timestamp() * 1000
+                            ),
+                            "ts_end": int(pass_ti.utc_datetime().timestamp() * 1000),
+                            "alt_start": round(alt_at(cur_start[0]), 2),
+                            "alt_culminate": round(alt_at(cur_culm[0]), 2),
+                            "alt_end": round(alt_at(pass_ti), 2),
+                            "az_start": round(az_at(cur_start[0]), 2),
+                            "az_culminate": round(az_at(cur_culm[0]), 2),
+                            "az_end": round(az_at(pass_ti), 2),
+                            "sunlit": any(
+                                [cur_start[1], cur_culm[1], sunlit_flag == 1]
+                            ),
+                        }
+                    )
+                    cur_start = None
+                    cur_culm = None
 
         days.append(day_info)
 

@@ -8,7 +8,22 @@ import {
   ShareIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/solid";
-import { Card, Flex, Text, List, ListItem, Grid, Button } from "@tremor/react";
+import {
+  Card,
+  Flex,
+  Text,
+  List,
+  ListItem,
+  Grid,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  Badge,
+} from "@tremor/react";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
@@ -285,6 +300,115 @@ function AltitudeCard({
   );
 }
 
+function SatellitePassesCard({
+  objectDetailsLoad,
+  objectDetailsLoading,
+  objectDetailsReady,
+  objectDetails,
+  timezone,
+}) {
+  const passes = [];
+  if (objectDetails) {
+    for (let dayDetail of objectDetails.details) {
+      if (!dayDetail?.satellite_passes) continue;
+      passes.push(...dayDetail.satellite_passes);
+    }
+  }
+  return (
+    <Card style={{ maxHeight: "200rem" }}>
+      <Flex alignItems="start" className="mb-2">
+        <div className="truncate">
+          <Text color="white">Satellite Passes</Text>
+        </div>
+      </Flex>
+      {objectDetailsLoading && <Text>Calculating (up to 5m)...</Text>}
+      <Table className="mt-5">
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>Date</TableHeaderCell>
+            <TableHeaderCell>Rise</TableHeaderCell>
+            <TableHeaderCell>Peak</TableHeaderCell>
+            <TableHeaderCell>Set</TableHeaderCell>
+            <TableHeaderCell>Type</TableHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody className="text-slate-400">
+          {passes.map((pass) => (
+            <TableRow key={pass.ts_start}>
+              <TableCell>
+                {new Date(pass.ts_start).toLocaleDateString("en-US", {
+                  timeZone: timezone,
+                })}
+                <br />
+                <Text>&nbsp;</Text>
+              </TableCell>
+              <TableCell>
+                {new Date(pass.ts_start).toLocaleTimeString("en-US", {
+                  timeZone: timezone,
+                })}
+                <br />
+                <Text>
+                  ALT {Math.round(pass.alt_start)}° / AZ{" "}
+                  {Math.round(pass.az_start)}°
+                </Text>
+              </TableCell>
+              <TableCell>
+                {new Date(pass.ts_culminate).toLocaleTimeString("en-US", {
+                  timeZone: timezone,
+                })}
+                <br />
+                <Text>
+                  ALT {Math.round(pass.alt_culminate)}° / AZ{" "}
+                  {Math.round(pass.az_culminate)}°
+                </Text>
+              </TableCell>
+              <TableCell>
+                {new Date(pass.ts_end).toLocaleTimeString("en-US", {
+                  timeZone: timezone,
+                })}
+                <br />
+                <Text>
+                  ALT {Math.round(pass.alt_culminate)}° / AZ{" "}
+                  {Math.round(pass.az_culminate)}°
+                </Text>
+              </TableCell>
+              <TableCell>
+                {pass.sunlit ? (
+                  <Badge color="yellow">Visable</Badge>
+                ) : (
+                  <Badge color="gray">Shadow</Badge>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {!objectDetailsLoading && objectDetailsReady && (
+        <Flex className="justify-end mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="primary"
+            onClick={() => objectDetailsLoad()}
+          >
+            Refresh
+          </Button>
+        </Flex>
+      )}
+      {!objectDetailsLoading && !objectDetailsReady && (
+        <Flex className="justify-around mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="secondary"
+            onClick={() => objectDetailsLoad()}
+          >
+            Load
+          </Button>
+        </Flex>
+      )}
+    </Card>
+  );
+}
+
 export default function SkyObjectPage() {
   const { pageParams, goBack } = useNav();
   const { user, ready } = useAPI();
@@ -412,6 +536,15 @@ export default function SkyObjectPage() {
               objectPositionLoad={objectPositionLoad}
               objectPositionLoading={objectPositionLoading}
               objectPositionReady={objectPositionReady}
+            />
+          )}
+          {object && user && object.type == "EARTH_SATELLITE" && (
+            <SatellitePassesCard
+              objectDetailsLoad={objectDetailsLoad}
+              objectDetailsLoading={objectDetailsLoading}
+              objectDetailsReady={objectDetailsReady}
+              objectDetails={objectDetails}
+              timezone={user.timezone}
             />
           )}
           {object && <NameCard object={object} />}

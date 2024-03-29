@@ -89,7 +89,10 @@ def space_object_to_observables(ts, eph, object):
             return DUMMY_STAR
     if object.celestrakKey is not None:
         try:
-            return eph["earth"] + get_satellites()[object.celestrakKey]
+            sat = get_satellites()[object.celestrakKey]
+            obs = eph["earth"] + sat
+            obs.satellite = sat
+            return obs
         except KeyError:
             return DUMMY_STAR
     return Star(ra=Angle(hours=object.ra), dec=Angle(degrees=object.dec))
