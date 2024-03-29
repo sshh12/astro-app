@@ -6,7 +6,7 @@ import StickyHeader from "../components/sticky-header";
 import { useAPI } from "../api";
 import BadgeIconRound from "../components/badge-icon-round";
 import { CloudIcon } from "@heroicons/react/24/solid";
-import { formatTime } from "../utils";
+import { formatTime, formatLocation } from "../utils";
 
 function useWFO(lat, lon) {
   const [wfo, setWFO] = useState(null);
@@ -51,22 +51,6 @@ const useWeather = (lat, lon, timezone) => {
   }, [lat, lon, timezone, post]);
   return [weatherReady, weather];
 };
-
-function formatLocation(lat, lon) {
-  let latFormat = lat.toFixed(2);
-  if (lat < 0) {
-    latFormat = (-latFormat).toFixed(2) + " S";
-  } else {
-    latFormat += " N";
-  }
-  let lonFormat = lon.toFixed(2);
-  if (lon < 0) {
-    lonFormat = (-lonFormat).toFixed(2) + " W";
-  } else {
-    lonFormat += " E";
-  }
-  return `${latFormat}, ${lonFormat}`;
-}
 
 function GOESCard({ wfo }) {
   const [urlKey, setUrlKey] = useState(0);

@@ -23,7 +23,7 @@ import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
-import { objectSize, formatTime } from "../utils";
+import { objectSize, formatTime, formatLocation } from "../utils";
 
 const USEFUL_PREFIXES = [
   "NAME ",
@@ -36,20 +36,52 @@ const USEFUL_PREFIXES = [
   "DESIGNATION ",
 ];
 
-function PositionCard({ object }) {
+function DetailsCard({
+  object,
+  objectPosition,
+  objectPositionReady,
+  objectPositionLoad,
+  objectPositionLoading,
+}) {
   return (
     <Card>
-      <Flex alignItems="start">
+      <Flex alignItems="start " className="mb-2">
         <div className="truncate">
-          <Text color="white">Position</Text>
+          <Text color="white">Details</Text>
         </div>
       </Flex>
+      {objectPositionLoading && <Text>Calculating...</Text>}
       <List>
         {object.ra && (
           <ListItem>
-            <Text color="slate-400">POSITION</Text>
+            <Text color="slate-400">RA / DEC</Text>
             <Text color="slate-400">
-              RA {object.ra.toFixed(2)} / DEC {object.dec.toFixed(2)}
+              {object.ra.toFixed(2)} / {object.dec.toFixed(2)}
+            </Text>
+          </ListItem>
+        )}
+        {objectPosition && (
+          <ListItem>
+            <Text color="slate-400">ALT / AZ</Text>
+            <Text color="slate-400">
+              {Math.round(objectPosition.alt)}° /{" "}
+              {Math.round(objectPosition.az)}°
+            </Text>
+          </ListItem>
+        )}
+        {!object.ra && objectPosition && (
+          <ListItem>
+            <Text color="slate-400">RA / DEC</Text>
+            <Text color="slate-400">
+              {objectPosition.ra.toFixed(2)} / {objectPosition.dec.toFixed(2)}
+            </Text>
+          </ListItem>
+        )}
+        {objectPosition && (
+          <ListItem>
+            <Text color="slate-400">LAT / LON</Text>
+            <Text color="slate-400">
+              {formatLocation(objectPosition.lat, objectPosition.lon, " / ")}
             </Text>
           </ListItem>
         )}
@@ -66,6 +98,17 @@ function PositionCard({ object }) {
           </ListItem>
         )}
       </List>
+      {!objectPositionLoading && objectPositionReady && (
+        <Flex className="justify-end mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="primary"
+            onClick={() => objectPositionLoad()}
+          >
+            Refresh
+          </Button>
+        </Flex>
+      )}
     </Card>
   );
 }
@@ -271,6 +314,19 @@ export default function SkyObjectPage() {
     id: object?.id,
   });
 
+  const [
+    objectPositionLoad,
+    objectPositionReady,
+    objectPositionLoading,
+    objectPosition,
+  ] = useControlledPostWithCache(
+    pageParams.id && "get_space_object_current",
+    {
+      id: pageParams.id,
+    },
+    true
+  );
+
   const isOnList = user?.lists.find((list) =>
     list.objects.find((obj) => obj.id === pageParams.id)
   );
@@ -296,7 +352,7 @@ export default function SkyObjectPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => setPage("/sky")}
         rightIcons={rightIcons}
-        loading={!objectReady || !ready}
+        loading={!objectReady || !ready || !objectPositionReady}
       />
 
       <ShareLinkDialog
@@ -349,7 +405,15 @@ export default function SkyObjectPage() {
               timezone={user.timezone}
             />
           )}
-          {object && <PositionCard object={object} />}
+          {object && (
+            <DetailsCard
+              object={object}
+              objectPosition={objectPosition}
+              objectPositionLoad={objectPositionLoad}
+              objectPositionLoading={objectPositionLoading}
+              objectPositionReady={objectPositionReady}
+            />
+          )}
           {object && <NameCard object={object} />}
         </Grid>
       )}

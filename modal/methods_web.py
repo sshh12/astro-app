@@ -529,17 +529,40 @@ async def get_space_object(ctx: context.Context, id: str) -> Dict:
     return {**_space_object_to_dict(obj, expand=True), "orbits": orbits}
 
 
-@method_web()
+@method_web(require_login=False)
 async def get_space_object_details(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    long_term_details = await get_longterm_orbit_calculations_batch(
-        obj,
-        ctx.user.timezone,
-        ctx.user.lat,
-        ctx.user.lon,
-        ctx.user.elevation,
-    )
+    if ctx.user:
+        long_term_details = await get_longterm_orbit_calculations_batch(
+            obj,
+            ctx.user.timezone,
+            ctx.user.lat,
+            ctx.user.lon,
+            ctx.user.elevation,
+        )
+    else:
+        long_term_details = await get_longterm_orbit_calculations_batch(
+            obj,
+            DEFAULT_TZ,
+            DEFAULT_LAT,
+            DEFAULT_LON,
+            DEFAULT_ELEVATION,
+        )
     return {"details": long_term_details}
+
+
+@method_web(require_login=False)
+async def get_space_object_current(ctx: context.Context, id: str) -> Dict:
+    obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
+    if ctx.user:
+        current_details = await methods_cpu.get_current_orbit_calculations.remote(
+            object=obj, timezone=ctx.user.timezone, lat=ctx.user.lat, lon=ctx.user.lon, elevation=ctx.user.elevation
+        )
+    else:
+        current_details = await methods_cpu.get_current_orbit_calculations.remote(
+            object=obj, timezone=DEFAULT_TZ, lat=DEFAULT_LAT, lon=DEFAULT_LON, elevation=DEFAULT_ELEVATION
+        )
+    return {**current_details}
 
 
 @method_web(require_login=False)

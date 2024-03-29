@@ -167,7 +167,11 @@ export function usePostWithCache(func, args = {}) {
   return [ready, result];
 }
 
-export function useControlledPostWithCache(func, args = {}) {
+export function useControlledPostWithCache(
+  func,
+  args = {},
+  proactiveRequest = false
+) {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -190,8 +194,11 @@ export function useControlledPostWithCache(func, args = {}) {
         setResult(JSON.parse(localStorage.getItem(key)));
         setReady(true);
       }
+      if (proactiveRequest) {
+        load();
+      }
     }
-  }, [func, argsStr, key]);
+  }, [func, key]);
   return [load, ready, loading, result];
 }
 

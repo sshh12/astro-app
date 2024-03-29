@@ -101,6 +101,22 @@ export function objectAKA(object) {
   return aka;
 }
 
+export function formatLocation(lat, lon, sep = ", ") {
+  let latFormat = lat.toFixed(2);
+  if (lat < 0) {
+    latFormat = (-latFormat).toFixed(2) + " S";
+  } else {
+    latFormat += " N";
+  }
+  let lonFormat = lon.toFixed(2);
+  if (lon < 0) {
+    lonFormat = (-lonFormat).toFixed(2) + " W";
+  } else {
+    lonFormat += " E";
+  }
+  return `${latFormat}${sep}${lonFormat}`;
+}
+
 export function objectSize(object) {
   const major = object.sizeMajor;
   const minor = object.sizeMinor;

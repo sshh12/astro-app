@@ -9,6 +9,7 @@ from skyfield import almanac
 from skyfield.api import wgs84
 from skyfield.searchlib import find_maxima, find_minima
 from skyfield.framelib import ecliptic_frame
+from skyfield.positionlib import position_of_radec
 
 import space_util
 
@@ -273,3 +274,43 @@ def get_week_info_with_weather_data(
         week.append(date_info)
 
     return week
+
+
+@method_cpu()
+def get_current_orbit_calculations(
+    object: List,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+) -> Dict:
+
+    load = space_util.get_loader()
+    ts = load.timescale()
+    eph = load("de421.bsp")
+    earth = eph["earth"]
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
+    loc_place = earth + loc
+
+    t_now = ts.now()
+
+    obj = space_util.space_object_to_observables(ts, eph, object)
+
+    apparent_pos = loc_place.at(t_now).observe(obj).apparent()
+
+    ra, dec, _ = apparent_pos.radec()
+
+    alt_az = apparent_pos.altaz()
+
+    pos_radec = position_of_radec(ra.hours, dec.degrees, t=t_now, center=399)
+    subpoint = wgs84.subpoint(pos_radec)
+
+    return {
+        "time": int(t_now.utc_datetime().timestamp() * 1000),
+        "alt": round(alt_az[0].degrees, 2),
+        "az": round(alt_az[1].degrees, 2),
+        "ra": ra.hours,
+        "dec": dec.degrees,
+        "lat": subpoint.latitude.degrees,
+        "lon": subpoint.longitude.degrees,
+    }

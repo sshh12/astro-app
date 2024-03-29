@@ -110,7 +110,6 @@ export default function IntroDialog() {
     } else if (!seenUpdates) {
       setOpenUpdates(true);
     }
-    console.log(SEEN_UPDATES_KEY, localStorage.getItem(SEEN_UPDATES_KEY));
   }, []);
 
   const slide = INTRO_SLIDES[slideIdx];
