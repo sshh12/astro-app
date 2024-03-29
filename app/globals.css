@@ -101,3 +101,8 @@ body {
 .moon-badge > p {
   color: #e5e7eb;
 }
+
+.tremor-Table-root {
+  max-height: 24rem;
+  overflow-y: scroll;
+}

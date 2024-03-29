@@ -312,10 +312,12 @@ function SatellitePassesCard({
     for (let dayDetail of objectDetails.details) {
       if (!dayDetail?.satellite_passes) continue;
       passes.push(...dayDetail.satellite_passes);
+      passes.push(...dayDetail.satellite_passes);
+      passes.push(...dayDetail.satellite_passes);
     }
   }
   return (
-    <Card style={{ maxHeight: "200rem" }}>
+    <Card>
       <Flex alignItems="start" className="mb-2">
         <div className="truncate">
           <Text color="white">Satellite Passes</Text>
@@ -517,7 +519,7 @@ export default function SkyObjectPage() {
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
       {object && (
-        <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
+        <Grid numItemsMd={2} numItemsLg={2} className="mt-3 gap-1 ml-2 mr-2">
           {object.description && <OverviewCard object={object} />}
           {object.ra && <SurveyCard object={object} />}
           {object && user && object.type != "EARTH_SATELLITE" && (
