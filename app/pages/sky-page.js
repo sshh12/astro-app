@@ -72,7 +72,9 @@ export default function SkyPage() {
             }))}
           />
         )}
-        {!user && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
+        {!favOrbits && (
+          <SkyChartPanel times={[]} timeStates={[]} objects={[]} />
+        )}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
