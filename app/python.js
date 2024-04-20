@@ -75,7 +75,7 @@ export function useCallWithCache(func, cacheKey, args = {}) {
   const { call, ready: pythonReady } = usePython();
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
-  const argsStr = JSON.stringify(args);
+  const argsStr = args && JSON.stringify(args);
   const key = `astro-app:cache:${func}:${cacheKey}`;
   useEffect(() => {
     if (cacheKey && localStorage.getItem(key)) {
@@ -83,7 +83,7 @@ export function useCallWithCache(func, cacheKey, args = {}) {
     }
   }, [cacheKey, key]);
   useEffect(() => {
-    if (func && args !== null && pythonReady) {
+    if (func && argsStr && pythonReady) {
       call(func, JSON.parse(argsStr)).then((val) => {
         if (!val.error) {
           localStorage.setItem(key, JSON.stringify(val));
@@ -107,7 +107,7 @@ export function useControlledCallWithCache(
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const argsStr = JSON.stringify(args);
+  const argsStr = args && JSON.stringify(args);
   const key = `astro-app:cache:${func}:${cacheKey}`;
   const load = useCallback(() => {
     setLoading(true);
@@ -119,17 +119,17 @@ export function useControlledCallWithCache(
       }
       setLoading(false);
     });
-  }, [func, argsStr, key]);
+  }, [func, argsStr, key, call]);
   useEffect(() => {
     if (cacheKey && localStorage.getItem(key)) {
       setResult(JSON.parse(localStorage.getItem(key)));
     }
-  }, [cacheKey]);
+  }, [cacheKey, key]);
   useEffect(() => {
-    if (func && args !== null && proactiveRequest && pythonReady) {
+    if (func && argsStr !== null && proactiveRequest && pythonReady) {
       load();
     }
-  }, [func, key, load, proactiveRequest, pythonReady]);
+  }, [func, argsStr, key, load, proactiveRequest, pythonReady]);
   return { load, ready, loading, result };
 }
 
