@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Grid } from "@tremor/react";
 import {
   MapPinIcon,
@@ -9,6 +9,7 @@ import {
   AcademicCapIcon,
   HeartIcon,
   CameraIcon,
+  CommandLineIcon,
 } from "@heroicons/react/24/solid";
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
@@ -16,11 +17,25 @@ import EquipSettingsCard from "../components/equip-settings-card";
 import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
 import { useNav } from "../nav";
+import { usePython } from "../python";
 import { SEEN_INTRO_KEY } from "../components/intro-dialog";
 
 export default function ProfilePage() {
   const { ready, user, postThenUpdateUser } = useAPI();
   const { pageParams } = useNav();
+
+  const { ready: pythonReady, asyncRun } = usePython();
+  const [exp, setExp] = useState("Not Yet Loaded");
+  useEffect(() => {
+    if (pythonReady) {
+      asyncRun
+        .current("from astro_app.test import test; test()")
+        .then((res) => {
+          console.log(res);
+          setExp(res.results);
+        });
+    }
+  }, [pythonReady]);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);
@@ -141,6 +156,14 @@ export default function ProfilePage() {
           onClick={() => {
             alert("❤️");
           }}
+        />
+        <LinkCard
+          title="Experimental Offline Support"
+          subtitle={exp}
+          color="yellow"
+          icon={CommandLineIcon}
+          truncate={false}
+          onClick={() => {}}
         />
       </Grid>
     </div>

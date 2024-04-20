@@ -58,6 +58,7 @@ workbox.routing.registerRoute(
       "https://alasky.cds.unistra.fr/hips-image-services/hips2fits"
     ) ||
     url.href.startsWith("https://upload.wikimedia.org/") ||
-    url.href.includes("_icons"),
+    url.href.includes("_icons") ||
+    url.href.includes("whl"),
   new workbox.strategies.CacheFirst()
 );

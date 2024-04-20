@@ -36,6 +36,12 @@ yarn-error.log*
 next-env.d.ts
 notebook/
 venv/
+venv-wsl/
+emsdk/
+python-sgp4/
+python-skyfield/
+.pyodide-xbuildenv/
+astro_app.egg-info/
 env.bat
 __pycache__
 de421.bsp

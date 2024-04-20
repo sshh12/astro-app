@@ -14,6 +14,7 @@ import ImagePage from "./pages/image-page";
 
 import { NavContext, useNavControl, useNav } from "./nav";
 import { APIContext, useAPIControl } from "./api";
+import { PythonContext, usePythonSetup } from "./python";
 
 export function App() {
   const { page, pageTransition } = useNav();
@@ -46,6 +47,7 @@ export default function WrappedApp() {
       serviceWorkerRegistration.register()
     );
   }, []);
+  useEffect(() => {});
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
     function gtag() {
@@ -57,11 +59,14 @@ export default function WrappedApp() {
   }, []);
   const navProps = useNavControl();
   const apiProps = useAPIControl();
+  const pythonProps = usePythonSetup();
   return (
-    <NavContext.Provider value={navProps}>
-      <APIContext.Provider value={apiProps}>
-        <App />
-      </APIContext.Provider>
-    </NavContext.Provider>
+    <PythonContext.Provider value={pythonProps}>
+      <NavContext.Provider value={navProps}>
+        <APIContext.Provider value={apiProps}>
+          <App />
+        </APIContext.Provider>
+      </NavContext.Provider>
+    </PythonContext.Provider>
   );
 }
