@@ -28,12 +28,10 @@ export default function ProfilePage() {
   const [exp, setExp] = useState("Not Yet Loaded");
   useEffect(() => {
     if (pythonReady) {
-      asyncRun
-        .current("from astro_app.test import test; test()")
-        .then((res) => {
-          console.log(res);
-          setExp(res.results);
-        });
+      asyncRun.current("from astro_app.api import test; test()").then((res) => {
+        console.log(res);
+        setExp(res.results);
+      });
     }
   }, [pythonReady]);
 
