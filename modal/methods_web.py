@@ -125,9 +125,7 @@ def _random_color() -> Color:
     return random.choice(list(Color))
 
 
-def _space_object_to_dict(
-    obj: models.SpaceObject, expand: bool = False, show_content: bool = True
-) -> dict:
+def _space_object_to_dict(obj: models.SpaceObject, show_content: bool = True) -> dict:
     props = {
         "id": str(obj.id),
     }
@@ -138,6 +136,8 @@ def _space_object_to_dict(
                 "names": obj.names,
                 "searchKey": obj.searchKey,
                 "solarSystemKey": obj.solarSystemKey,
+                "cometKey": obj.cometKey,
+                "celestrakKey": obj.celestrakKey,
                 "color": obj.color,
                 "type": obj.type,
                 "imgURL": obj.imgURL,
@@ -147,11 +147,6 @@ def _space_object_to_dict(
                 "sizeMajor": float(obj.sizeMajor) if obj.sizeMajor else None,
                 "sizeMinor": float(obj.sizeMinor) if obj.sizeMinor else None,
                 "sizeAngle": float(obj.sizeAngle) if obj.sizeAngle else None,
-            }
-        )
-    if expand:
-        props.update(
-            {
                 "simbadName": obj.simbadName,
                 "imgCredit": obj.imgCredit,
                 "description": obj.description,
@@ -208,14 +203,6 @@ def _equipment_to_dict(equipment: models.Equipment) -> dict:
     return eq_dict
 
 
-def _get_favorite_objects(user: models.User) -> List:
-    fav_list = next(
-        (list.List for list in user.lists if list.List.title == FAVORITES), None
-    )
-    fav_list_objects = [obj.SpaceObject for obj in fav_list.objects]
-    return fav_list_objects
-
-
 def _user_to_dict(user: models.User) -> dict:
     return {
         "id": str(user.id),
@@ -246,50 +233,6 @@ def build_search_key(name: str, names: List[str]) -> str:
 
 def chunk(list: List, size: int) -> List[List]:
     return [list[i : i + size] for i in range(0, len(list), size)]
-
-
-async def get_orbit_calculations_batch(
-    objects: List[models.SpaceObject],
-    timezone: str,
-    lat: float,
-    lon: float,
-    elevation: float,
-    batch_size: int = 8,
-    resolution_mins: Optional[int] = None,
-):
-    if resolution_mins is None:
-        if any(obj.type == SpaceObjectType.EARTH_SATELLITE for obj in objects):
-            resolution_mins = 1
-        else:
-            resolution_mins = 10
-    if len(objects) <= batch_size:
-        results_combined = await methods_cpu.get_orbit_calculations.remote(
-            objects=objects,
-            timezone=timezone,
-            lat=lat,
-            lon=lon,
-            elevation=elevation,
-            resolution_mins=resolution_mins,
-        )
-    else:
-        objs = sorted(objects, key=lambda obj: str(obj.type))
-        results = await asyncio.gather(
-            *[
-                methods_cpu.get_orbit_calculations.remote(
-                    objects=obj_chunk,
-                    timezone=timezone,
-                    lat=lat,
-                    lon=lon,
-                    elevation=elevation,
-                    resolution_mins=resolution_mins,
-                )
-                for obj_chunk in chunk(objs, batch_size)
-            ]
-        )
-        results_combined = results[0]
-        for result in results[1:]:
-            results_combined["objects"].update(result["objects"])
-    return results_combined
 
 
 async def get_longterm_orbit_calculations_batch(
@@ -458,24 +401,15 @@ async def query_and_import_simbad(
 async def create_user(ctx: context.Context) -> Dict:
     user = await _create_user(ctx.prisma)
     user = await context.fetch_user(ctx.prisma, user.apiKey)
-    fav_objects = _get_favorite_objects(user)
-    orbits = await get_orbit_calculations_batch(
-        fav_objects, user.timezone, user.lat, user.lon, user.elevation
-    )
     return {
         "api_key": user.apiKey,
         **_user_to_dict(user),
-        "orbits": orbits,
     }
 
 
 @method_web()
 async def get_user(ctx: context.Context) -> Dict:
-    fav_objects = _get_favorite_objects(ctx.user)
-    orbits = await get_orbit_calculations_batch(
-        fav_objects, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
-    )
-    return {**_user_to_dict(ctx.user), "orbits": orbits}
+    return {**_user_to_dict(ctx.user)}
 
 
 @method_web()
@@ -518,15 +452,7 @@ async def update_user_location(
 @method_web(require_login=False)
 async def get_space_object(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    if ctx.user:
-        orbits = await get_orbit_calculations_batch(
-            [obj], ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
-        )
-    else:
-        orbits = await get_orbit_calculations_batch(
-            [obj], DEFAULT_TZ, DEFAULT_LAT, DEFAULT_LON, DEFAULT_ELEVATION
-        )
-    return {**_space_object_to_dict(obj, expand=True), "orbits": orbits}
+    return {**_space_object_to_dict(obj)}
 
 
 @method_web(require_login=False)
@@ -556,11 +482,19 @@ async def get_space_object_current(ctx: context.Context, id: str) -> Dict:
     obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
     if ctx.user:
         current_details = await methods_cpu.get_current_orbit_calculations.remote(
-            object=obj, timezone=ctx.user.timezone, lat=ctx.user.lat, lon=ctx.user.lon, elevation=ctx.user.elevation
+            object=obj,
+            timezone=ctx.user.timezone,
+            lat=ctx.user.lat,
+            lon=ctx.user.lon,
+            elevation=ctx.user.elevation,
         )
     else:
         current_details = await methods_cpu.get_current_orbit_calculations.remote(
-            object=obj, timezone=DEFAULT_TZ, lat=DEFAULT_LAT, lon=DEFAULT_LON, elevation=DEFAULT_ELEVATION
+            object=obj,
+            timezone=DEFAULT_TZ,
+            lat=DEFAULT_LAT,
+            lon=DEFAULT_LON,
+            elevation=DEFAULT_ELEVATION,
         )
     return {**current_details}
 
@@ -579,16 +513,7 @@ async def get_list(ctx: context.Context, id: str) -> Dict:
     )
     if list_ is None:
         return {"error": "List not found"}
-    objs = [obj.SpaceObject for obj in list_.objects]
-    if ctx.user:
-        orbits = await get_orbit_calculations_batch(
-            objs, ctx.user.timezone, ctx.user.lat, ctx.user.lon, ctx.user.elevation
-        )
-    else:
-        orbits = await get_orbit_calculations_batch(
-            objs, DEFAULT_TZ, DEFAULT_LAT, DEFAULT_LON, DEFAULT_ELEVATION
-        )
-    return {**_list_to_dict(list_), "orbits": orbits}
+    return {**_list_to_dict(list_)}
 
 
 @method_web()
@@ -665,16 +590,8 @@ async def search(ctx: context.Context, term: str) -> Dict:
         objs.append(obj)
     except Exception as e:
         print(e)
-    objs = list({obj.id: obj for obj in objs}.values())[:20]
-    orbits = await get_orbit_calculations_batch(
-        objs,
-        ctx.user.timezone,
-        ctx.user.lat,
-        ctx.user.lon,
-        ctx.user.elevation,
-        resolution_mins=10,
-    )
-    return {"objects": [_space_object_to_dict(obj) for obj in objs], "orbits": orbits}
+    objs = list({obj.id: obj for obj in objs}.values())[:10]
+    return {"objects": [_space_object_to_dict(obj) for obj in objs]}
 
 
 @method_web()

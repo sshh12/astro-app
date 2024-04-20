@@ -16,6 +16,7 @@ import ShareLinkDialog from "../components/share-link-dialog";
 import { useAPI, usePostWithCache, useAnalytics } from "../api";
 import LinkCard from "../components/link-card";
 import ObjectsList from "../components/objects-list";
+import { useCallWithCache } from "../python";
 
 export default function SkyListPage() {
   const { pageParams, setPage, goBack } = useNav();
@@ -27,6 +28,20 @@ export default function SkyListPage() {
   const [listReady, list] = usePostWithCache(pageParams.id && "get_list", {
     id: pageParams.id,
   });
+
+  const { ready: listOrbitsReady, result: listOrbits } = useCallWithCache(
+    list && user && "get_orbit_calculations",
+    list?.id + "_orbits",
+    user &&
+      list && {
+        objects: list.objects,
+        timezone: user.timezone,
+        lat: user.lat,
+        lon: user.lon,
+        elevation: user.elevation,
+        resolution_mins: 10,
+      }
+  );
 
   useEffect(() => {
     if (listReady) {
@@ -71,7 +86,7 @@ export default function SkyListPage() {
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
-        loading={!listReady || loading}
+        loading={!listReady || loading || !listOrbitsReady}
         rightIcons={rightIcons}
       />
 
@@ -83,31 +98,31 @@ export default function SkyListPage() {
       />
 
       <div className="pb-5 mt-6">
-        {list?.orbits?.time && (
+        {listOrbits && (
           <SkyChartPanel
-            times={list.orbits.time}
-            timeStates={list.orbits.time_state}
-            timezone={list.orbits.timezone}
+            times={listOrbits.time}
+            timeStates={listOrbits.time_state}
+            timezone={listOrbits.timezone}
             objects={list.objects.map((obj) => ({
-              alt: list.orbits.objects[obj.id].alt,
-              az: list.orbits.objects[obj.id].az,
+              alt: listOrbits.objects[obj.id].alt,
+              az: listOrbits.objects[obj.id].az,
               name: obj.name,
               color: obj.color,
               object: obj,
             }))}
           />
         )}
-        {!list && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
+        {!listOrbits && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
       <div className="ml-2 mr-2">
-        {list && (
+        {list && listOrbits && (
           <ObjectsList
             title="Sky Objects"
             objects={list.objects}
-            orbits={list.orbits}
+            orbits={listOrbits}
           />
         )}
 

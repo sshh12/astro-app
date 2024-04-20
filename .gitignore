@@ -50,3 +50,4 @@ CometEls.txt
 python-astro-app/build/
 python-astro-app/dist/
 !public/tables/de421.bsp
+!public/tables/CometEls.txt

@@ -10,18 +10,43 @@ async function loadPyodideAndPackages() {
         const data = new Uint8Array(await resp.arrayBuffer());
         pyodide.FS.writeFile("/de421.bsp", data, { encoding: "binary" });
       } else {
-        console.error("Failed to fetch DE421");
+        console.error("Failed to fetch de421.bsp");
+      }
+    });
+  };
+  const getComets = async () => {
+    await fetch("/tables/CometEls.txt").then(async (resp) => {
+      if (resp.ok) {
+        const data = new Uint8Array(await resp.arrayBuffer());
+        pyodide.FS.writeFile("/CometEls.txt", data, { encoding: "binary" });
+      } else {
+        console.error("Failed to fetch CometEls.txt");
+      }
+    });
+  };
+  const getCelestrak = async () => {
+    await fetch("/tables/celestrak-active.txt").then(async (resp) => {
+      if (resp.ok) {
+        const data = new Uint8Array(await resp.arrayBuffer());
+        pyodide.FS.writeFile("/celestrak-active.txt", data, {
+          encoding: "binary",
+        });
+      } else {
+        console.error("Failed to fetch celestrak-active.txt");
       }
     });
   };
   await Promise.all([
     micropip.install([
       "pytz",
+      "pandas",
       "/whl/sgp4-2.23-cp310-cp310-emscripten_3_1_27_wasm32.whl",
       "/whl/skyfield-1.48-py3-none-any.whl",
-      "/whl/astro_app-0.0.1-py3-none-any.whl",
+      "/whl/astro_app-0.1234.2-py3-none-any.whl",
     ]),
     getNASAEph(),
+    getComets(),
+    getCelestrak(),
   ]);
 }
 const pyodideReadyPromise = loadPyodideAndPackages();

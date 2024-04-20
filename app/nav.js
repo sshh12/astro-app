@@ -61,7 +61,7 @@ export function useNavControl() {
         );
       }
     },
-    [setPageParams, page, setPageTransition]
+    [setPageParams, page, setPageTransition, pageParams]
   );
   const goBack = useCallback(() => {
     if (prevPage === page) {

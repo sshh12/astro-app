@@ -24,16 +24,15 @@ export default function ProfilePage() {
   const { ready, user, postThenUpdateUser } = useAPI();
   const { pageParams } = useNav();
 
-  const { ready: pythonReady, asyncRun } = usePython();
-  const [exp, setExp] = useState("Not Yet Loaded");
+  const { ready: pythonReady, call } = usePython();
+  const [exp, setExp] = useState("Loading...");
   useEffect(() => {
     if (pythonReady) {
-      asyncRun.current("from astro_app.api import test; test()").then((res) => {
-        console.log(res);
-        setExp(res.results);
+      call("test").then((res) => {
+        setExp(res.output);
       });
     }
-  }, [pythonReady]);
+  }, [pythonReady, call]);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);

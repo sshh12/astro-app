@@ -5,6 +5,7 @@ import { Grid, Title } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
+import { useCallWithCache } from "../python";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ListCard from "../components/list-card";
@@ -23,6 +24,19 @@ export default function SkyPage() {
       (list) => list.title === "Favorites"
     ).objects;
   }
+
+  const { result: favOrbits } = useCallWithCache(
+    favListObjects && user && "get_orbit_calculations",
+    "fav_orbits",
+    user && {
+      objects: favListObjects,
+      timezone: user.timezone,
+      lat: user.lat,
+      lon: user.lon,
+      elevation: user.elevation,
+      resolution_mins: 10,
+    }
+  );
 
   let lists = [];
   if (user) {
@@ -44,17 +58,17 @@ export default function SkyPage() {
       />
 
       <div className="pb-5 mt-6">
-        {user && (
+        {favOrbits && (
           <SkyChartPanel
-            times={user.orbits.time}
-            timeStates={user.orbits.time_state}
-            timezone={user.orbits.timezone}
+            times={favOrbits.time}
+            timeStates={favOrbits.time_state}
+            timezone={favOrbits.timezone}
             objects={favListObjects.map((obj) => ({
-              alt: user.orbits.objects[obj.id].alt,
-              az: user.orbits.objects[obj.id].az,
+              alt: favOrbits.objects[obj.id].alt,
+              az: favOrbits.objects[obj.id].az,
               name: obj.name,
               color: obj.color,
-              object: obj
+              object: obj,
             }))}
           />
         )}
@@ -63,12 +77,12 @@ export default function SkyPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      {user && (
+      {user && favOrbits && (
         <div className="ml-2 mr-2">
           <ObjectsList
             title="Favorites"
             objects={favListObjects}
-            orbits={user.orbits}
+            orbits={favOrbits}
           />
 
           <div className="mt-5">

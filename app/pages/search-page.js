@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Title, Text, Flex, Badge } from "@tremor/react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
+import { useCallWithCache } from "../python";
 import { useAPI, usePostWithCache } from "../api";
 import StickyHeader from "../components/sticky-header";
 import { useDebounce } from "../utils";
@@ -27,7 +28,7 @@ function ListBadge({ list, onClick }) {
 
 export default function SearchPage() {
   const { setPage, goBack } = useNav();
-  const { post } = useAPI();
+  const { post, user } = useAPI();
 
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchTerm = useDebounce(searchValue, 500);
@@ -45,6 +46,20 @@ export default function SearchPage() {
       });
     }
   }, [debouncedSearchTerm, post]);
+
+  const { result: resultOrbits, ready: resultOrbitsReady } = useCallWithCache(
+    results && user && "get_orbit_calculations",
+    searchValue + "_orbits",
+    results &&
+      user && {
+        objects: results.objects,
+        timezone: user.timezone,
+        lat: user.lat,
+        lon: user.lon,
+        elevation: user.elevation,
+        resolution_mins: 10,
+      }
+  );
 
   const publicListsRows = [];
   if (publicLists) {
@@ -67,7 +82,7 @@ export default function SearchPage() {
         search={true}
         searchValue={searchValue}
         searchOnChange={(event) => setSearchValue(event.target.value)}
-        loading={loading || !publicLists}
+        loading={loading || !publicLists || (results && !resultOrbitsReady)}
       />
 
       <div className="ml-2 mr-2">
@@ -77,11 +92,11 @@ export default function SearchPage() {
           </Flex>
         )}
 
-        {results && (
+        {results && resultOrbits && (
           <ObjectsList
             title="Results"
             objects={results.objects}
-            orbits={results.orbits}
+            orbits={resultOrbits}
           />
         )}
 

@@ -24,6 +24,7 @@ import {
   TableRow,
   Badge,
 } from "@tremor/react";
+import { useCallWithCache } from "../python";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
@@ -423,6 +424,20 @@ export default function SkyObjectPage() {
     }
   );
 
+  const { result: objOrbits, ready: objOrbitsReady } = useCallWithCache(
+    object && user && "get_orbit_calculations",
+    object?.id + "_orbits",
+    object &&
+      user && {
+        objects: [object],
+        timezone: user.timezone,
+        lat: user.lat,
+        lon: user.lon,
+        elevation: user.elevation,
+        resolution_mins: 10,
+      }
+  );
+
   useEffect(() => {
     if (objectReady) {
       emitEvent(`object_view_${object.name}`);
@@ -476,7 +491,9 @@ export default function SkyObjectPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
         rightIcons={rightIcons}
-        loading={!objectReady || !ready || !objectPositionReady}
+        loading={
+          !objectReady || !ready || !objectPositionReady || !objOrbitsReady
+        }
       />
 
       <ShareLinkDialog
@@ -495,15 +512,15 @@ export default function SkyObjectPage() {
       )}
 
       <div className="pb-5">
-        {object && (
+        {objOrbits && (
           <SkyChartPanel
-            times={object.orbits.time}
-            timeStates={object.orbits.time_state}
-            timezone={object.orbits.timezone}
+            times={objOrbits.time}
+            timeStates={objOrbits.time_state}
+            timezone={objOrbits.timezone}
             objects={[
               {
-                alt: object.orbits.objects[object.id].alt,
-                az: object.orbits.objects[object.id].az,
+                alt: objOrbits.objects[object.id].alt,
+                az: objOrbits.objects[object.id].az,
                 name: object.name,
                 color: object.color,
                 object: object,
@@ -511,7 +528,9 @@ export default function SkyObjectPage() {
             ]}
           />
         )}
-        {!object && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
+        {!objOrbits && (
+          <SkyChartPanel times={[]} timeStates={[]} objects={[]} />
+        )}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>

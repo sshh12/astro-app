@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 
 export const PythonContext = React.createContext({});
 
@@ -37,10 +43,52 @@ export function usePythonSetup() {
 
     setReady(true);
   }, []);
-  return { asyncRun, ready };
+  const call = useCallback(async (method, args = {}) => {
+    console.log(">>>", method);
+    const val = await asyncRun.current(
+      `
+    from astro_app.api import call;
+    call("${method}", ${JSON.stringify(args).replaceAll("null", "None")})
+    `
+    );
+    let result = { error: val.error };
+    if (val.error) {
+      console.error(val.error);
+    }
+    if (val.results) {
+      result = { ...result, ...JSON.parse(val.results) };
+    }
+    return result;
+  }, []);
+  return { call, ready };
 }
 
 export function usePython() {
   const pyProps = useContext(PythonContext);
   return pyProps;
+}
+
+export function useCallWithCache(func, cacheKey, args = {}) {
+  const { call, ready: pythonReady } = usePython();
+  const [ready, setReady] = useState(false);
+  const [result, setResult] = useState(null);
+  const argsStr = JSON.stringify(args);
+  const key = `astro-app:cache:${func}:${cacheKey}`;
+  useEffect(() => {
+    if (func) {
+      if (localStorage.getItem(key)) {
+        setResult(JSON.parse(localStorage.getItem(key)));
+      }
+      if (pythonReady) {
+        call(func, JSON.parse(argsStr)).then((val) => {
+          if (!val.error) {
+            localStorage.setItem(key, JSON.stringify(val));
+            setResult(val);
+            setReady(true);
+          }
+        });
+      }
+    }
+  }, [func, argsStr, key, pythonReady, call]);
+  return { ready, result };
 }
