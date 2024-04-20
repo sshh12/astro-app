@@ -54,11 +54,10 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
   ({ url }) =>
-    url.href.startsWith(
-      "https://alasky.cds.unistra.fr/hips-image-services/hips2fits"
-    ) ||
+    url.href.includes("hips-image-services") ||
     url.href.startsWith("https://upload.wikimedia.org/") ||
     url.href.includes("_icons") ||
-    url.href.includes("whl"),
+    url.href.includes("whl") ||
+    url.href.includes("tables"),
   new workbox.strategies.CacheFirst()
 );

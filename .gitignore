@@ -47,3 +47,4 @@ __pycache__
 de421.bsp
 *.cache.json
 CometEls.txt
+!public/de421.bsp
