@@ -16,11 +16,7 @@ class BackendArgs(BaseModel):
 @stub.cls(
     secrets=[modal.Secret.from_name("astro-app-secret")],
     image=image_base,
-    mounts=[
-        modal.Mount.from_local_python_packages(
-            "context", "methods_web", "methods_cpu", "space_util"
-        )
-    ],
+    mounts=[modal.Mount.from_local_python_packages("context", "methods_web")],
     container_idle_timeout=500,
     allow_concurrent_inputs=10,
     cpu=0.25,
@@ -46,19 +42,3 @@ class AstroApp:
     @modal.exit()
     async def close_connection(self):
         await self.prisma.disconnect()
-
-
-@stub.function(
-    secrets=[modal.Secret.from_name("astro-app-secret")],
-    image=image_base,
-    mounts=[modal.Mount.from_local_python_packages("methods_cpu", "space_util")],
-    container_idle_timeout=500,
-    allow_concurrent_inputs=1,
-    cpu=1.0,
-)
-def astro_app_backend_cpu(func: str, kwargs: Dict):
-    import methods_cpu
-
-    result = methods_cpu.METHODS[func](**kwargs)
-
-    return result

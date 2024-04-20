@@ -155,12 +155,12 @@ export default function ProfilePage() {
           }}
         />
         <LinkCard
-          title="Experimental Offline Support"
+          title="Offline Support"
           subtitle={exp}
           color="yellow"
           icon={CommandLineIcon}
           truncate={false}
-          onClick={() => {}}
+          onClick={() => alert(exp)}
         />
       </Grid>
     </div>

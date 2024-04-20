@@ -28,12 +28,8 @@ import { useCallWithCache } from "../python";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import {
-  useAPI,
-  useAnalytics,
-  usePostWithCache,
-  useControlledPostWithCache,
-} from "../api";
+import { useAPI, useAnalytics, usePostWithCache } from "../api";
+import { useControlledCallWithCache } from "../python";
 import ListDialog from "../components/list-dialog";
 import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
@@ -52,13 +48,7 @@ const USEFUL_PREFIXES = [
   "DESIGNATION ",
 ];
 
-function DetailsCard({
-  object,
-  objectPosition,
-  objectPositionReady,
-  objectPositionLoad,
-  objectPositionLoading,
-}) {
+function DetailsCard({ object, dataProps }) {
   return (
     <Card>
       <Flex alignItems="start " className="mb-2">
@@ -66,7 +56,6 @@ function DetailsCard({
           <Text color="white">Details</Text>
         </div>
       </Flex>
-      {objectPositionLoading && <Text>Calculating...</Text>}
       <List>
         {object.ra && (
           <ListItem>
@@ -76,28 +65,33 @@ function DetailsCard({
             </Text>
           </ListItem>
         )}
-        {objectPosition && (
+        {dataProps.result && (
           <ListItem>
             <Text color="slate-400">ALT / AZ</Text>
             <Text color="slate-400">
-              {Math.round(objectPosition.alt)}° /{" "}
-              {Math.round(objectPosition.az)}°
+              {Math.round(dataProps.result.alt)}° /{" "}
+              {Math.round(dataProps.result.az)}°
             </Text>
           </ListItem>
         )}
-        {!object.ra && objectPosition && (
+        {!object.ra && dataProps.result && (
           <ListItem>
             <Text color="slate-400">RA / DEC</Text>
             <Text color="slate-400">
-              {objectPosition.ra.toFixed(2)} / {objectPosition.dec.toFixed(2)}
+              {dataProps.result.ra.toFixed(2)} /{" "}
+              {dataProps.result.dec.toFixed(2)}
             </Text>
           </ListItem>
         )}
-        {objectPosition && (
+        {dataProps.result && (
           <ListItem>
             <Text color="slate-400">LAT / LON</Text>
             <Text color="slate-400">
-              {formatLocation(objectPosition.lat, objectPosition.lon, " / ")}
+              {formatLocation(
+                dataProps.result.lat,
+                dataProps.result.lon,
+                " / "
+              )}
             </Text>
           </ListItem>
         )}
@@ -114,12 +108,12 @@ function DetailsCard({
           </ListItem>
         )}
       </List>
-      {!objectPositionLoading && objectPositionReady && (
+      {!dataProps.loading && dataProps.ready && (
         <Flex className="justify-end mt-3">
           <Button
             icon={ArrowPathIcon}
             variant="primary"
-            onClick={() => objectPositionLoad()}
+            onClick={() => dataProps.load()}
           >
             Refresh
           </Button>
@@ -162,7 +156,7 @@ function NameCard({ object }) {
         {names.map((objName) => {
           const [key, ...value] = objName.split(" ");
           return (
-            <ListItem key={objName}>
+            <ListItem key={key + value}>
               <Text color="slate-400">{key}</Text>
               <Text color="slate-400">{value.join(" ")}</Text>
             </ListItem>
@@ -234,13 +228,9 @@ function SurveyCard({ object }) {
   );
 }
 
-function AltitudeCard({
-  objectDetailsLoad,
-  objectDetailsLoading,
-  objectDetailsReady,
-  objectDetails,
-  timezone,
-}) {
+function AltitudeCard({ dataProps, timezone }) {
+  const result =
+    dataProps.result && Object.values(dataProps.result).filter((x) => !!x);
   return (
     <Card>
       <Flex alignItems="start" className="mb-2">
@@ -248,12 +238,12 @@ function AltitudeCard({
           <Text color="white">Annual Min/Max Altitude</Text>
         </div>
       </Flex>
-      {objectDetailsLoading && <Text>Calculating (up to 5m)...</Text>}
-      {!objectDetailsLoading && objectDetailsReady && timezone && (
+      {dataProps.loading && <Text>Calculating (up to 5m)...</Text>}
+      {!dataProps.loading && result && timezone && (
         <SkyAltChart
           timezone={timezone}
-          times={objectDetails.details.map((detail) => detail.start)}
-          notes={objectDetails.details.map(
+          times={result.map((detail) => detail.start)}
+          notes={result.map(
             (detail) =>
               `Max at ${formatTime(
                 detail.ts_at_max_alt || 0,
@@ -265,33 +255,33 @@ function AltitudeCard({
             {
               name: "Max Altitude",
               color: "blue",
-              alts: objectDetails.details.map((detail) => detail.max_alt),
+              alts: Object.values(result).map((detail) => detail.max_alt),
             },
             {
               name: "Min Altitude",
               color: "orange",
-              alts: objectDetails.details.map((detail) => detail.min_alt),
+              alts: Object.values(result).map((detail) => detail.min_alt),
             },
           ]}
         />
       )}
-      {!objectDetailsLoading && objectDetailsReady && (
+      {!dataProps.loading && dataProps.ready && (
         <Flex className="justify-end mt-3">
           <Button
             icon={ArrowPathIcon}
             variant="primary"
-            onClick={() => objectDetailsLoad()}
+            onClick={() => dataProps.load()}
           >
             Refresh
           </Button>
         </Flex>
       )}
-      {!objectDetailsLoading && !objectDetailsReady && (
+      {!dataProps.loading && !dataProps.ready && (
         <Flex className="justify-around mt-3">
           <Button
             icon={ArrowPathIcon}
             variant="secondary"
-            onClick={() => objectDetailsLoad()}
+            onClick={() => dataProps.load()}
           >
             Load
           </Button>
@@ -301,16 +291,12 @@ function AltitudeCard({
   );
 }
 
-function SatellitePassesCard({
-  objectDetailsLoad,
-  objectDetailsLoading,
-  objectDetailsReady,
-  objectDetails,
-  timezone,
-}) {
+function SatellitePassesCard({ dataProps, timezone }) {
+  const result =
+    dataProps.result && Object.values(dataProps.result).filter((x) => !!x);
   const passes = [];
-  if (objectDetails) {
-    for (let dayDetail of objectDetails.details) {
+  if (result) {
+    for (let dayDetail of result) {
       if (!dayDetail?.satellite_passes) continue;
       passes.push(...dayDetail.satellite_passes);
     }
@@ -322,7 +308,7 @@ function SatellitePassesCard({
           <Text color="white">Satellite Passes</Text>
         </div>
       </Flex>
-      {objectDetailsLoading && <Text>Calculating (up to 5m)...</Text>}
+      {dataProps.loading && <Text>Calculating (up to 5m)...</Text>}
       <Table className="mt-5">
         <TableHead>
           <TableRow>
@@ -384,23 +370,23 @@ function SatellitePassesCard({
           ))}
         </TableBody>
       </Table>
-      {!objectDetailsLoading && objectDetailsReady && (
+      {!dataProps.loading && dataProps.ready && (
         <Flex className="justify-end mt-3">
           <Button
             icon={ArrowPathIcon}
             variant="primary"
-            onClick={() => objectDetailsLoad()}
+            onClick={() => dataProps.load()}
           >
             Refresh
           </Button>
         </Flex>
       )}
-      {!objectDetailsLoading && !objectDetailsReady && (
+      {!dataProps.loading && !dataProps.ready && (
         <Flex className="justify-around mt-3">
           <Button
             icon={ArrowPathIcon}
             variant="secondary"
-            onClick={() => objectDetailsLoad()}
+            onClick={() => dataProps.load()}
           >
             Load
           </Button>
@@ -444,26 +430,34 @@ export default function SkyObjectPage() {
     }
   }, [objectReady, object, emitEvent]);
 
-  const [
-    objectDetailsLoad,
-    objectDetailsReady,
-    objectDetailsLoading,
-    objectDetails,
-  ] = useControlledPostWithCache(object && "get_space_object_details", {
-    id: object?.id,
-  });
+  const objLongTermProps = useControlledCallWithCache(
+    "get_longterm_orbit_calculations",
+    pageParams.id && pageParams.id + "_longterm",
+    user &&
+      object && {
+        object: object,
+        timezone: user.timezone,
+        lat: user.lat,
+        lon: user.lon,
+        elevation: user.elevation,
+        start_days: 0,
+        offset_days: 365,
+      },
+    { proactiveRequest: false }
+  );
 
-  const [
-    objectPositionLoad,
-    objectPositionReady,
-    objectPositionLoading,
-    objectPosition,
-  ] = useControlledPostWithCache(
-    pageParams.id && "get_space_object_current",
-    {
-      id: pageParams.id,
-    },
-    true
+  const objPosProps = useControlledCallWithCache(
+    "get_current_orbit_calculations",
+    pageParams.id && pageParams.id + "_current",
+    user &&
+      object && {
+        object: object,
+        timezone: user?.timezone,
+        lat: user?.lat,
+        lon: user?.lon,
+        elevation: user?.elevation,
+      },
+    { proactiveRequest: true }
   );
 
   const isOnList = user?.lists.find((list) =>
@@ -491,8 +485,9 @@ export default function SkyObjectPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
         rightIcons={rightIcons}
-        loading={
-          !objectReady || !ready || !objectPositionReady || !objOrbitsReady
+        loading={!objectReady || !ready}
+        computing={
+          objPosProps.loading || !objOrbitsReady || objLongTermProps.loading
         }
       />
 
@@ -535,40 +530,25 @@ export default function SkyObjectPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      {object && (
-        <Grid numItemsMd={2} numItemsLg={2} className="mt-3 gap-1 ml-2 mr-2">
-          {object.description && <OverviewCard object={object} />}
-          {object.ra && <SurveyCard object={object} />}
-          {object && user && object.type != "EARTH_SATELLITE" && (
-            <AltitudeCard
-              objectDetailsLoad={objectDetailsLoad}
-              objectDetailsLoading={objectDetailsLoading}
-              objectDetailsReady={objectDetailsReady}
-              objectDetails={objectDetails}
-              timezone={user.timezone}
-            />
-          )}
-          {object && (
-            <DetailsCard
-              object={object}
-              objectPosition={objectPosition}
-              objectPositionLoad={objectPositionLoad}
-              objectPositionLoading={objectPositionLoading}
-              objectPositionReady={objectPositionReady}
-            />
-          )}
-          {object && user && object.type == "EARTH_SATELLITE" && (
-            <SatellitePassesCard
-              objectDetailsLoad={objectDetailsLoad}
-              objectDetailsLoading={objectDetailsLoading}
-              objectDetailsReady={objectDetailsReady}
-              objectDetails={objectDetails}
-              timezone={user.timezone}
-            />
-          )}
-          {object && <NameCard object={object} />}
-        </Grid>
-      )}
+      <Grid numItemsMd={2} numItemsLg={2} className="mt-3 gap-1 ml-2 mr-2">
+        {object && object.description && <OverviewCard object={object} />}
+        {object && object.ra && <SurveyCard object={object} />}
+        {object && user && object.type != "EARTH_SATELLITE" && (
+          <AltitudeCard dataProps={objLongTermProps} timezone={user.timezone} />
+        )}
+        {object && objPosProps && (
+          <DetailsCard object={object} dataProps={objPosProps} />
+        )}
+        {object && <NameCard object={object} />}
+      </Grid>
+      <Grid numItemsMd={1} numItemsLg={1} className="mt-1 gap-1 ml-2 mr-2">
+        {object && user && object.type == "EARTH_SATELLITE" && (
+          <SatellitePassesCard
+            dataProps={objLongTermProps}
+            timezone={user.timezone}
+          />
+        )}
+      </Grid>
     </div>
   );
 }

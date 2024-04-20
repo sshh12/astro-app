@@ -11,20 +11,17 @@ import {
 } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 
-function LoadingBar({ loading }) {
+function LoadingBar({ loading, color }) {
   const loadingInterval = useRef(null);
   const [pct, setPct] = useState(0);
   useEffect(() => {
     if (loading) {
       loadingInterval.current = setInterval(() => {
         setPct((pct) => {
-          pct += 10;
-          if (pct > 100) {
-            pct = 0;
-          }
+          pct += 1;
           return pct;
         });
-      }, 500);
+      }, 100);
     } else if (!loading && loadingInterval.current) {
       clearInterval(loadingInterval.current);
       loadingInterval.current = null;
@@ -36,6 +33,7 @@ function LoadingBar({ loading }) {
       }
     };
   }, [loading]);
+  const brightness = Math.abs(Math.sin(pct / 3)) * 0.9 + 0.1;
   return (
     <div
       style={{
@@ -46,37 +44,24 @@ function LoadingBar({ loading }) {
         background: "transparent",
         zIndex: "2147483647",
         width: "100%",
-        opacity: loading ? 1 : 0,
+        opacity: loading ? brightness : 0,
+        transition: "all 100ms ease 0s",
       }}
     >
       <div
         style={{
           height: "100%",
-          background: "rgb(34, 197, 94)",
-          width: "70%",
+          background: color,
+          width: "100%",
           position: "absolute",
-          left: `${pct - 100}%`,
+          left: `0%`,
           opacity: "1",
-          color: "rgb(34, 197, 94)",
-          transition: "all 550ms ease 0s",
+          color: color,
         }}
       ></div>
       <div
         style={{
-          height: "100%",
-          background: "rgb(34, 197, 94)",
-          width: "70%",
-          position: "absolute",
-          left: `${pct}%`,
-          opacity: "1",
-          color: "rgb(34, 197, 94)",
-          transition: "all 550ms ease 0s",
-        }}
-      ></div>
-      <div
-        style={{
-          boxShadow:
-            "rgb(34, 197, 94) 0px 0px 5px, rgb(34, 197, 94) 0px 0px 5px",
+          boxShadow: `${color} 0px 0px 5px, ${color} 0px 0px 5px`,
           width: "100%",
           opacity: "1",
           position: "absolute",
@@ -98,6 +83,7 @@ export default function StickyHeader({
   searchValue,
   searchOnChange,
   loading = false,
+  computing = false,
 }) {
   const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -115,7 +101,8 @@ export default function StickyHeader({
 
   return (
     <div>
-      <LoadingBar loading={loading} />
+      <LoadingBar loading={loading} color={"rgb(34, 197, 94)"} />
+      <LoadingBar loading={computing} color={"rgb(195, 217, 255)"} />
       <Flex
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}
@@ -152,9 +139,9 @@ export default function StickyHeader({
 
         {rightIcons.length > 0 && (
           <div className="justify-end ml-auto">
-            {rightIcons.map((v) => (
+            {rightIcons.map((v, i) => (
               <Button
-                key={v.icon}
+                key={i}
                 onClick={v.onClick}
                 color="slate-800"
                 icon={v.icon}

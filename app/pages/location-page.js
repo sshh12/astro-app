@@ -7,6 +7,7 @@ import { useAPI } from "../api";
 import BadgeIconRound from "../components/badge-icon-round";
 import { CloudIcon } from "@heroicons/react/24/solid";
 import { formatTime, formatLocation } from "../utils";
+import { useCallWithCache } from "../python";
 
 function useWFO(lat, lon) {
   const [wfo, setWFO] = useState(null);
@@ -26,30 +27,40 @@ function useWFO(lat, lon) {
   return wfo;
 }
 
-const useWeather = (lat, lon, timezone) => {
-  const [weather, setWeather] = useState(null);
-  const [weatherReady, setWeatherReady] = useState(false);
-  const { post } = useAPI();
-  const key = "astro-app:location_details";
+const useWeather = () => {
+  const [forecast, setForecast] = useState(null);
+  const { user } = useAPI();
   useEffect(() => {
-    setWeather(JSON.parse(localStorage.getItem(key)) || null);
     async function fetchWeather() {
       const weatherResp = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${timezone}`
+        `https://api.open-meteo.com/v1/forecast?latitude=${user?.lat}&longitude=${user?.lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${user?.timezone}`
       );
-      const weatherData = await weatherResp.json();
-      const apiResult = await post("get_location_details", {
-        weather_data: weatherData,
-      });
-      setWeather(apiResult);
-      setWeatherReady(true);
-      localStorage.setItem(key, JSON.stringify(apiResult));
+      const weather = await weatherResp.json();
+      if (!weather.error) {
+        setForecast(weather);
+      } else {
+        alert("Weather: " + weather.reason);
+      }
     }
-    if (lat && lon && timezone) {
+    if (user) {
       fetchWeather();
     }
-  }, [lat, lon, timezone, post]);
-  return [weatherReady, weather];
+  }, [user]);
+
+  const { result: weatherResult, ready: weatherReady } = useCallWithCache(
+    "get_week_info_with_weather_data",
+    "weather",
+    forecast &&
+      user && {
+        weather_data: forecast,
+        lat: user?.lat,
+        lon: user?.lon,
+        timezone: user?.timezone,
+        elevation: user?.elevation,
+      }
+  );
+
+  return [weatherReady, weatherResult];
 };
 
 function GOESCard({ wfo }) {
@@ -278,11 +289,7 @@ function WeatherCard({ dateInfo, timezone }) {
 export default function LocationPage() {
   const { ready, user } = useAPI();
   const wfo = useWFO(user?.lat, user?.lon);
-  const [weatherReady, weather] = useWeather(
-    user?.lat,
-    user?.lon,
-    user?.timezone
-  );
+  const [weatherReady, weather] = useWeather();
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -304,15 +311,17 @@ export default function LocationPage() {
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {weather &&
           user &&
-          weather.location_details.map((dateInfo, dayIdx) => {
-            return (
-              <WeatherCard
-                key={dayIdx}
-                dateInfo={dateInfo}
-                timezone={user.timezone}
-              />
-            );
-          })}
+          Object.values(weather)
+            .filter((x) => !!x)
+            .map((dateInfo, dayIdx) => {
+              return (
+                <WeatherCard
+                  key={dayIdx}
+                  dateInfo={dateInfo}
+                  timezone={user.timezone}
+                />
+              );
+            })}
       </Grid>
     </div>
   );

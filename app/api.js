@@ -167,41 +167,6 @@ export function usePostWithCache(func, args = {}) {
   return [ready, result];
 }
 
-export function useControlledPostWithCache(
-  func,
-  args = {},
-  proactiveRequest = false
-) {
-  const [ready, setReady] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const argsStr = JSON.stringify(args);
-  const key = `astro-app:cache:${func}:${argsStr}`;
-  const load = useCallback(() => {
-    setLoading(true);
-    post(func, JSON.parse(argsStr)).then((val) => {
-      if (!val.error) {
-        localStorage.setItem(key, JSON.stringify(val));
-        setResult(val);
-        setReady(true);
-      }
-      setLoading(false);
-    });
-  }, [func, argsStr, key]);
-  useEffect(() => {
-    if (func) {
-      if (localStorage.getItem(key)) {
-        setResult(JSON.parse(localStorage.getItem(key)));
-        setReady(true);
-      }
-      if (proactiveRequest) {
-        load();
-      }
-    }
-  }, [func, key, load, proactiveRequest]);
-  return [load, ready, loading, result];
-}
-
 export function useAnalytics() {
   const emitEvent = useCallback((name) => {
     console.log("event", name);

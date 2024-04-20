@@ -48,8 +48,8 @@ export default function SearchPage() {
   }, [debouncedSearchTerm, post]);
 
   const { result: resultOrbits, ready: resultOrbitsReady } = useCallWithCache(
-    results && user && "get_orbit_calculations",
-    searchValue + "_orbits",
+    "get_orbit_calculations",
+    searchValue && searchValue + "_orbits",
     results &&
       user && {
         objects: results.objects,

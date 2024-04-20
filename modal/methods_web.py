@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict
 from prisma import Prisma, models, errors
 from prisma.enums import SpaceObjectType, Color
 from decimal import Decimal
@@ -9,7 +9,6 @@ import asyncio
 import re
 
 from skyfield.api import Angle
-import methods_cpu
 
 METHODS = {}
 
@@ -235,32 +234,6 @@ def chunk(list: List, size: int) -> List[List]:
     return [list[i : i + size] for i in range(0, len(list), size)]
 
 
-async def get_longterm_orbit_calculations_batch(
-    object: models.SpaceObject,
-    timezone: str,
-    lat: float,
-    lon: float,
-    elevation: float,
-    batch_size: int = 20,
-):
-    results = await asyncio.gather(
-        *[
-            methods_cpu.get_longterm_orbit_calculations.remote(
-                object=object,
-                timezone=timezone,
-                lat=lat,
-                lon=lon,
-                elevation=elevation,
-                start_days=day_chunk[0],
-                offset_days=len(day_chunk),
-            )
-            for day_chunk in chunk(list(range(365)), batch_size)
-        ]
-    )
-    results_combined = [day for result in results for day in result]
-    return results_combined
-
-
 async def _create_default_lists(prisma: Prisma, user: models.User) -> List[models.List]:
     new_lists = []
     for (title, color), obj_ids in DEFAULT_LISTS.items():
@@ -456,50 +429,6 @@ async def get_space_object(ctx: context.Context, id: str) -> Dict:
 
 
 @method_web(require_login=False)
-async def get_space_object_details(ctx: context.Context, id: str) -> Dict:
-    obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    if ctx.user:
-        long_term_details = await get_longterm_orbit_calculations_batch(
-            obj,
-            ctx.user.timezone,
-            ctx.user.lat,
-            ctx.user.lon,
-            ctx.user.elevation,
-        )
-    else:
-        long_term_details = await get_longterm_orbit_calculations_batch(
-            obj,
-            DEFAULT_TZ,
-            DEFAULT_LAT,
-            DEFAULT_LON,
-            DEFAULT_ELEVATION,
-        )
-    return {"details": long_term_details}
-
-
-@method_web(require_login=False)
-async def get_space_object_current(ctx: context.Context, id: str) -> Dict:
-    obj = await ctx.prisma.spaceobject.find_unique(where={"id": id})
-    if ctx.user:
-        current_details = await methods_cpu.get_current_orbit_calculations.remote(
-            object=obj,
-            timezone=ctx.user.timezone,
-            lat=ctx.user.lat,
-            lon=ctx.user.lon,
-            elevation=ctx.user.elevation,
-        )
-    else:
-        current_details = await methods_cpu.get_current_orbit_calculations.remote(
-            object=obj,
-            timezone=DEFAULT_TZ,
-            lat=DEFAULT_LAT,
-            lon=DEFAULT_LON,
-            elevation=DEFAULT_ELEVATION,
-        )
-    return {**current_details}
-
-
-@method_web(require_login=False)
 async def get_list(ctx: context.Context, id: str) -> Dict:
     list_ = await ctx.prisma.list.find_unique(
         where={"id": id},
@@ -592,18 +521,6 @@ async def search(ctx: context.Context, term: str) -> Dict:
         print(e)
     objs = list({obj.id: obj for obj in objs}.values())[:10]
     return {"objects": [_space_object_to_dict(obj) for obj in objs]}
-
-
-@method_web()
-async def get_location_details(ctx: context.Context, weather_data: Dict) -> Dict:
-    week = await methods_cpu.get_week_info_with_weather_data.remote(
-        weather_data=weather_data,
-        timezone=ctx.user.timezone,
-        lat=ctx.user.lat,
-        lon=ctx.user.lon,
-        elevation=ctx.user.elevation,
-    )
-    return {"location_details": week}
 
 
 @method_web()

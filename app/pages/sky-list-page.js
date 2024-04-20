@@ -86,7 +86,8 @@ export default function SkyListPage() {
         subtitle={""}
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
-        loading={!listReady || loading || !listOrbitsReady}
+        loading={!listReady || loading}
+        computing={!listOrbitsReady}
         rightIcons={rightIcons}
       />
 
@@ -112,7 +113,9 @@ export default function SkyListPage() {
             }))}
           />
         )}
-        {!listOrbits && <SkyChartPanel times={[]} timeStates={[]} objects={[]} />}
+        {!listOrbits && (
+          <SkyChartPanel times={[]} timeStates={[]} objects={[]} />
+        )}
       </div>
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
