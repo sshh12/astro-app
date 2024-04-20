@@ -5,9 +5,7 @@ async function loadPyodideAndPackages() {
   await self.pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   const getNASAEph = async () => {
-    await fetch(
-      "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de421.bsp"
-    ).then(async (resp) => {
+    await fetch("/tables/de421.bsp").then(async (resp) => {
       if (resp.ok) {
         const data = new Uint8Array(await resp.arrayBuffer());
         pyodide.FS.writeFile("/de421.bsp", data, { encoding: "binary" });
