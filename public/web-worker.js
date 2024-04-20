@@ -19,7 +19,7 @@ async function loadPyodideAndPackages() {
       "pytz",
       "/whl/sgp4-2.23-cp310-cp310-emscripten_3_1_27_wasm32.whl",
       "/whl/skyfield-1.48-py3-none-any.whl",
-      "/whl/astro_app-0.0.0-py3-none-any.whl",
+      "/whl/astro_app-0.0.1-py3-none-any.whl",
     ]),
     getNASAEph(),
   ]);
