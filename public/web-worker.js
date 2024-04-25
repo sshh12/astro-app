@@ -42,7 +42,7 @@ async function loadPyodideAndPackages() {
       "pandas",
       "/whl/sgp4-2.23-cp310-cp310-emscripten_3_1_27_wasm32.whl",
       "/whl/skyfield-1.48-py3-none-any.whl",
-      "/whl/astro_app-0.1234.3-py3-none-any.whl",
+      "/whl/astro_app-0.1234.4-py3-none-any.whl",
     ]),
     getNASAEph(),
     getComets(),
@@ -53,15 +53,22 @@ const pyodideReadyPromise = loadPyodideAndPackages();
 
 self.onmessage = async (event) => {
   await pyodideReadyPromise;
-  const { id, python, ...context } = event.data;
+  const { id, python, on_send_js, ...context } = event.data;
   for (const key of Object.keys(context)) {
     self[key] = context[key];
   }
+  const namespace = pyodide.toPy({
+    send_js: (val) => {
+      self.postMessage({ sendJsValue: val, id });
+    },
+  });
   try {
     await self.pyodide.loadPackagesFromImports(python);
-    const results = await self.pyodide.runPythonAsync(python);
-    self.postMessage({ results, id });
+    const results = await self.pyodide.runPythonAsync(python, {
+      globals: namespace,
+    });
+    self.postMessage({ error: null, results, id });
   } catch (error) {
-    self.postMessage({ error: error.message, id });
+    self.postMessage({ error: error.message, results: "{}", id });
   }
 };

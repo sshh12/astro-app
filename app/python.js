@@ -10,57 +10,86 @@ export const PythonContext = React.createContext({});
 
 export function usePythonSetup() {
   const asyncRun = useRef();
+  const workers = useRef([]);
+  const workersActive = useRef({});
+  const callbacks = useRef({});
+  const sendJsCallbacks = useRef({});
   const [ready, setReady] = useState(false);
   useEffect(() => {
     if (window.Worker && !window.pyinit) {
       window.pyinit = true;
-      const pyodideWorker = new Worker("web-worker.js");
+      const numWorkers =
+        (navigator.hardwareConcurrency &&
+          Math.min(navigator.hardwareConcurrency, 5)) ||
+        4;
+      console.log(`Creating ${numWorkers} web workers`);
 
-      const callbacks = {};
-
-      pyodideWorker.onmessage = (event) => {
-        const { id, ...data } = event.data;
-        const onSuccess = callbacks[id];
-        delete callbacks[id];
-        onSuccess(data);
-      };
-
-      asyncRun.current = (() => {
-        let id = 0;
-        return (script, context) => {
-          id = (id + 1) % Number.MAX_SAFE_INTEGER;
-          return new Promise((onSuccess) => {
-            callbacks[id] = onSuccess;
-            pyodideWorker.postMessage({
-              ...context,
-              python: script,
-              id,
-            });
-          });
+      for (let i = 0; i < numWorkers; i++) {
+        const worker = new Worker("web-worker.js");
+        workersActive.current[i] = false;
+        workers.current.push(worker);
+        worker.onmessage = (event) => {
+          const { id, ...data } = event.data;
+          if (data.sendJsValue) {
+            sendJsCallbacks.current[id](JSON.parse(data.sendJsValue));
+          }
+          if (data.results) {
+            const onSuccess = callbacks.current[id];
+            workersActive.current[i] = false;
+            delete callbacks.current[id];
+            delete sendJsCallbacks.current[id];
+            onSuccess(data);
+          }
         };
-      })();
+      }
+      asyncRun.current = (script, onSendJs) => {
+        const runWorker =
+          workers.current.findIndex((worker, i) => !workersActive.current[i]) ||
+          Math.floor(Math.random() * numWorkers);
+        const worker = workers.current[runWorker];
+        const id = Date.now() + Math.random();
+
+        return new Promise((resolve) => {
+          callbacks.current[id] = resolve;
+          sendJsCallbacks.current[id] = onSendJs;
+          workersActive.current[runWorker] = true;
+          worker.postMessage({
+            python: script,
+            id,
+          });
+        });
+      };
+      setReady(true);
     }
 
-    setReady(true);
+    return () => {};
   }, []);
-  const call = useCallback(async (method, args = {}) => {
+
+  const call = useCallback(async (method, args = {}, onStream = null) => {
     console.log(">>>", method);
     const val = await asyncRun.current(
       `
     from astro_app.api import call;
-    call("${method}", ${JSON.stringify(args)
+    call(send_js, "${method}", ${JSON.stringify(args)
         .replaceAll("null", "None")
         .replaceAll("true", "True")
         .replaceAll("false", "Frue")})
-    `
+    `,
+      (val) => {
+        console.log("<<<", method);
+        if (onStream) {
+          onStream(val);
+        }
+      }
     );
-    let result = { error: val.error };
+
+    const result = JSON.parse(val.results);
     if (val.error) {
       console.error(val.error);
+      alert(val.error);
+      result.error = val.error;
     }
-    if (val.results) {
-      result = { ...result, ...JSON.parse(val.results) };
-    }
+    console.log("!!!", method, "complete");
     return result;
   }, []);
   return { call, ready };
@@ -84,7 +113,7 @@ export function useCallWithCache(func, cacheKey, args = {}) {
   }, [cacheKey, key]);
   useEffect(() => {
     if (func && argsStr && pythonReady) {
-      call(func, JSON.parse(argsStr)).then((val) => {
+      call(func, JSON.parse(argsStr), (val) => setResult(val)).then((val) => {
         if (!val.error) {
           localStorage.setItem(key, JSON.stringify(val));
           setResult(val);
@@ -111,7 +140,7 @@ export function useControlledCallWithCache(
   const key = `astro-app:cache:${func}:${cacheKey}`;
   const load = useCallback(() => {
     setLoading(true);
-    call(func, JSON.parse(argsStr)).then((val) => {
+    call(func, JSON.parse(argsStr), (val) => setResult(val)).then((val) => {
       if (!val.error) {
         localStorage.setItem(key, JSON.stringify(val));
         setResult(val);

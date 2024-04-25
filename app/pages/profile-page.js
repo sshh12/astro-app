@@ -17,22 +17,11 @@ import EquipSettingsCard from "../components/equip-settings-card";
 import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
 import { useNav } from "../nav";
-import { usePython } from "../python";
 import { SEEN_INTRO_KEY } from "../components/intro-dialog";
 
 export default function ProfilePage() {
   const { ready, user, postThenUpdateUser } = useAPI();
   const { pageParams } = useNav();
-
-  const { ready: pythonReady, call } = usePython();
-  const [exp, setExp] = useState("Loading...");
-  useEffect(() => {
-    if (pythonReady) {
-      call("test").then((res) => {
-        setExp(res.output);
-      });
-    }
-  }, [pythonReady, call]);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [locationSettingsOpen, setLocationSettingsOpen] = React.useState(false);
@@ -153,14 +142,6 @@ export default function ProfilePage() {
           onClick={() => {
             alert("❤️");
           }}
-        />
-        <LinkCard
-          title="Offline Support"
-          subtitle={exp}
-          color="yellow"
-          icon={CommandLineIcon}
-          truncate={false}
-          onClick={() => alert(exp)}
         />
       </Grid>
     </div>

@@ -37,7 +37,9 @@ export default function SkyChartPanel({
           className="flex w-full tabs-bottom justify-center"
           style={{ padding: 0, height: "3rem" }}
         >
-          <Tab style={{ height: "3rem" }}>Altitude</Tab>
+          <Tab style={{ height: "3rem" }}>
+            Altitude
+          </Tab>
           <Tab style={{ height: "3rem" }}>Orbits</Tab>
           <Tab
             style={{

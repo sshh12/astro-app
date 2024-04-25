@@ -144,6 +144,7 @@ export function equipmentToDimensions(equipment) {
       equipment.binning;
     const renderWidth = baseWidth > height ? baseWidth : height;
     const renderHeight = baseWidth > height ? height : baseWidth;
+    const focalRatio = effectiveFocalLength / equipment.teleAperture;
     return {
       width: renderWidth,
       height: renderHeight,
@@ -153,6 +154,10 @@ export function equipmentToDimensions(equipment) {
         {
           name: "Aperture",
           value: `${equipment.teleAperture.toFixed(2)} mm`,
+        },
+        {
+          name: "Focal Length",
+          value: `${effectiveFocalLength.toFixed(2)} mm`,
         },
         {
           name: "Max Magnification",
@@ -166,9 +171,7 @@ export function equipmentToDimensions(equipment) {
         },
         {
           name: "Focal Ratio",
-          value: `${(effectiveFocalLength / equipment.teleAperture).toFixed(
-            2
-          )}`,
+          value: `${focalRatio.toFixed(2)}`,
         },
         {
           name: "Dawes' Limit",
@@ -200,6 +203,12 @@ export function equipmentToDimensions(equipment) {
           ).toFixed(2)} arcsecs/px`,
         },
         {
+          name: "Pixel Size",
+          value: `${equipment.camPixelWidth.toFixed(
+            2
+          )} µm x ${equipment.camPixelHeight.toFixed(2)} µm`,
+        },
+        {
           name: "Pixel Resolution",
           value: `${equipment.camHeight / equipment.binning} px x ${
             equipment.camWidth / equipment.binning
@@ -208,6 +217,24 @@ export function equipmentToDimensions(equipment) {
               (equipment.camWidth / equipment.binning)) /
             1000000
           ).toFixed(2)} MP)`,
+        },
+        {
+          name: "Max Untracked Exposure (NPF)",
+          value: `${(
+            (1.0 *
+              (16.856 * focalRatio +
+                0.0997 * effectiveFocalLength +
+                13.713 * equipment.camPixelWidth)) /
+            (effectiveFocalLength * Math.cos(0))
+          ).toFixed(2)}s`,
+        },
+        {
+          name: "Max Untracked Exposure (Plate Scale)",
+          value: `${(
+            (206265 * (equipment.camPixelWidth / 1000)) /
+            effectiveFocalLength /
+            15
+          ).toFixed(2)}s`,
         },
       ],
     };
@@ -224,6 +251,10 @@ export function equipmentToDimensions(equipment) {
         {
           name: "Aperture",
           value: `${equipment.teleAperture.toFixed(2)} mm`,
+        },
+        {
+          name: "Focal Length",
+          value: `${effectiveFocalLength.toFixed(2)} mm`,
         },
         {
           name: "Magnification",

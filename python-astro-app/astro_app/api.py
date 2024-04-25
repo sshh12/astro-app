@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Callable
 from functools import cache
 import datetime as dt
 import json
@@ -38,14 +38,6 @@ def get_commons() -> Tuple:
 
 
 @method_api()
-def test() -> Dict:
-    eph = load("de421.bsp")
-    return {
-        "output": f"Loaded pytz=={pytz.__version__} skyfield=={skyfield.__version__} numpy={np.__version__} eph={eph is not None}"
-    }
-
-
-@method_api()
 def get_orbit_calculations(
     objects: List,
     timezone: str,
@@ -53,6 +45,7 @@ def get_orbit_calculations(
     lon: float,
     elevation: float,
     resolution_mins: int,
+    send_js: Callable,
 ) -> Dict:
     zone = pytz.timezone(timezone)
     most_recent_noon, next_noon = space_util.get_todays_noons(timezone)
@@ -130,10 +123,10 @@ def get_longterm_orbit_calculations(
     elevation: float,
     start_days: int,
     offset_days: int,
+    send_js: Callable,
 ) -> List:
 
     ts, eph = get_commons()
-    zone = pytz.timezone(timezone)
 
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     earth = eph["earth"]
@@ -149,7 +142,7 @@ def get_longterm_orbit_calculations(
 
     alt_at.step_days = 0.1
 
-    days = []
+    resp = []
 
     start_noon, start_next_noon = space_util.get_todays_noons(timezone)
     for i in range(start_days, start_days + offset_days):
@@ -232,9 +225,11 @@ def get_longterm_orbit_calculations(
                     cur_start = None
                     cur_culm = None
 
-        days.append(day_info)
+        resp.append(day_info)
+        if i % 10 == 0:
+            send_js(resp)
 
-    return days
+    return resp
 
 
 @method_api()
@@ -244,6 +239,7 @@ def get_current_orbit_calculations(
     lat: float,
     lon: float,
     elevation: float,
+    send_js: Callable,
 ) -> Dict:
 
     ts, eph = get_commons()
@@ -277,7 +273,12 @@ def get_current_orbit_calculations(
 
 @method_api()
 def get_week_info_with_weather_data(
-    weather_data: Dict, timezone: str, lat: float, lon: float, elevation: float
+    weather_data: Dict,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    send_js: Callable,
 ) -> Dict:
     weather_fields = ["cloud_cover", "precipitation_probability", "visibility"]
     zone = pytz.timezone(timezone)
@@ -297,7 +298,7 @@ def get_week_info_with_weather_data(
         for di, date in enumerate(weather_data["daily"]["time"])
     }
 
-    week = []
+    resp = []
 
     start_noon, start_next_noon = space_util.get_todays_noons(timezone)
     for i in range(0, 7):
@@ -343,10 +344,14 @@ def get_week_info_with_weather_data(
         ]
         date_info["twilight_state"] = twilight_state
 
-        week.append(date_info)
+        resp.append(date_info)
 
-    return week
+    return resp
 
 
-def call(method_name: str, kwargs: Dict) -> str:
-    return json.dumps(METHODS[method_name](**kwargs))
+def call(send_js: Callable, method_name: str, kwargs: Dict) -> str:
+    def _send_js(data: Dict):
+        send_js(json.dumps(data))
+
+    all_kwargs = {**kwargs, "send_js": _send_js}
+    return json.dumps(METHODS[method_name](**all_kwargs))

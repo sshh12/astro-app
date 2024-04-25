@@ -108,7 +108,19 @@ function DetailsCard({ object, dataProps }) {
           </ListItem>
         )}
       </List>
-      {!dataProps.loading && dataProps.ready && (
+      {dataProps.loading && dataProps.result && (
+        <Flex className="justify-end mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="primary"
+            color="gray"
+            disabled={true}
+          >
+            Computing...
+          </Button>
+        </Flex>
+      )}
+      {!dataProps.loading && dataProps.result && (
         <Flex className="justify-end mt-3">
           <Button
             icon={ArrowPathIcon}
@@ -238,8 +250,7 @@ function AltitudeCard({ dataProps, timezone }) {
           <Text color="white">Annual Min/Max Altitude</Text>
         </div>
       </Flex>
-      {dataProps.loading && <Text>Calculating (up to 5m)...</Text>}
-      {!dataProps.loading && result && timezone && (
+      {result && timezone && (
         <SkyAltChart
           timezone={timezone}
           times={result.map((detail) => detail.start)}
@@ -265,7 +276,7 @@ function AltitudeCard({ dataProps, timezone }) {
           ]}
         />
       )}
-      {!dataProps.loading && dataProps.ready && (
+      {!dataProps.loading && result && (
         <Flex className="justify-end mt-3">
           <Button
             icon={ArrowPathIcon}
@@ -276,7 +287,19 @@ function AltitudeCard({ dataProps, timezone }) {
           </Button>
         </Flex>
       )}
-      {!dataProps.loading && !dataProps.ready && (
+      {dataProps.loading && result && (
+        <Flex className="justify-end mt-3">
+          <Button
+            icon={ArrowPathIcon}
+            variant="primary"
+            color="gray"
+            disabled={true}
+          >
+            Computing...
+          </Button>
+        </Flex>
+      )}
+      {!dataProps.loading && !result && (
         <Flex className="justify-around mt-3">
           <Button
             icon={ArrowPathIcon}
