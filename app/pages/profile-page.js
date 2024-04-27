@@ -13,6 +13,7 @@ import {
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
 import EquipSettingsCard from "../components/equip-settings-card";
+import LocationSettingsCard from "../components/location-settings-card";
 import LinkCard from "../components/link-card";
 import { useAPI } from "../api";
 import { useNav } from "../nav";
@@ -31,11 +32,6 @@ export default function ProfilePage() {
     postUser("update_user", settings);
   };
 
-  const saveLocationSettings = (settings) => {
-    setLocationSettingsOpen(false);
-    postUser("update_user_location", settings);
-  };
-
   const addEquipment = (equip) => {
     setEquipSettingsOpen(false);
     postUser("add_equipment", { equipment_details: equip });
@@ -51,6 +47,23 @@ export default function ProfilePage() {
   const setActiveEquipment = (equip) => {
     setEquipSettingsOpen(false);
     postUser("set_active_equipment", { id: equip.id });
+  };
+
+  const addLocation = (location) => {
+    setLocationSettingsOpen(false);
+    postUser("add_location", { location_details: location });
+  };
+
+  const deleteLocation = (location) => {
+    if (confirm(`Are you sure you want to delete?`)) {
+      setLocationSettingsOpen(false);
+      postUser("delete_location", { id: location.id });
+    }
+  };
+
+  const setActiveLocation = (location) => {
+    setLocationSettingsOpen(false);
+    postUser("set_active_location", { id: location.id });
   };
 
   useEffect(() => {
@@ -79,30 +92,16 @@ export default function ProfilePage() {
           setOpen={setAccountSettingsOpen}
           onSave={saveAccountSettings}
         />
-        {/* <SettingsCard
+        <LocationSettingsCard
           title="Location"
           icon={MapPinIcon}
           color="blue"
           open={locationSettingsOpen}
           setOpen={setLocationSettingsOpen}
-          onSave={saveLocationSettings}
-          items={[
-            {
-              name: "TIMEZONE",
-              key: "timezone",
-              value: user?.timezone,
-              type: "select-timezone",
-            },
-            { name: "LATITUDE", key: "lat", value: user?.lat, type: "number" },
-            { name: "LONGITUDE", key: "lon", value: user?.lon, type: "number" },
-            {
-              name: "ELEVATION (m)",
-              key: "elevation",
-              value: user?.elevation || 0,
-              type: "number",
-            },
-          ]}
-        /> */}
+          onAdd={addLocation}
+          onDelete={deleteLocation}
+          setActive={setActiveLocation}
+        />
         <EquipSettingsCard
           title="Equipment"
           icon={CameraIcon}

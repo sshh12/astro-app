@@ -205,6 +205,7 @@ def _equipment_to_dict(equipment: models.Equipment) -> dict:
 def _location_to_dict(location: models.Location) -> dict:
     return {
         "id": str(location.id),
+        "name": location.name,
         "active": location.active,
         "timezone": location.timezone,
         "lat": float(location.lat),
@@ -275,6 +276,7 @@ async def _create_default_location(
             "userId": user.id,
             "active": True,
             "timezone": DEFAULT_TZ,
+            "name": "Los Angeles, CA",
             "lat": DEFAULT_LAT,
             "lon": DEFAULT_LON,
             "elevation": DEFAULT_ELEVATION,
@@ -678,6 +680,70 @@ async def set_active_equipment(ctx: context.Context, id: str) -> Dict:
         data={"active": False},
     )
     await ctx.prisma.equipment.update(
+        where={"id": id, "userId": ctx.user.id},
+        data={"active": True},
+    )
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
+
+
+@method_web()
+async def add_location(ctx: context.Context, location_details: Dict) -> Dict:
+    existing_loc = await ctx.prisma.location.find_many(
+        where={
+            "userId": ctx.user.id,
+        },
+    )
+    all_keys = [
+        "name",
+        "timezone",
+        "lat",
+        "lon",
+        "elevation",
+    ]
+    if set(location_details.keys()) != set(all_keys):
+        print("bad loc request", location_details)
+        return {"error": "Invalid request"}
+    for key in all_keys:
+        if location_details[key] == "":
+            location_details[key] = None
+    await ctx.prisma.location.create(
+        data={**location_details, "userId": ctx.user.id, "active": True},
+    )
+    await ctx.prisma.location.update_many(
+        where={"id": {"in": [loc.id for loc in existing_loc]}},
+        data={"active": False},
+    )
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
+
+
+@method_web()
+async def delete_location(ctx: context.Context, id: str) -> Dict:
+    await ctx.prisma.location.delete_many(
+        where={"userId": ctx.user.id, "id": id},
+    )
+    existing_loc = await ctx.prisma.location.find_many(
+        where={
+            "userId": ctx.user.id,
+        },
+    )
+    if len(existing_loc) > 0 and not any(loc.active for loc in existing_loc):
+        await ctx.prisma.location.update(
+            where={"id": existing_loc[0].id, "userId": ctx.user.id},
+            data={"active": True},
+        )
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
+
+
+@method_web()
+async def set_active_location(ctx: context.Context, id: str) -> Dict:
+    await ctx.prisma.location.update_many(
+        where={"userId": ctx.user.id},
+        data={"active": False},
+    )
+    await ctx.prisma.location.update(
         where={"id": id, "userId": ctx.user.id},
         data={"active": True},
     )

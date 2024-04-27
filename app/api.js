@@ -58,10 +58,15 @@ const POST_METHODS = {
   add_equipment: async ({ user, equipment_details }) => {
     const newEquipment = user.equipment
       .map((equip) => {
-        const newEquip = { ...equip, active: false };
+        const newEquip = {
+          ...equip,
+          active: false,
+        };
         return newEquip;
       })
-      .concat([{ ...equipment_details, active: true }]);
+      .concat([
+        { ...equipment_details, active: true, id: Math.random().toString(36) },
+      ]);
     return { ...user, equipment: newEquipment };
   },
   set_active_equipment: async ({ user, id }) => {
@@ -77,6 +82,35 @@ const POST_METHODS = {
       newEquipment[0].active = true;
     }
     return { ...user, equipment: newEquipment };
+  },
+  add_location: async ({ user, location_details }) => {
+    const newLocation = user.location
+      .map((loc) => {
+        const newLoc = {
+          ...loc,
+          active: false,
+          id: Math.random().toString(36),
+        };
+        return newLoc;
+      })
+      .concat([
+        { ...location_details, active: true, id: Math.random().toString(36) },
+      ]);
+    return { ...user, location: newLocation };
+  },
+  set_active_location: async ({ user, id }) => {
+    const newLocation = user.location.map((loc) => {
+      const newLoc = { ...loc, active: loc.id === id };
+      return newLoc;
+    });
+    return { ...user, location: newLocation };
+  },
+  delete_location: async ({ user, id }) => {
+    const newLocation = user.location.filter((loc) => loc.id !== id);
+    if (newLocation.length > 0 && !newLocation.find((v) => v.active)) {
+      newLocation[0].active = true;
+    }
+    return { ...user, location: newLocation };
   },
   add_list: async ({ user, id, listStore }) => {
     const list = await listStore.getItem(id);
@@ -206,7 +240,7 @@ export function useAPIControl() {
       await cacheStore.setItem("user", newUser);
       post(func, args)
         .then((remoteUser) => {
-          console.log("newUserRemote", newUser);
+          console.log("newUserRemote", remoteUser);
           if (remoteUser.id) {
             cacheStore.setItem("user", remoteUser);
             _setUser(remoteUser);

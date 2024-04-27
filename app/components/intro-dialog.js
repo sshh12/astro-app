@@ -11,30 +11,20 @@ import {
   ListItem,
 } from "@tremor/react";
 import { useNav } from "../nav";
-import { useAnalytics, APP_VERSION } from "../api";
+import { useAnalytics, APP_VERSION, useAPI } from "../api";
 
 export const SEEN_INTRO_KEY = "astro-app:introSlides";
 const SEEN_UPDATES_KEY = `astro-app:${APP_VERSION}:updateInfo`;
 
 const UPDATE_TEXT = {
   title: "Updates",
-  updates: [
-    "Added equipment section to profile",
-    "All sky surveys are now rendered using equipment specs",
-    "Added Gallery view",
-    "Added Image page (more here coming soon)",
-    "Added more curated lists",
-    "Added satellites",
-    "Added faster list orbit calculations",
-    "Improved search recall",
-    "Fixed back button",
-  ],
+  updates: ["Full offline support and several performance improvements."],
 };
 
 const INTRO_SLIDES = [
   {
     title: "Astro App",
-    text: "Welcome! The Astro App (early access) is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
+    text: "Welcome! The Astro App is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
     nextText: "Next",
     nextOnClick: ({ nextSlide }) => nextSlide(),
     skipOnClick: null,
@@ -100,6 +90,7 @@ export default function IntroDialog() {
   const [open, setOpen] = useState(false);
   const [openUpdates, setOpenUpdates] = useState(false);
   const [slideIdx, setSlideIdx] = useState(0);
+  const { ready } = useAPI();
   const { setPage } = useNav();
   const emitEvent = useAnalytics();
 
@@ -142,6 +133,8 @@ export default function IntroDialog() {
     emitEvent("intro_update_location");
   };
   const onClickOptions = { close, nextSlide, skipToEnd, goToUpdateLocation };
+  const apiNotReady = !ready && slideIdx === INTRO_SLIDES.length - 1;
+  const firstOrLast = slideIdx === 0 || slideIdx === INTRO_SLIDES.length - 1;
 
   return (
     <Dialog
@@ -159,14 +152,16 @@ export default function IntroDialog() {
         {open && (
           <>
             <Title className="mb-3">{slide.title}</Title>
-            {slide.text}
-            {slide.image && (
-              <img
-                src={slide.image}
-                alt={slide.title + " image"}
-                className="mt-2"
-              />
-            )}
+            <div style={firstOrLast ? {} : { height: "36rem" }}>
+              {slide.text}
+              {slide.image && (
+                <img
+                  src={slide.image}
+                  alt={slide.title + " image"}
+                  className="mt-2 border-2 border-slate-600"
+                />
+              )}
+            </div>
             <Flex className="mt-3">
               <Button
                 variant="secondary"
@@ -181,16 +176,23 @@ export default function IntroDialog() {
                   variant="light"
                   onClick={() => slide.skipOnClick(onClickOptions)}
                   color="slate"
+                  disabled={apiNotReady}
                 >
                   Skip
                 </Button>
               )}
-              <Button
-                variant="primary"
-                onClick={() => slide.nextOnClick(onClickOptions)}
-              >
-                {slide.nextText}
-              </Button>
+              {apiNotReady ? (
+                <Button variant="primary" disabled={true}>
+                  One moment...
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  onClick={() => slide.nextOnClick(onClickOptions)}
+                >
+                  {slide.nextText}
+                </Button>
+              )}
             </Flex>
           </>
         )}

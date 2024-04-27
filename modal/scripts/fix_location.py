@@ -22,17 +22,20 @@ async def main(args):
     # await prisma.location.delete_many()
 
     for user in tqdm.tqdm(users):
-        await prisma.location.create(
-            data={
-                "userId": user.id,
-                "active": True,
-                "name": "Home",
-                "lat": user.lat,
-                "lon": user.lon,
-                "elevation": user.elevation,
-                "timezone": user.timezone,
-            },
-        )
+        try:
+            await prisma.location.create(
+                data={
+                    "userId": user.id,
+                    "active": True,
+                    "name": "Home",
+                    "lat": user.lat,
+                    "lon": user.lon,
+                    "elevation": user.elevation,
+                    "timezone": user.timezone,
+                },
+            )
+        except Exception as e:
+            print(user.id, user.__dict__, e)
 
     await prisma.disconnect()
 

@@ -14,7 +14,6 @@ image_base = (
     .run_commands(
         "curl https://raw.githubusercontent.com/sshh12/astro-app/main/prisma/schema.prisma?58 > /root/schema.prisma",
         "prisma generate --schema /root/schema.prisma",
-        "python -c \"from skyfield.api import Loader; load = Loader('/root/cache/'); load('de421.bsp')\"",
     )
 )
 stub = modal.Stub("astro-app")

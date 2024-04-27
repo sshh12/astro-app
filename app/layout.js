@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "The Astro App | Explore the Night Sky",
   description:
-    "The Astro App (early access) is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
+    "The Astro App is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
 };
 
 export default function RootLayout({ children }) {

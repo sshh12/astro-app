@@ -124,16 +124,18 @@ export default function SearchPage() {
           });
         }
       });
-      post("search", { term: cleanTerm }).then((searchResults) => {
-        const searchObjs = searchResults.objects;
-        setMatchingObjects((prevMatches) => {
-          const newMatches = searchObjs.filter(
-            (obj) => !prevMatches.find((m) => m.id === obj.id)
-          );
-          return [...prevMatches, ...newMatches];
-        });
-        setLoading(false);
-      });
+      post("search", { term: cleanTerm })
+        .then((searchResults) => {
+          const searchObjs = searchResults.objects;
+          setMatchingObjects((prevMatches) => {
+            const newMatches = searchObjs.filter(
+              (obj) => !prevMatches.find((m) => m.id === obj.id)
+            );
+            return [...prevMatches, ...newMatches];
+          });
+          setLoading(false);
+        })
+        .catch((e) => console.error(e));
     }
   }, [debouncedSearchTerm, post, objectStore]);
 
