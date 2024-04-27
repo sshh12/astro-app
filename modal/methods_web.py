@@ -202,16 +202,24 @@ def _equipment_to_dict(equipment: models.Equipment) -> dict:
     return eq_dict
 
 
+def _location_to_dict(location: models.Location) -> dict:
+    return {
+        "id": str(location.id),
+        "active": location.active,
+        "timezone": location.timezone,
+        "lat": float(location.lat),
+        "lon": float(location.lon),
+        "elevation": float(location.elevation),
+    }
+
+
 def _user_to_dict(user: models.User) -> dict:
     return {
         "id": str(user.id),
         "name": user.name,
-        "timezone": user.timezone,
-        "lat": float(user.lat),
-        "lon": float(user.lon),
-        "elevation": float(user.elevation),
         "lists": [_list_to_dict(list.List) for list in user.lists],
         "equipment": [_equipment_to_dict(equip) for equip in user.equipment],
+        "location": [_location_to_dict(loc) for loc in user.location],
     }
 
 
@@ -259,6 +267,22 @@ async def _create_default_equipment(
     return [new_equip]
 
 
+async def _create_default_location(
+    prisma: Prisma, user: models.User
+) -> List[models.Location]:
+    new_location = await prisma.location.create(
+        data={
+            "userId": user.id,
+            "active": True,
+            "timezone": DEFAULT_TZ,
+            "lat": DEFAULT_LAT,
+            "lon": DEFAULT_LON,
+            "elevation": DEFAULT_ELEVATION,
+        },
+    )
+    return [new_location]
+
+
 async def _create_user(prisma: Prisma) -> models.User:
     new_user = await prisma.user.create(
         data={
@@ -273,6 +297,7 @@ async def _create_user(prisma: Prisma) -> models.User:
     await asyncio.gather(
         _create_default_lists(prisma, new_user),
         _create_default_equipment(prisma, new_user),
+        _create_default_location(prisma, new_user),
     )
     return new_user
 

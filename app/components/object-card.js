@@ -54,13 +54,13 @@ const BADGE_MODES = [
   {
     id: "max-alt-time",
     label: "Show Tonight's Max Altitude & Time",
-    render: ({ maxAlt, maxAltTime, onBadgeClick, user }) => (
+    render: ({ maxAlt, maxAltTime, onBadgeClick, location }) => (
       <BadgeDelta
         deltaType={altToDelta(maxAlt)}
         onClick={(e) => onBadgeClick(e)}
       >
         Max {Math.round(maxAlt)}° at{" "}
-        {formatTime(maxAltTime, user?.timezone, true)}
+        {formatTime(maxAltTime, location?.timezone, true)}
       </BadgeDelta>
     ),
   },
@@ -129,7 +129,7 @@ const IMAGE_MODES = [
 
 export default function ObjectCard({ object, orbits }) {
   const { setPage } = useNav();
-  const { objectViewMode, setObjectViewMode, user } = useAPI();
+  const { objectViewMode, setObjectViewMode, user, location } = useAPI();
   const { ts } = useTimestamp();
   const emitEvent = useAnalytics();
   const [openViewEditor, setOpenViewEditor] = useState(false);
@@ -203,6 +203,7 @@ export default function ObjectCard({ object, orbits }) {
                 onBadgeClick={onBadgeClick}
                 isDay={isDay}
                 user={user}
+                location={location}
                 alt={alt}
                 az={az}
               />
@@ -249,6 +250,7 @@ export default function ObjectCard({ object, orbits }) {
                   onBadgeClick={onBadgeClick}
                   isDay={isDay}
                   user={user}
+                  location={location}
                   alt={alt}
                   az={az}
                 />

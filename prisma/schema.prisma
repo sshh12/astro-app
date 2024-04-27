@@ -14,14 +14,16 @@ model User {
   name      String   @unique
   apiKey    String
   createdAt DateTime @default(now())
-  timezone  String
-  lat       Decimal?
-  lon       Decimal?
-  elevation Decimal?
+
+  timezone  String // deprecated
+  lat       Decimal? // deprecated
+  lon       Decimal? // deprecated
+  elevation Decimal? // deprecated
 
   lists     ListsOnUsers[]
   objects   SpaceObjectsOnUsers[]
   equipment Equipment[]
+  location  Location[]
 }
 
 enum SpaceObjectType {
@@ -128,6 +130,20 @@ model Equipment {
   binoMagnification Decimal?
   binoActualFOV     Decimal?
   binoName          String?
+
+  createdAt DateTime @default(now())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    BigInt?
+}
+
+model Location {
+  id        BigInt  @id @default(autoincrement())
+  active    Boolean @default(false)
+  name      String
+  lat       Decimal
+  lon       Decimal
+  elevation Decimal
+  timezone  String
 
   createdAt DateTime @default(now())
   User      User?    @relation(fields: [userId], references: [id])

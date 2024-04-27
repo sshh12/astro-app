@@ -83,7 +83,7 @@ const scoreSimilarity = (query, obj) => {
 
 export default function SearchPage() {
   const { goBack } = useNav();
-  const { post, user, objectStore } = useAPI();
+  const { post, location, objectStore } = useAPI();
 
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchTerm = useDebounce(searchValue, 500);
@@ -152,12 +152,12 @@ export default function SearchPage() {
     "get_orbit_calculations",
     debouncedSearchTerm && debouncedSearchTerm + "_orbits",
     matchingObjectsShown &&
-      user && {
+      location && {
         objects: matchingObjectsShown,
-        timezone: user.timezone,
-        lat: user.lat,
-        lon: user.lon,
-        elevation: user.elevation,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
         resolution_mins: 10,
       }
   );

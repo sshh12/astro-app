@@ -29,11 +29,11 @@ function useWFO(lat, lon) {
 
 const useWeather = () => {
   const [forecast, setForecast] = useState(null);
-  const { user } = useAPI();
+  const { location } = useAPI();
   useEffect(() => {
     async function fetchWeather() {
       const weatherResp = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${user?.lat}&longitude=${user?.lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${user?.timezone}`
+        `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${location.timezone}`
       );
       const weather = await weatherResp.json();
       if (!weather.error) {
@@ -42,21 +42,21 @@ const useWeather = () => {
         alert("Weather: " + weather.reason);
       }
     }
-    if (user) {
+    if (location) {
       fetchWeather();
     }
-  }, [user]);
+  }, [location]);
 
   const { result: weatherResult, ready: weatherReady } = useCallWithCache(
     "get_week_info_with_weather_data",
     "weather",
     forecast &&
-      user && {
+      location && {
         weather_data: forecast,
-        lat: user?.lat,
-        lon: user?.lon,
-        timezone: user?.timezone,
-        elevation: user?.elevation,
+        lat: location?.lat,
+        lon: location?.lon,
+        timezone: location?.timezone,
+        elevation: location?.elevation,
       }
   );
 
@@ -287,15 +287,15 @@ function WeatherCard({ dateInfo, timezone }) {
 }
 
 export default function LocationPage() {
-  const { ready, user } = useAPI();
-  const wfo = useWFO(user?.lat, user?.lon);
+  const { ready, location } = useAPI();
+  const wfo = useWFO(location?.lat, location?.lon);
   const [weatherReady, weather] = useWeather();
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
         title="Location"
-        subtitle={user ? formatLocation(user.lat, user.lon) : ""}
+        subtitle={location ? formatLocation(location.lat, location.lon) : ""}
         loading={!ready || !weatherReady}
       />
 
@@ -310,7 +310,7 @@ export default function LocationPage() {
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {weather &&
-          user &&
+          location &&
           Object.values(weather)
             .filter((x) => !!x)
             .map((dateInfo, dayIdx) => {
@@ -318,7 +318,7 @@ export default function LocationPage() {
                 <WeatherCard
                   key={dayIdx}
                   dateInfo={dateInfo}
-                  timezone={user.timezone}
+                  timezone={location.timezone}
                 />
               );
             })}

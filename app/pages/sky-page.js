@@ -14,7 +14,7 @@ import { useTimestamp, formatTime } from "../utils";
 
 export default function SkyPage() {
   const { setPage } = useNav();
-  const { ready, user, objectStore, listStore } = useAPI();
+  const { ready, user, objectStore, listStore, location } = useAPI();
 
   useEffect(() => {
     if (user && objectStore) {
@@ -41,16 +41,17 @@ export default function SkyPage() {
   }
 
   const { result: favOrbits } = useCallWithCache(
-    favListObjects && user && "get_orbit_calculations",
+    "get_orbit_calculations",
     "fav_orbits",
-    user && {
-      objects: favListObjects,
-      timezone: user.timezone,
-      lat: user.lat,
-      lon: user.lon,
-      elevation: user.elevation,
-      resolution_mins: 10,
-    }
+    favListObjects &&
+      location && {
+        objects: favListObjects,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+        resolution_mins: 10,
+      }
   );
 
   let lists = [];
@@ -58,7 +59,7 @@ export default function SkyPage() {
     lists = user.lists.filter((list) => list.title !== "Favorites");
   }
 
-  const timeFormatted = formatTime(ts, user?.timezone);
+  const timeFormatted = formatTime(ts, location?.timezone);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>

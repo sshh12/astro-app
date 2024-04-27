@@ -421,7 +421,7 @@ function SatellitePassesCard({ dataProps, timezone }) {
 
 export default function SkyObjectPage() {
   const { pageParams, goBack } = useNav();
-  const { user, ready } = useAPI();
+  const { user, location, ready } = useAPI();
   const [openListDialog, setOpenListDialog] = useState(false);
   const [openShare, setOpenShare] = useState(false);
   const emitEvent = useAnalytics();
@@ -432,12 +432,12 @@ export default function SkyObjectPage() {
     object && user && "get_orbit_calculations",
     object?.id + "_orbits",
     object &&
-      user && {
+      location && {
         objects: [object],
-        timezone: user.timezone,
-        lat: user.lat,
-        lon: user.lon,
-        elevation: user.elevation,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
         resolution_mins: 10,
       }
   );
@@ -451,13 +451,13 @@ export default function SkyObjectPage() {
   const objLongTermProps = useControlledCallWithCache(
     "get_longterm_orbit_calculations",
     pageParams.id && pageParams.id + "_longterm",
-    user &&
+    location &&
       object && {
         object: object,
-        timezone: user.timezone,
-        lat: user.lat,
-        lon: user.lon,
-        elevation: user.elevation,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
         start_days: 0,
         offset_days: 365,
       },
@@ -467,13 +467,13 @@ export default function SkyObjectPage() {
   const objPosProps = useControlledCallWithCache(
     "get_current_orbit_calculations",
     pageParams.id && pageParams.id + "_current",
-    user &&
+    location &&
       object && {
         object: object,
-        timezone: user?.timezone,
-        lat: user?.lat,
-        lon: user?.lon,
-        elevation: user?.elevation,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
       },
     { proactiveRequest: true }
   );
@@ -551,8 +551,11 @@ export default function SkyObjectPage() {
       <Grid numItemsMd={2} numItemsLg={2} className="mt-3 gap-1 ml-2 mr-2">
         {object && object.description && <OverviewCard object={object} />}
         {object && object.ra && <SurveyCard object={object} />}
-        {object && user && object.type != "EARTH_SATELLITE" && (
-          <AltitudeCard dataProps={objLongTermProps} timezone={user.timezone} />
+        {object && location && object.type != "EARTH_SATELLITE" && (
+          <AltitudeCard
+            dataProps={objLongTermProps}
+            timezone={location.timezone}
+          />
         )}
         {object && objPosProps && (
           <DetailsCard object={object} dataProps={objPosProps} />
@@ -560,10 +563,10 @@ export default function SkyObjectPage() {
         {object && <NameCard object={object} />}
       </Grid>
       <Grid numItemsMd={1} numItemsLg={1} className="mt-1 gap-1 ml-2 mr-2">
-        {object && user && object.type == "EARTH_SATELLITE" && (
+        {object && location && object.type == "EARTH_SATELLITE" && (
           <SatellitePassesCard
             dataProps={objLongTermProps}
-            timezone={user.timezone}
+            timezone={location.timezone}
           />
         )}
       </Grid>

@@ -21,7 +21,7 @@ import { useCallWithCache } from "../python";
 export default function SkyListPage() {
   const { pageParams, setPage, goBack } = useNav();
   const [openShare, setOpenShare] = useState(false);
-  const { user, postUser } = useAPI();
+  const { user, location, postUser } = useAPI();
   const [loading, setLoading] = useState(false);
   const emitEvent = useAnalytics();
 
@@ -30,13 +30,13 @@ export default function SkyListPage() {
   const { ready: listOrbitsReady, result: listOrbits } = useCallWithCache(
     "get_orbit_calculations",
     list && list.id + "_orbits",
-    user &&
+    location &&
       list && {
         objects: list.objects,
-        timezone: user.timezone,
-        lat: user.lat,
-        lon: user.lon,
-        elevation: user.elevation,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
         resolution_mins: 10,
       }
   );

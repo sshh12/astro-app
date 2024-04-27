@@ -220,11 +220,13 @@ export function useAPIControl() {
   );
 
   const equipment = !!user ? user.equipment.find((v) => v.active) : null;
+  const location = !!user ? user.location.find((v) => v.active) : null;
 
   return {
     user,
     postUser,
     equipment,
+    location,
     ready: ready && user && cacheStore,
     post,
     objectViewMode,

@@ -79,7 +79,7 @@ export default function ProfilePage() {
           setOpen={setAccountSettingsOpen}
           onSave={saveAccountSettings}
         />
-        <SettingsCard
+        {/* <SettingsCard
           title="Location"
           icon={MapPinIcon}
           color="blue"
@@ -102,7 +102,7 @@ export default function ProfilePage() {
               type: "number",
             },
           ]}
-        />
+        /> */}
         <EquipSettingsCard
           title="Equipment"
           icon={CameraIcon}
