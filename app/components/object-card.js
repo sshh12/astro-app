@@ -197,16 +197,18 @@ export default function ObjectCard({ object, orbits }) {
               <div className="truncate">
                 <Text color="white">{object.name}</Text>
               </div>
-              <BadgeElement
-                maxAlt={maxAlt}
-                maxAltTime={maxAltTime}
-                onBadgeClick={onBadgeClick}
-                isDay={isDay}
-                user={user}
-                location={location}
-                alt={alt}
-                az={az}
-              />
+              {objOrbit && (
+                <BadgeElement
+                  maxAlt={maxAlt}
+                  maxAltTime={maxAltTime}
+                  onBadgeClick={onBadgeClick}
+                  isDay={isDay}
+                  user={user}
+                  location={location}
+                  alt={alt}
+                  az={az}
+                />
+              )}
             </Flex>
             <Flex className="mt-2" style={{ minHeight: "5.8rem" }}>
               <List>
