@@ -295,7 +295,7 @@ function AltitudeCard({ dataProps, timezone }) {
             color="gray"
             disabled={true}
           >
-            Computing...
+            Computing... {Math.floor((result.length / 365) * 100)}%
           </Button>
         </Flex>
       )}

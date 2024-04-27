@@ -1,7 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, Flex, Text, Grid, Title, Tracker, Badge } from "@tremor/react";
+import {
+  Card,
+  Flex,
+  Text,
+  Grid,
+  Title,
+  Tracker,
+  Badge,
+  TabGroup,
+  TabPanel,
+  TabPanels,
+  TabList,
+  Tab,
+} from "@tremor/react";
 import StickyHeader from "../components/sticky-header";
 import { useAPI } from "../api";
 import BadgeIconRound from "../components/badge-icon-round";
@@ -63,7 +76,7 @@ const useWeather = () => {
   return [weatherReady, weatherResult];
 };
 
-function GOESCard({ wfo }) {
+function GOESImage({ wfo }) {
   const [urlKey, setUrlKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [viewStatic, setViewStatis] = useState(true);
@@ -77,18 +90,15 @@ function GOESCard({ wfo }) {
     return () => clearInterval(refresh);
   }, [wfo]);
   return (
-    <Card onClick={() => void 0}>
-      <Flex alignItems="start" className="mb-3">
-        <div className="truncate">
-          <Text color="white">Live Clouds</Text>
-        </div>
-        <BadgeIconRound icon={CloudIcon} color={"green"} />
-      </Flex>
+    <div>
       {loading && (
         <img src="/600.png" alt="Placeholder" width="600" height="600"></img>
       )}
       {wfo && supportsStatic && viewStatic && (
-        <Flex onClick={() => setViewStatis(false)}>
+        <div
+          onClick={() => setViewStatis(false)}
+          className="flex justify-center"
+        >
           <img
             style={{ display: loading ? "none" : "block" }}
             onError={() => setSupportsStatic(false)}
@@ -97,10 +107,13 @@ function GOESCard({ wfo }) {
             crossorigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
           />
-        </Flex>
+        </div>
       )}
       {wfo && supportsGOES18 && !viewStatic && (
-        <Flex onClick={() => setViewStatis(true)}>
+        <div
+          onClick={() => setViewStatis(true)}
+          className="flex justify-center"
+        >
           <img
             style={{ display: loading ? "none" : "block" }}
             onError={() => setSupportsGOES18(false)}
@@ -109,10 +122,13 @@ function GOESCard({ wfo }) {
             crossorigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
-        </Flex>
+        </div>
       )}
       {wfo && supportsGOES16 && !viewStatic && (
-        <Flex onClick={() => setViewStatis(true)}>
+        <div
+          onClick={() => setViewStatis(true)}
+          className="flex justify-center"
+        >
           <img
             style={{ display: loading ? "none" : "block" }}
             onError={() => setSupportsGOES16(false)}
@@ -121,8 +137,22 @@ function GOESCard({ wfo }) {
             crossorigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
-        </Flex>
+        </div>
       )}
+    </div>
+  );
+}
+
+function LiveWeatherCard({ wfo }) {
+  return (
+    <Card>
+      <Flex alignItems="start" className="mb-3">
+        <div className="truncate">
+          <Text color="white">Live Weather</Text>
+        </div>
+        <BadgeIconRound icon={CloudIcon} color={"green"} />
+      </Flex>
+      <GOESImage wfo={wfo} />
     </Card>
   );
 }
@@ -286,28 +316,10 @@ function WeatherCard({ dateInfo, timezone }) {
   );
 }
 
-export default function LocationPage() {
-  const { ready, location } = useAPI();
-  const wfo = useWFO(location?.lat, location?.lon);
-  const [weatherReady, weather] = useWeather();
-
+export function LocationForecast({ weather }) {
+  const { location } = useAPI();
   return (
-    <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
-      <StickyHeader
-        title="Location"
-        subtitle={location ? formatLocation(location.lat, location.lon) : ""}
-        loading={!ready || !weatherReady}
-      />
-
-      <Grid numItemsMd={2} numItemsLg={3} className="mt-2 mb-4 gap-1 ml-2 mr-2">
-        <GOESCard wfo={wfo} />
-      </Grid>
-
-      <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
-
-      <div className="mt-5 ml-2 mr-2">
-        <Title>This Week</Title>
-      </div>
+    <div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
         {weather &&
           location &&
@@ -323,6 +335,52 @@ export default function LocationPage() {
               );
             })}
       </Grid>
+    </div>
+  );
+}
+
+const LOCATION_TABS = [
+  { label: "Forecast", render: LocationForecast },
+  // { label: "Light Pollution", render: () => <></> },
+  // { label: "Eclipses", render: () => <></> },
+];
+
+export default function LocationPage() {
+  const { ready, location } = useAPI();
+  const wfo = useWFO(location?.lat, location?.lon);
+  const [weatherReady, weather] = useWeather();
+
+  return (
+    <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
+      <StickyHeader
+        title="Location"
+        subtitle={location ? formatLocation(location.lat, location.lon) : ""}
+        loading={!ready || !weatherReady}
+      />
+
+      <div className="mt-3 ml-2 mr-2 mb-4">
+        <LiveWeatherCard wfo={wfo} />
+      </div>
+
+      <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
+
+      <TabGroup>
+        <TabList
+          className="flex w-full tabs-bottom justify-center"
+          style={{ padding: 0, height: "3rem" }}
+        >
+          {LOCATION_TABS.map((tab) => (
+            <Tab key={tab.label} style={{ height: "3rem" }}>
+              {tab.label}
+            </Tab>
+          ))}
+        </TabList>
+        <TabPanels>
+          {LOCATION_TABS.map((tab) => (
+            <TabPanel key={tab.label}>{tab.render({ weather })}</TabPanel>
+          ))}
+        </TabPanels>
+      </TabGroup>
     </div>
   );
 }
