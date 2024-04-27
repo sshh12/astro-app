@@ -83,7 +83,7 @@ const scoreSimilarity = (query, obj) => {
 
 export default function SearchPage() {
   const { goBack } = useNav();
-  const { post, location, objectStore } = useAPI();
+  const { post, location, objectStore, listStore } = useAPI();
 
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchTerm = useDebounce(searchValue, 500);
@@ -98,6 +98,9 @@ export default function SearchPage() {
         return acc.concat(list.objects);
       }, []);
       Promise.all(objects.map((obj) => objectStore.setItem(obj.id, obj)));
+      Promise.all(
+        publicLists.lists.map((list) => listStore.setItem(list.id, list))
+      );
     }
   }, [publicLists, objectStore]);
 

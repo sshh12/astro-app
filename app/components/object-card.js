@@ -244,16 +244,18 @@ export default function ObjectCard({ object, orbits }) {
                 <Text color="white" className="mb-1">
                   {object.name}
                 </Text>
-                <BadgeElement
-                  maxAlt={maxAlt}
-                  maxAltTime={maxAltTime}
-                  onBadgeClick={onBadgeClick}
-                  isDay={isDay}
-                  user={user}
-                  location={location}
-                  alt={alt}
-                  az={az}
-                />
+                {objOrbit && (
+                  <BadgeElement
+                    maxAlt={maxAlt}
+                    maxAltTime={maxAltTime}
+                    onBadgeClick={onBadgeClick}
+                    isDay={isDay}
+                    user={user}
+                    location={location}
+                    alt={alt}
+                    az={az}
+                  />
+                )}
               </div>
               {ImageElement !== null && (
                 <Flex className="border-solid border-2 border-gray-700 w-10">
