@@ -61,12 +61,12 @@ export default function WrappedApp() {
   const apiProps = useAPIControl();
   const pythonProps = usePythonSetup();
   return (
-    <PythonContext.Provider value={pythonProps}>
-      <NavContext.Provider value={navProps}>
-        <APIContext.Provider value={apiProps}>
+    <NavContext.Provider value={navProps}>
+      <APIContext.Provider value={apiProps}>
+        <PythonContext.Provider value={pythonProps}>
           <App />
-        </APIContext.Provider>
-      </NavContext.Provider>
-    </PythonContext.Provider>
+        </PythonContext.Provider>
+      </APIContext.Provider>
+    </NavContext.Provider>
   );
 }

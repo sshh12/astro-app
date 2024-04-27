@@ -11,7 +11,7 @@ export default function ListCard({ list }) {
   const { setPage } = useNav();
   const emitEvent = useAnalytics();
 
-  const compact = objectViewMode.sizeMode !== "full";
+  const compact = objectViewMode?.sizeMode !== "full";
 
   return (
     <Card

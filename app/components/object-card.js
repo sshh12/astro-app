@@ -134,16 +134,25 @@ export default function ObjectCard({ object, orbits }) {
   const emitEvent = useAnalytics();
   const [openViewEditor, setOpenViewEditor] = useState(false);
 
-  const orbitAlt = orbits.objects[object.id].alt;
-  const orbitAz = orbits.objects[object.id].az;
-  const alt = getInterpolatedValue(orbits.time, ts, orbitAlt);
-  const az = getInterpolatedValue(orbits.time, ts, orbitAz);
-  const isDay = ts < orbits.time[0] || ts > orbits.time[orbits.time.length - 1];
+  const objOrbit =
+    orbits && orbits.objects[object.id] ? orbits.objects[object.id] : null;
+  if (objOrbit) {
+    objOrbit.time = orbits.time;
+    objOrbit.time_state = orbits.time_state;
+  }
+
+  const orbitAlt = objOrbit?.alt || [];
+  const orbitAz = objOrbit?.az || [];
+  const orbitTime = objOrbit?.time || [];
+  const orbitTimeState = objOrbit?.time_state || [];
+  const alt = getInterpolatedValue(orbitTime, ts, orbitAlt);
+  const az = getInterpolatedValue(orbitTime, ts, orbitAz);
+  const isDay = ts < orbitTime[0] || ts > orbitTime[orbitTime - 1];
   const [maxAlt, maxAltIdx] = getMaxWhile(
     orbitAlt,
-    (i) => orbits.time_state[i] > 0 && orbits.time_state[i] < 7
+    (i) => orbitTimeState[i] > 0 && orbitTimeState[i] < 7
   );
-  const maxAltTime = orbits.time[maxAltIdx];
+  const maxAltTime = orbitTime[maxAltIdx];
 
   const onBadgeClick = (e) => {
     e.stopPropagation();
@@ -151,13 +160,13 @@ export default function ObjectCard({ object, orbits }) {
     setOpenViewEditor(true);
   };
 
-  const badgeToRender = objectViewMode.badgeMode;
+  const badgeToRender = objectViewMode?.badgeMode || BADGE_MODES[0].id;
   const BadgeElement = BADGE_MODES.find((b) => b.id === badgeToRender).render;
 
-  const imageToRender = objectViewMode.imageMode;
+  const imageToRender = objectViewMode?.imageMode || IMAGE_MODES[0].id;
   const ImageElement = IMAGE_MODES.find((b) => b.id === imageToRender).render;
 
-  const compact = objectViewMode.sizeMode !== "full";
+  const compact = objectViewMode?.sizeMode !== "full";
 
   return (
     <>

@@ -5,6 +5,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
+import { useAPI } from "./api";
 
 export const PythonContext = React.createContext({});
 
@@ -22,7 +23,7 @@ export function usePythonSetup() {
         (navigator.hardwareConcurrency &&
           Math.min(navigator.hardwareConcurrency, 5)) ||
         4;
-      console.log(`Creating ${numWorkers} web workers`);
+      console.log(`python: Creating ${numWorkers} web workers`);
 
       for (let i = 0; i < numWorkers; i++) {
         const worker = new Worker("web-worker.js");
@@ -66,7 +67,7 @@ export function usePythonSetup() {
   }, []);
 
   const call = useCallback(async (method, args = {}, onStream = null) => {
-    console.log(">>>", method);
+    console.log("python:", method);
     const val = await asyncRun.current(
       `
     from astro_app.api import call;
@@ -76,7 +77,7 @@ export function usePythonSetup() {
         .replaceAll("false", "Frue")})
     `,
       (val) => {
-        console.log("<<<", method);
+        console.log("python:", method);
         if (onStream) {
           onStream(val);
         }
@@ -89,7 +90,7 @@ export function usePythonSetup() {
       alert(val.error);
       result.error = val.error;
     }
-    console.log("!!!", method, "complete");
+    console.log("python:", method, "complete");
     return result;
   }, []);
   return { call, ready };
@@ -101,27 +102,32 @@ export function usePython() {
 }
 
 export function useCallWithCache(func, cacheKey, args = {}) {
+  const { cacheStore } = useAPI();
   const { call, ready: pythonReady } = usePython();
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
-  const argsStr = args && JSON.stringify(args);
-  const key = `astro-app:cache:${func}:${cacheKey}`;
+  const argsStr = cacheKey && args && JSON.stringify(args);
+  const key = `python:${func}:${cacheKey}`;
   useEffect(() => {
-    if (cacheKey && localStorage.getItem(key)) {
-      setResult(JSON.parse(localStorage.getItem(key)));
-    }
-  }, [cacheKey, key]);
-  useEffect(() => {
-    if (func && argsStr && pythonReady) {
-      call(func, JSON.parse(argsStr), (val) => setResult(val)).then((val) => {
-        if (!val.error) {
-          localStorage.setItem(key, JSON.stringify(val));
-          setResult(val);
-          setReady(true);
-        }
+    if (cacheStore && cacheKey && argsStr) {
+      cacheStore.getItem(key, argsStr).then((val) => {
+        val && setResult(val);
       });
     }
-  }, [func, argsStr, key, pythonReady, call]);
+  }, [cacheStore, key, argsStr, cacheKey]);
+  useEffect(() => {
+    if (func && argsStr && pythonReady && cacheStore) {
+      (async () => {
+        call(func, JSON.parse(argsStr), (val) => setResult(val)).then((val) => {
+          if (!val.error) {
+            cacheStore.setItem(key, val);
+            setResult(val);
+            setReady(true);
+          }
+        });
+      })();
+    }
+  }, [func, argsStr, key, pythonReady, call, cacheStore]);
   return { ready, result };
 }
 
@@ -131,43 +137,43 @@ export function useControlledCallWithCache(
   args = {},
   opts = {}
 ) {
+  const { cacheStore } = useAPI();
   const proactiveRequest = opts.proactiveRequest || false;
   const { call, ready: pythonReady } = usePython();
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const argsStr = args && JSON.stringify(args);
-  const key = `astro-app:cache:${func}:${cacheKey}`;
+  const argsStr = cacheKey && args && JSON.stringify(args);
+  const key = `python:${func}:${cacheKey}`;
   const load = useCallback(() => {
+    if (!argsStr) return;
     setLoading(true);
     call(func, JSON.parse(argsStr), (val) => setResult(val)).then((val) => {
       if (!val.error) {
-        localStorage.setItem(key, JSON.stringify(val));
+        cacheStore.setItem(key, val);
         setResult(val);
         setReady(true);
       }
       setLoading(false);
     });
-  }, [func, argsStr, key, call]);
+  }, [func, argsStr, key, call, cacheStore]);
   useEffect(() => {
-    if (cacheKey && localStorage.getItem(key)) {
-      setResult(JSON.parse(localStorage.getItem(key)));
+    if (cacheStore && cacheKey) {
+      cacheStore.getItem(key).then((val) => {
+        val && setResult(val);
+      });
     }
-  }, [cacheKey, key]);
+  }, [cacheKey, key, cacheStore]);
   useEffect(() => {
-    if (func && argsStr !== null && proactiveRequest && pythonReady) {
+    if (
+      func &&
+      argsStr !== null &&
+      proactiveRequest &&
+      pythonReady &&
+      cacheStore
+    ) {
       load();
     }
-  }, [func, argsStr, key, load, proactiveRequest, pythonReady]);
+  }, [func, argsStr, key, load, proactiveRequest, pythonReady, cacheStore]);
   return { load, ready, loading, result };
-}
-
-export function useAnalytics() {
-  const emitEvent = useCallback((name) => {
-    console.log("event", name);
-    if (window.gtag) {
-      window.gtag("event", name);
-    }
-  }, []);
-  return emitEvent;
 }

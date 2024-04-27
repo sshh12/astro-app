@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
+import localforage from "localforage";
 
 export const APIContext = React.createContext({});
 
@@ -9,134 +10,228 @@ const API_ENDPOINT =
     ? "http://localhost:9000/"
     : "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "astro-app:apiKey";
-const VIEW_MODE_KEY = "astro-app:viewMode";
-const CACHED_USER_KEY = "astro-app:cachedUser";
 
-function post(func, args = {}) {
-  return fetch(API_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      func: func,
-      args: args,
-      api_key: localStorage.getItem(API_KEY_KEY) || "",
-    }),
-  }).then((response) => response.json());
-}
+const POST_METHODS = {
+  update_space_object_lists: async ({
+    user,
+    list_ids,
+    new_list_title,
+    object_id,
+    objectStore,
+    listStore,
+  }) => {
+    const obj = await objectStore.getItem(object_id);
+    const createdLists =
+      new_list_title.length > 0
+        ? [
+            {
+              objects: [obj],
+              title: new_list_title,
+              color: "ORANGE",
+              id: Math.random().toString(36),
+            },
+          ]
+        : [];
+    const newLists = user.lists
+      .map((existingList) => {
+        const newList = {
+          ...existingList,
+          objects: existingList.objects.filter(
+            (obj) => obj.id !== object_id || list_ids.includes(existingList.id)
+          ),
+        };
+        return newList;
+      })
+      .concat(createdLists);
+    const newUser = { ...user, newLists };
+    await Promise.all(
+      createdLists.map((list) => listStore.setItem(list.id, list))
+    );
+    return newUser;
+  },
+  update_user: async ({ user, name }) => {
+    return { ...user, name };
+  },
+  update_user_location: async ({ user, lat, lon, elevation, timezone }) => {
+    return { ...user, lat, lon, elevation, timezone };
+  },
+  add_equipment: async ({ user, equipment_details }) => {
+    const newEquipment = user.equipment
+      .map((equip) => {
+        const newEquip = { ...equip, active: false };
+        return newEquip;
+      })
+      .concat([{ ...equipment_details, active: true }]);
+    return { ...user, equipment: newEquipment };
+  },
+  set_active_equipment: async ({ user, id }) => {
+    const newEquipment = user.equipment.map((equip) => {
+      const newEquip = { ...equip, active: equip.id === id };
+      return newEquip;
+    });
+    return { ...user, equipment: newEquipment };
+  },
+  delete_equipment: async ({ user, id }) => {
+    const newEquipment = user.equipment.filter((equip) => equip.id !== id);
+    if (newEquipment.length > 0 && !newEquipment.find((v) => v.active)) {
+      newEquipment[0].active = true;
+    }
+    return { ...user, equipment: newEquipment };
+  },
+  add_list: async ({ user, id, listStore }) => {
+    const list = await listStore.getItem(id);
+    return { ...user, lists: [...user.lists, list] };
+  },
+  delete_list: async ({ user, id }) => {
+    return { ...user, lists: user.lists.filter((list) => list.id !== id) };
+  },
+};
 
 export function useAPIControl() {
   const [ready, setReady] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, _setUser] = useState(null);
   const [objectViewMode, _setObjectViewMode] = useState(null);
-  const [cachedUser, _setCachedUser] = useState(null);
+  const [settingsStore, setSettingsStore] = useState(null);
+  const [cacheStore, setCacheStore] = useState(null);
+  const [objectStore, setObjectStore] = useState(null);
+  const [listStore, setListStore] = useState(null);
 
   useEffect(() => {
-    const localMode = JSON.parse(localStorage.getItem(VIEW_MODE_KEY) || "{}");
-    if (!localMode.badgeMode) {
-      localMode.badgeMode = "max-alt";
-    }
-    if (!localMode.imageMode) {
-      localMode.imageMode = "dss2";
-    }
-    if (!localMode.sizeMode) {
-      localMode.sizeMode = "full";
-    }
-    if (!localMode.sortMode) {
-      localMode.sortMode = "name";
-    }
-    _setObjectViewMode(localMode);
-    _setCachedUser(JSON.parse(localStorage.getItem(CACHED_USER_KEY) || "null"));
+    const settingsStore = localforage.createInstance({
+      name: "astro-app-settings",
+    });
+    setSettingsStore(settingsStore);
+    const cacheStore = localforage.createInstance({
+      name: "astro-app-cache",
+    });
+    setCacheStore(cacheStore);
+    const objectStore = localforage.createInstance({
+      name: "astro-app-objects",
+    });
+    setObjectStore(objectStore);
+    const listStore = localforage.createInstance({
+      name: "astro-app-lists",
+    });
+    setListStore(listStore);
   }, []);
+
+  useEffect(() => {
+    if (!settingsStore) return;
+    settingsStore.getItem("viewMode").then((mode) => {
+      mode = mode || {};
+      if (!mode.badgeMode) {
+        mode.badgeMode = "max-alt";
+      }
+      if (!mode.imageMode) {
+        mode.imageMode = "dss2";
+      }
+      if (!mode.sizeMode) {
+        mode.sizeMode = "full";
+      }
+      if (!mode.sortMode) {
+        mode.sortMode = "name";
+      }
+      settingsStore
+        .setItem("viewMode", mode)
+        .then((v) => _setObjectViewMode(v));
+    });
+    settingsStore.setItem("apiKey", localStorage.getItem(API_KEY_KEY));
+  }, [settingsStore]);
 
   const setObjectViewMode = (mode) => {
-    localStorage.setItem(VIEW_MODE_KEY, JSON.stringify(mode));
-    _setObjectViewMode(mode);
+    settingsStore.setItem("viewMode", mode).then((v) => _setObjectViewMode(v));
   };
 
-  const setCachedUser = (cachedUser) => {
-    localStorage.setItem(CACHED_USER_KEY, JSON.stringify(cachedUser));
-    _setCachedUser(cachedUser);
-  };
-
-  const postThenUpdateUser = useCallback((func, args) => {
-    setReady(false);
-    return post(func, args)
-      .then((result) => {
-        if (result.error) {
-          alert("Error " + result.error);
-          return { error: result.error };
-        }
-        return post("get_user")
-          .then((user) => {
-            if (user.error) {
-              alert("Error " + user.error);
-              return { error: user.error };
-            }
-            setReady(true);
-            setUser(user);
-            setCachedUser(user);
-            return { result, user };
-          })
-          .catch((e) => {
-            setReady(true);
-            alert("Error " + e);
-            return { error: e };
-          });
-      })
-      .catch((e) => {
-        setReady(true);
-        // alert("Error " + e);
-        return { error: e };
-      });
+  const post = useCallback((func, args = {}) => {
+    return fetch(API_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        func: func,
+        args: args,
+        api_key: localStorage.getItem(API_KEY_KEY) || "",
+      }),
+    }).then((response) => response.json());
   }, []);
 
   useEffect(() => {
-    if (window.initRunning) {
+    if (window.apiInit || !cacheStore || !settingsStore) {
       return;
     }
-    window.initRunning = true;
-    if (!localStorage.getItem(API_KEY_KEY)) {
-      post("create_user")
-        .then((user) => {
-          if (!user.api_key) {
-            alert("Error loading account details -- try again later");
-            return;
-          }
-          localStorage.setItem(API_KEY_KEY, user.api_key);
-          setReady(true);
-          setUser(user);
-          setCachedUser(user);
-        })
-        .catch((e) => {
-          // alert("Error fetching details -- app is offine, try again later");
-        });
-    } else {
-      post("get_user")
-        .then((user) => {
-          setReady(true);
-          setUser(user);
-          setCachedUser(user);
-        })
-        .catch((e) => {
-          // alert("Error fetching details so app is offine, try again later");
-          setReady(true);
-        });
-    }
-  }, []);
+    window.apiInit = true;
+    (async () => {
+      if (!localStorage.getItem(API_KEY_KEY)) {
+        const user = await post("create_user");
+        localStorage.setItem(API_KEY_KEY, user.api_key);
+        await cacheStore.setItem("user", user);
+        await settingsStore.setItem("apiKey", user.api_key);
+        _setUser(user);
+        setReady(true);
+      } else {
+        const cachedUser = await cacheStore.getItem("user");
+        if (cachedUser) {
+          _setUser(cachedUser);
+        }
+        post("get_user")
+          .then((user) => {
+            cacheStore.setItem("user", user);
+            setReady(true);
+            _setUser(user);
+          })
+          .catch((e) => {
+            console.error(e);
+            setReady(true);
+          });
+      }
+    })();
+  }, [cacheStore, post, settingsStore]);
 
-  const userObj = user || cachedUser;
-  const equipment = !!userObj ? userObj.equipment.find((v) => v.active) : null;
+  const postUser = useCallback(
+    async (func, args = {}) => {
+      if (!user || !cacheStore || !listStore || !objectStore) {
+        return null;
+      }
+      setReady(false);
+      console.log("setUser", func, args);
+      const newUser = await POST_METHODS[func]({
+        ...args,
+        objectStore,
+        listStore,
+        user,
+      });
+      console.log("newUser", newUser);
+      _setUser(newUser);
+      await cacheStore.setItem("user", newUser);
+      post(func, args)
+        .then((remoteUser) => {
+          console.log("newUserRemote", newUser);
+          if (remoteUser.id) {
+            cacheStore.setItem("user", remoteUser);
+            _setUser(remoteUser);
+          }
+        })
+        .catch((e) => console.error(e));
+      setReady(true);
+      return user;
+    },
+    [cacheStore, user, listStore, objectStore, post]
+  );
+
+  const equipment = !!user ? user.equipment.find((v) => v.active) : null;
 
   return {
-    user: userObj,
+    user,
+    postUser,
     equipment,
-    ready,
+    ready: ready && user && cacheStore,
     post,
-    postThenUpdateUser,
     objectViewMode,
     setObjectViewMode,
+    cacheStore,
+    objectStore,
+    listStore,
   };
 }
 
@@ -146,25 +241,82 @@ export function useAPI() {
 }
 
 export function usePostWithCache(func, args = {}) {
+  const { cacheStore, post } = useAPI();
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
-  const argsStr = JSON.stringify(args);
-  const key = `astro-app:cache:${func}:${argsStr}`;
+  const argsStr = args && JSON.stringify(args);
+  const key = `post:${func}:${argsStr}`;
   useEffect(() => {
-    if (func) {
-      if (localStorage.getItem(key)) {
-        setResult(JSON.parse(localStorage.getItem(key)));
-      }
-      post(func, JSON.parse(argsStr)).then((val) => {
+    if (func && argsStr && cacheStore) {
+      (async () => {
+        const cacheValue = await cacheStore.getItem(key);
+        if (cacheValue) {
+          setResult(cacheValue);
+        }
+        const val = await post(func, JSON.parse(argsStr));
         if (!val.error) {
-          localStorage.setItem(key, JSON.stringify(val));
+          cacheStore.setItem(key, val);
           setResult(val);
           setReady(true);
         }
-      });
+      })();
     }
-  }, [func, argsStr, key]);
-  return [ready, result];
+  }, [func, argsStr, key, cacheStore, post]);
+  return { ready, result };
+}
+
+export function useObject(id) {
+  const { post, objectStore } = useAPI();
+  const [ready, setReady] = useState(false);
+  const [object, setObject] = useState(null);
+  useEffect(() => {
+    if (id && objectStore) {
+      (async () => {
+        const cacheValue = await objectStore.getItem(id);
+        if (cacheValue) {
+          setObject(cacheValue);
+        }
+        try {
+          const val = await post("get_space_object", { id });
+          if (!val.error) {
+            objectStore.setItem(id, val);
+            setObject(val);
+            setReady(true);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    }
+  }, [objectStore, id, post]);
+  return { ready, object };
+}
+
+export function useList(id) {
+  const { post, listStore } = useAPI();
+  const [ready, setReady] = useState(false);
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    if (id && listStore) {
+      (async () => {
+        const cacheValue = await listStore.getItem(id);
+        if (cacheValue) {
+          setList(cacheValue);
+        }
+        try {
+          const val = await post("get_list", { id });
+          if (!val.error) {
+            listStore.setItem(id, val);
+            setList(val);
+            setReady(true);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    }
+  }, [listStore, id, post]);
+  return { ready, list };
 }
 
 export function useAnalytics() {

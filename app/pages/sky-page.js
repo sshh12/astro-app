@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid, Title } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
@@ -14,7 +14,22 @@ import { useTimestamp, formatTime } from "../utils";
 
 export default function SkyPage() {
   const { setPage } = useNav();
-  const { ready, user } = useAPI();
+  const { ready, user, objectStore, listStore } = useAPI();
+
+  useEffect(() => {
+    if (user && objectStore) {
+      const objects = user.lists.reduce((acc, list) => {
+        return acc.concat(list.objects);
+      }, []);
+      Promise.all(objects.map((obj) => objectStore.setItem(obj.id, obj)));
+    }
+  }, [user, objectStore]);
+
+  useEffect(() => {
+    if (user && listStore) {
+      Promise.all(user.lists.map((list) => listStore.setItem(list.id, list)));
+    }
+  }, [user, listStore]);
 
   const { ts } = useTimestamp();
 
@@ -79,7 +94,7 @@ export default function SkyPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      {user && favOrbits && (
+      {user && (
         <div className="ml-2 mr-2">
           <ObjectsList
             title="Favorites"

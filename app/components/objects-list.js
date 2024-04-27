@@ -54,7 +54,12 @@ const LIST_SORTS = [
   },
 ];
 
-export default function ObjectsList({ title, objects, orbits }) {
+export default function ObjectsList({
+  title,
+  objects,
+  orbits,
+  keepOrder = false,
+}) {
   const { objectViewMode, setObjectViewMode } = useAPI();
 
   const fullSorts = useMemo(() => {
@@ -68,6 +73,7 @@ export default function ObjectsList({ title, objects, orbits }) {
   }, []);
 
   const objectsSorted = useMemo(() => {
+    if (!objectViewMode || !orbits || keepOrder) return objects;
     const sortMode = fullSorts.find((s) => s.id === objectViewMode.sortMode);
     const objectsSorted = [...objects];
     objectsSorted.sort((a, b) => sortMode.sort({ a, b, orbits }));
@@ -78,21 +84,23 @@ export default function ObjectsList({ title, objects, orbits }) {
     <div>
       <div className="mt-5">
         <Title>{title}</Title>
-        <div className="mt-1" style={{ width: "14rem" }}>
-          <Select
-            enableClear={false}
-            value={objectViewMode.sortMode}
-            onChange={(v) =>
-              setObjectViewMode({ ...objectViewMode, sortMode: v })
-            }
-          >
-            {fullSorts.map((sort) => (
-              <SelectItem key={sort.id} value={sort.id}>
-                {sort.label}
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
+        {!keepOrder && (
+          <div className="mt-1" style={{ width: "14rem" }}>
+            <Select
+              enableClear={false}
+              value={objectViewMode?.sortMode}
+              onChange={(v) =>
+                setObjectViewMode({ ...objectViewMode, sortMode: v })
+              }
+            >
+              {fullSorts.map((sort) => (
+                <SelectItem key={sort.id} value={sort.id}>
+                  {sort.label}
+                </SelectItem>
+              ))}
+            </Select>
+          </div>
+        )}
       </div>
       <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1">
         {objectsSorted.map((obj) => (

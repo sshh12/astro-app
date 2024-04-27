@@ -28,7 +28,7 @@ import { useCallWithCache } from "../python";
 import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
-import { useAPI, useAnalytics, usePostWithCache } from "../api";
+import { useAPI, useAnalytics, useObject } from "../api";
 import { useControlledCallWithCache } from "../python";
 import ListDialog from "../components/list-dialog";
 import ObjectImage from "../components/object-image";
@@ -426,12 +426,7 @@ export default function SkyObjectPage() {
   const [openShare, setOpenShare] = useState(false);
   const emitEvent = useAnalytics();
 
-  const [objectReady, object] = usePostWithCache(
-    pageParams.id && "get_space_object",
-    {
-      id: pageParams.id,
-    }
-  );
+  const { ready: objectReady, object } = useObject(pageParams.id);
 
   const { result: objOrbits, ready: objOrbitsReady } = useCallWithCache(
     object && user && "get_orbit_calculations",

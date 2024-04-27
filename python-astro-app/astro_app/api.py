@@ -4,7 +4,6 @@ import datetime as dt
 import json
 
 import pytz
-import skyfield
 import numpy as np
 from skyfield.api import Loader, wgs84
 from skyfield import almanac

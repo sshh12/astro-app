@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Title, Text, Flex, Badge } from "@tremor/react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useCallWithCache } from "../python";
 import { useAPI, usePostWithCache } from "../api";
 import StickyHeader from "../components/sticky-header";
-import { useDebounce } from "../utils";
+import { useDebounce, objectAKA } from "../utils";
 import ObjectsList from "../components/objects-list";
 
 function ListBadge({ list, onClick }) {
@@ -26,33 +26,134 @@ function ListBadge({ list, onClick }) {
   );
 }
 
+function ListBadgeGroup({ lists }) {
+  const { setPage } = useNav();
+  const rows = [];
+  if (lists) {
+    const totalChunks = 3;
+    const chunkSize = Math.ceil(lists.length / totalChunks);
+    for (let i = 0; i < totalChunks; i++) {
+      rows.push(lists.slice(i * chunkSize, (i + 1) * chunkSize));
+    }
+  }
+  return (
+    <div>
+      <div className="mt-5 mb-2">
+        <Title>Curated Lists</Title>
+      </div>
+      <Flex className="overflow-x-scroll flex-col">
+        {rows.map((row, i) => (
+          <Flex key={i} className="mb-2 justify-start flex-row">
+            {row.map((list) => (
+              <ListBadge
+                key={list.id}
+                list={list}
+                onClick={() =>
+                  setPage("/sky/list", { id: list.id, title: list.title })
+                }
+              />
+            ))}
+          </Flex>
+        ))}
+      </Flex>
+    </div>
+  );
+}
+
+const cleanSearchTerm = (term) => {
+  if (term.startsWith("NAME ")) {
+    term = term.slice(5);
+  }
+  return term.replace(/[^\w0-9]+/g, "").toLowerCase();
+};
+
+const scoreSimilarity = (query, obj) => {
+  const aka = objectAKA(obj).map((name) => name.toLowerCase());
+  const names = obj.names.map((name) => name.toLowerCase());
+  const queryLowerCase = query.toLowerCase();
+  if (obj.name.toLowerCase().includes(queryLowerCase)) {
+    return 1000;
+  } else if (aka.includes(queryLowerCase)) {
+    return 100;
+  } else if (names.includes(queryLowerCase)) {
+    return 10;
+  }
+  return 0;
+};
+
 export default function SearchPage() {
-  const { setPage, goBack } = useNav();
-  const { post, user } = useAPI();
+  const { goBack } = useNav();
+  const { post, user, objectStore } = useAPI();
 
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchTerm = useDebounce(searchValue, 500);
-  const [results, setResults] = useState(null);
+  const [matchingObjects, setMatchingObjects] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [publicListsReady, publicLists] = usePostWithCache("get_public_lists");
+  const { result: publicLists } = usePostWithCache("get_public_lists");
 
   useEffect(() => {
-    if (debouncedSearchTerm) {
+    if (publicLists && objectStore) {
+      const objects = publicLists.lists.reduce((acc, list) => {
+        return acc.concat(list.objects);
+      }, []);
+      Promise.all(objects.map((obj) => objectStore.setItem(obj.id, obj)));
+    }
+  }, [publicLists, objectStore]);
+
+  useEffect(() => {
+    if (matchingObjects && objectStore) {
+      Promise.all(
+        matchingObjects.map((obj) => objectStore.setItem(obj.id, obj))
+      );
+    }
+  }, [matchingObjects, objectStore]);
+
+  useEffect(() => {
+    if (debouncedSearchTerm && post && objectStore) {
+      const cleanTerm = cleanSearchTerm(debouncedSearchTerm);
       setLoading(true);
-      post("search", { term: debouncedSearchTerm }).then((results) => {
-        setResults(results);
+      setMatchingObjects([]);
+      objectStore.iterate((val) => {
+        if (val.searchKey.includes(cleanTerm)) {
+          setMatchingObjects((prevMatches) => {
+            const newMatches = [val].filter(
+              (obj) => !prevMatches.find((m) => m.id === obj.id)
+            );
+            return [...prevMatches, ...newMatches];
+          });
+        }
+      });
+      post("search", { term: cleanTerm }).then((searchResults) => {
+        const searchObjs = searchResults.objects;
+        setMatchingObjects((prevMatches) => {
+          const newMatches = searchObjs.filter(
+            (obj) => !prevMatches.find((m) => m.id === obj.id)
+          );
+          return [...prevMatches, ...newMatches];
+        });
         setLoading(false);
       });
     }
-  }, [debouncedSearchTerm, post]);
+  }, [debouncedSearchTerm, post, objectStore]);
+
+  const matchingObjectsShown = useMemo(() => {
+    const objectsToShow = [...matchingObjects]
+      .sort(
+        (a, b) =>
+          scoreSimilarity(debouncedSearchTerm, b) -
+          scoreSimilarity(debouncedSearchTerm, a)
+      )
+      .slice(0, 16);
+    return objectsToShow;
+  }, [matchingObjects, debouncedSearchTerm]);
 
   const { result: resultOrbits, ready: resultOrbitsReady } = useCallWithCache(
     "get_orbit_calculations",
-    searchValue && searchValue + "_orbits",
-    results &&
+    debouncedSearchTerm && debouncedSearchTerm + "_orbits",
+    matchingObjectsShown &&
       user && {
-        objects: results.objects,
+        objects: matchingObjectsShown,
         timezone: user.timezone,
         lat: user.lat,
         lon: user.lon,
@@ -60,17 +161,6 @@ export default function SearchPage() {
         resolution_mins: 10,
       }
   );
-
-  const publicListsRows = [];
-  if (publicLists) {
-    const totalChunks = 3;
-    const chunkSize = Math.ceil(publicLists.lists.length / totalChunks);
-    for (let i = 0; i < totalChunks; i++) {
-      publicListsRows.push(
-        publicLists.lists.slice(i * chunkSize, (i + 1) * chunkSize)
-      );
-    }
-  }
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
@@ -82,46 +172,31 @@ export default function SearchPage() {
         search={true}
         searchValue={searchValue}
         searchOnChange={(event) => setSearchValue(event.target.value)}
-        loading={loading || !publicLists || (results && !resultOrbitsReady)}
+        loading={loading || !publicLists}
+        computing={
+          debouncedSearchTerm &&
+          matchingObjectsShown.length > 0 &&
+          !resultOrbitsReady
+        }
       />
 
       <div className="ml-2 mr-2">
-        {!results && (
+        {!searchValue && (
           <Flex className="justify-around">
             <Text color="gray-200">Searches are powered by SIMBAD</Text>
           </Flex>
         )}
 
-        {results && resultOrbits && (
+        {debouncedSearchTerm && matchingObjectsShown.length > 0 && (
           <ObjectsList
             title="Results"
-            objects={results.objects}
+            objects={matchingObjectsShown}
             orbits={resultOrbits}
+            keepOrder={true}
           />
         )}
 
-        {publicLists && (
-          <>
-            <div className="mt-5 mb-2">
-              <Title>Curated Lists</Title>
-            </div>
-            <Flex className="overflow-x-scroll flex-col">
-              {publicListsRows.map((row, i) => (
-                <Flex key={i} className="mb-2 justify-start flex-row">
-                  {row.map((list) => (
-                    <ListBadge
-                      key={list.id}
-                      list={list}
-                      onClick={() =>
-                        setPage("/sky/list", { id: list.id, title: list.title })
-                      }
-                    />
-                  ))}
-                </Flex>
-              ))}
-            </Flex>
-          </>
-        )}
+        {publicLists && <ListBadgeGroup lists={publicLists.lists} />}
       </div>
     </div>
   );

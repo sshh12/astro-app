@@ -210,10 +210,7 @@ def _user_to_dict(user: models.User) -> dict:
         "lat": float(user.lat),
         "lon": float(user.lon),
         "elevation": float(user.elevation),
-        "lists": [
-            _list_to_dict(list.List, show_objects=list.List.title == FAVORITES)
-            for list in user.lists
-        ],
+        "lists": [_list_to_dict(list.List) for list in user.lists],
         "equipment": [_equipment_to_dict(equip) for equip in user.equipment],
     }
 
@@ -390,6 +387,7 @@ async def update_user(
     ctx: context.Context,
     name: str,
 ) -> Dict:
+    error = None
     try:
         await ctx.prisma.user.update(
             where={"id": ctx.user.id},
@@ -398,8 +396,9 @@ async def update_user(
             },
         )
     except errors.UniqueViolationError:
-        return {"error": "Name already in use"}
-    return {}
+        error = "Name already in use"
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user), "error": error}
 
 
 @method_web()
@@ -419,7 +418,8 @@ async def update_user_location(
             "timezone": timezone,
         },
     )
-    return {}
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
 
 
 @method_web(require_login=False)
@@ -499,12 +499,8 @@ async def update_space_object_lists(
             await ctx.prisma.listsonusers.delete_many(where={"listId": int(list_id)})
             await ctx.prisma.list.delete(where={"id": int(list_id)})
             list_ids_deleted.append(list_id)
-    return {
-        "list_ids_to_add": list_ids_to_add,
-        "list_ids_to_remove": list_ids_to_remove,
-        "new_list_id": str(new_list.id) if new_list else None,
-        "list_ids_deleted": list_ids_deleted,
-    }
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
 
 
 @method_web()
@@ -527,6 +523,13 @@ async def search(ctx: context.Context, term: str) -> Dict:
 async def get_public_lists(ctx: context.Context) -> Dict:
     lists = await ctx.prisma.list.find_many(
         where={"publicTemplate": True},
+        include={
+            "objects": {
+                "include": {
+                    "SpaceObject": True,
+                }
+            },
+        },
     )
     return {"lists": [_list_to_dict(list) for list in lists]}
 
@@ -609,7 +612,7 @@ async def add_equipment(ctx: context.Context, equipment_details: Dict) -> Dict:
     for key in int_keys:
         if equipment_details[key] is not None:
             equipment_details[key] = int(equipment_details[key])
-    new_equip = await ctx.prisma.equipment.create(
+    await ctx.prisma.equipment.create(
         data={
             **equipment_details,
             "userId": ctx.user.id,
@@ -620,7 +623,8 @@ async def add_equipment(ctx: context.Context, equipment_details: Dict) -> Dict:
         where={"id": {"in": [equip.id for equip in existing_equip]}},
         data={"active": False},
     )
-    return _equipment_to_dict(new_equip)
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
 
 
 @method_web()
@@ -638,7 +642,8 @@ async def delete_equipment(ctx: context.Context, id: str) -> Dict:
             where={"id": existing_equip[0].id, "userId": ctx.user.id},
             data={"active": True},
         )
-    return {"deleted": True}
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
 
 
 @method_web()
@@ -651,4 +656,5 @@ async def set_active_equipment(ctx: context.Context, id: str) -> Dict:
         where={"id": id, "userId": ctx.user.id},
         data={"active": True},
     )
-    return {"updated": True}
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Grid } from "@tremor/react";
 import {
   MapPinIcon,
@@ -9,7 +9,6 @@ import {
   AcademicCapIcon,
   HeartIcon,
   CameraIcon,
-  CommandLineIcon,
 } from "@heroicons/react/24/solid";
 import StickyHeader from "../components/sticky-header";
 import SettingsCard from "../components/settings-card";
@@ -20,7 +19,7 @@ import { useNav } from "../nav";
 import { SEEN_INTRO_KEY } from "../components/intro-dialog";
 
 export default function ProfilePage() {
-  const { ready, user, postThenUpdateUser } = useAPI();
+  const { ready, user, postUser } = useAPI();
   const { pageParams } = useNav();
 
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
@@ -29,29 +28,29 @@ export default function ProfilePage() {
 
   const saveAccountSettings = (settings) => {
     setAccountSettingsOpen(false);
-    postThenUpdateUser("update_user", settings);
+    postUser("update_user", settings);
   };
 
   const saveLocationSettings = (settings) => {
     setLocationSettingsOpen(false);
-    postThenUpdateUser("update_user_location", settings);
+    postUser("update_user_location", settings);
   };
 
   const addEquipment = (equip) => {
     setEquipSettingsOpen(false);
-    postThenUpdateUser("add_equipment", { equipment_details: equip });
+    postUser("add_equipment", { equipment_details: equip });
   };
 
   const deleteEquipment = (equip) => {
     if (confirm(`Are you sure you want to delete?`)) {
       setEquipSettingsOpen(false);
-      postThenUpdateUser("delete_equipment", { id: equip.id });
+      postUser("delete_equipment", { id: equip.id });
     }
   };
 
   const setActiveEquipment = (equip) => {
     setEquipSettingsOpen(false);
-    postThenUpdateUser("set_active_equipment", { id: equip.id });
+    postUser("set_active_equipment", { id: equip.id });
   };
 
   useEffect(() => {

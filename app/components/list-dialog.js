@@ -14,7 +14,7 @@ import {
 import { useAPI } from "../api";
 
 export default function ListDialog({ object, open, setOpen }) {
-  const { user, ready, postThenUpdateUser } = useAPI();
+  const { user, ready, postUser } = useAPI();
   const [objectLists, setObjectLists] = useState([]);
   const [newList, setNewList] = useState("");
   const existingLists = user?.lists;
@@ -31,7 +31,7 @@ export default function ListDialog({ object, open, setOpen }) {
 
   const save = () => {
     const newListIds = objectLists.map((list) => list.id);
-    postThenUpdateUser("update_space_object_lists", {
+    postUser("update_space_object_lists", {
       list_ids: newListIds,
       new_list_title: newList,
       object_id: object.id,

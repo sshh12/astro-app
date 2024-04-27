@@ -13,7 +13,7 @@ import { useNav } from "../nav";
 import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ShareLinkDialog from "../components/share-link-dialog";
-import { useAPI, usePostWithCache, useAnalytics } from "../api";
+import { useAPI, useList, useAnalytics } from "../api";
 import LinkCard from "../components/link-card";
 import ObjectsList from "../components/objects-list";
 import { useCallWithCache } from "../python";
@@ -21,17 +21,15 @@ import { useCallWithCache } from "../python";
 export default function SkyListPage() {
   const { pageParams, setPage, goBack } = useNav();
   const [openShare, setOpenShare] = useState(false);
-  const { user, postThenUpdateUser } = useAPI();
+  const { user, postUser } = useAPI();
   const [loading, setLoading] = useState(false);
   const emitEvent = useAnalytics();
 
-  const [listReady, list] = usePostWithCache(pageParams.id && "get_list", {
-    id: pageParams.id,
-  });
+  const { ready: listReady, list } = useList(pageParams.id);
 
   const { ready: listOrbitsReady, result: listOrbits } = useCallWithCache(
-    list && user && "get_orbit_calculations",
-    list?.id + "_orbits",
+    "get_orbit_calculations",
+    list && list.id + "_orbits",
     user &&
       list && {
         objects: list.objects,
@@ -44,14 +42,14 @@ export default function SkyListPage() {
   );
 
   useEffect(() => {
-    if (listReady) {
+    if (list) {
       emitEvent(`list_view_${list.title}`);
     }
-  }, [listReady, list, emitEvent]);
+  }, [list, emitEvent]);
 
   const addList = () => {
     setLoading(true);
-    postThenUpdateUser("add_list", { id: pageParams.id }).then(() => {
+    postUser("add_list", { id: pageParams.id }).then(() => {
       setLoading(false);
       setPage("/sky");
     });
@@ -60,7 +58,7 @@ export default function SkyListPage() {
   const deleteList = () => {
     if (window.confirm("Are you sure you want to delete this list?")) {
       setLoading(true);
-      postThenUpdateUser("delete_list", { id: pageParams.id }).then(() => {
+      postUser("delete_list", { id: pageParams.id }).then(() => {
         setLoading(false);
         setPage("/sky");
       });
@@ -87,7 +85,7 @@ export default function SkyListPage() {
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
         loading={!listReady || loading}
-        computing={!listOrbitsReady}
+        computing={list && !listOrbitsReady}
         rightIcons={rightIcons}
       />
 
@@ -121,7 +119,7 @@ export default function SkyListPage() {
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
       <div className="ml-2 mr-2">
-        {list && listOrbits && (
+        {list && (
           <ObjectsList
             title="Sky Objects"
             objects={list.objects}

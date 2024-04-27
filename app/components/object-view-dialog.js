@@ -33,7 +33,7 @@ export default function ObjectViewDialog({
         </label>
         <Select
           className="mb-3"
-          value={objectViewMode.sizeMode}
+          value={objectViewMode?.sizeMode}
           onChange={(v) =>
             setObjectViewMode({ ...objectViewMode, sizeMode: v })
           }
@@ -51,7 +51,7 @@ export default function ObjectViewDialog({
         </label>
         <Select
           className="mb-3"
-          value={objectViewMode.badgeMode}
+          value={objectViewMode?.badgeMode}
           onChange={(v) =>
             setObjectViewMode({ ...objectViewMode, badgeMode: v })
           }
@@ -69,7 +69,7 @@ export default function ObjectViewDialog({
         </label>
         <Select
           className="mb-3"
-          value={objectViewMode.imageMode}
+          value={objectViewMode?.imageMode}
           onChange={(v) =>
             setObjectViewMode({ ...objectViewMode, imageMode: v })
           }

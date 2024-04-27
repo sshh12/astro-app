@@ -37,7 +37,7 @@ const INTRO_SLIDES = [
     text: "Welcome! The Astro App (early access) is a tool for exploring the night sky and tracking celestial events. It's primarily targeted for amateur astrophotographers.",
     nextText: "Next",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Sky Page",
@@ -45,7 +45,7 @@ const INTRO_SLIDES = [
     nextText: "Next",
     image: "/intro_icons/alt-chart.png",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Space Objects",
@@ -53,7 +53,7 @@ const INTRO_SLIDES = [
     nextText: "Next",
     image: "/intro_icons/object.gif",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Lists",
@@ -61,7 +61,7 @@ const INTRO_SLIDES = [
     nextText: "Next",
     image: "/intro_icons/list.png",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Search",
@@ -69,7 +69,7 @@ const INTRO_SLIDES = [
     nextText: "Next",
     image: "/intro_icons/search.png",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Weather",
@@ -77,7 +77,7 @@ const INTRO_SLIDES = [
     nextText: "Next",
     image: "/intro_icons/weather.png",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Equipment",
@@ -85,7 +85,7 @@ const INTRO_SLIDES = [
     nextText: "Next",
     image: "/intro_icons/equipment.png",
     nextOnClick: ({ nextSlide }) => nextSlide(),
-    skipOnClick: ({ skipToEnd }) => skipToEnd(),
+    skipOnClick: null,
   },
   {
     title: "Location Access",
@@ -168,22 +168,23 @@ export default function IntroDialog() {
               />
             )}
             <Flex className="mt-3">
-              {slideIdx > 0 && (
+              <Button
+                variant="secondary"
+                onClick={() => back()}
+                color="slate"
+                disabled={slideIdx === 0}
+              >
+                Back
+              </Button>
+              {slide.skipOnClick && (
                 <Button
-                  variant="secondary"
-                  onClick={() => back()}
+                  variant="light"
+                  onClick={() => slide.skipOnClick(onClickOptions)}
                   color="slate"
                 >
-                  Back
+                  Skip
                 </Button>
               )}
-              <Button
-                variant="light"
-                onClick={() => slide.skipOnClick(onClickOptions)}
-                color="slate"
-              >
-                Skip
-              </Button>
               <Button
                 variant="primary"
                 onClick={() => slide.nextOnClick(onClickOptions)}
