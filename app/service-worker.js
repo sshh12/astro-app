@@ -22,7 +22,7 @@ self.addEventListener("activate", (event) => {
 });
 
 function shouldExclude(fileUrl) {
-  return fileUrl.includes("time_");
+  return fileUrl.includes("lp/tiles");
 }
 workbox.precaching.precacheAndRoute(
   self.__WB_MANIFEST.filter((entry) => {
@@ -61,6 +61,7 @@ workbox.routing.registerRoute(
     url.href.startsWith("upload.wikimedia.org") ||
     url.href.includes("_icons") ||
     url.href.includes("whl") ||
-    url.href.includes("tables"),
+    url.href.includes("tables") ||
+    url.href.includes("tiles"),
   new workbox.strategies.CacheFirst()
 );

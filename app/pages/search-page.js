@@ -17,7 +17,13 @@ function ListBadge({ list, onClick }) {
       color="gray-700"
       className="border-2 border-gray-300 py-2 cursor-pointer mr-2"
       onClick={onClick}
-      icon={() => <img src={list.imgURL} className="h-5 rounded-lg mr-2" />}
+      icon={() => (
+        <img
+          src={list.imgURL}
+          alt={`icon for list ${list.title}`}
+          className="h-5 rounded-lg mr-2"
+        />
+      )}
     >
       <Text color="gray-100" className="text-lg">
         {list.title}
