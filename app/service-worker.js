@@ -53,26 +53,11 @@ workbox.routing.registerRoute(
 );
 
 workbox.routing.registerRoute(
-  ({ url }) => url.href.includes("hips-image-services"),
-  new workbox.strategies.CacheFirst()
-);
-
-workbox.routing.registerRoute(
-  ({ url }) => url.href.includes("upload.wikimedia.org"),
-  new workbox.strategies.CacheFirst()
-);
-
-workbox.routing.registerRoute(
-  ({ url }) => url.href.includes("_icons"),
-  new workbox.strategies.CacheFirst()
-);
-
-workbox.routing.registerRoute(
-  ({ url }) => url.href.includes("whl"),
-  new workbox.strategies.CacheFirst()
-);
-
-workbox.routing.registerRoute(
-  ({ url }) => url.href.includes("tables"),
+  ({ url }) =>
+    url.href.includes("hips-image-services") ||
+    url.href.startsWith("upload.wikimedia.org") ||
+    url.href.includes("_icons") ||
+    url.href.includes("whl") ||
+    url.href.includes("tables"),
   new workbox.strategies.CacheFirst()
 );
