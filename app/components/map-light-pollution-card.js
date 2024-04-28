@@ -1,10 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Card } from "@tremor/react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
 export default function MapLightPollutionCard({ location }) {
+  const mapRef = useRef();
+  useEffect(() => {
+    const fixInterval = setInterval(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+        if (location) {
+          mapRef.panTo([location.lat, location.lon]);
+        }
+        clearInterval(fixInterval);
+      }
+    }, 100);
+  }, [location]);
   return (
     <Card>
       <MapContainer
@@ -13,7 +25,7 @@ export default function MapLightPollutionCard({ location }) {
         scrollWheelZoom={false}
         doubleClickZoom={false}
         style={{ height: "50vh" }}
-        onClick={(e) => console.log(e, e.latlng)}
+        ref={mapRef}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -99,7 +99,7 @@ function DetailsCard({ object, dataProps }) {
               setOpen={setShowMap}
               lat={dataProps.result.lat}
               lon={dataProps.result.lon}
-              popupTitle={`${object.name} is directly overhead`}
+              popupTitle={`${object.name} is directly overhead this location`}
             />
             <Text color="slate-400">LAT / LON</Text>
             <Text color="slate-400 underline decoration-dotted underline-offset-4">

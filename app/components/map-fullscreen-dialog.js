@@ -17,11 +17,14 @@ export default function MapFullScreenDialog({
       const fixInterval = setInterval(() => {
         if (mapRef.current) {
           mapRef.current.invalidateSize();
+          if (lat && lon) {
+            mapRef.panTo([lat, lon]);
+          }
           clearInterval(fixInterval);
         }
       }, 100);
     }
-  }, [open]);
+  }, [open, lat, lon]);
   return (
     <Dialog open={open} onClose={() => setOpen(false)} static={true}>
       <DialogPanel
@@ -30,7 +33,7 @@ export default function MapFullScreenDialog({
       >
         <MapContainer
           center={[lat, lon]}
-          zoom={1}
+          zoom={5}
           scrollWheelZoom={false}
           doubleClickZoom={false}
           style={{ height: "88vh" }}
