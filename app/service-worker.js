@@ -53,11 +53,49 @@ workbox.routing.registerRoute(
 );
 
 workbox.routing.registerRoute(
-  ({ url }) =>
-    url.href.includes("hips-image-services") ||
-    url.href.startsWith("https://upload.wikimedia.org/") ||
-    url.href.includes("_icons") ||
-    url.href.includes("whl") ||
-    url.href.includes("tables"),
-  new workbox.strategies.CacheFirst()
+  ({ url }) => url.href.includes("hips-image-services"),
+  new workbox.strategies.CacheFirst(),
+  {
+    id: "hips-cache",
+  }
+);
+
+workbox.routing.registerRoute(
+  ({ url }) => url.href.includes("upload.wikimedia.org"),
+  new workbox.strategies.CacheFirst(),
+  {
+    id: "wiki-cache",
+  }
+);
+
+workbox.routing.registerRoute(
+  ({ url }) => url.href.includes("_icons"),
+  new workbox.strategies.CacheFirst(),
+  {
+    id: "icons-cache",
+  }
+);
+
+workbox.routing.registerRoute(
+  ({ url }) => url.href.includes("whl"),
+  new workbox.strategies.CacheFirst(),
+  {
+    id: "python-cache",
+  }
+);
+
+workbox.routing.registerRoute(
+  ({ url }) => url.href.includes("tables"),
+  new workbox.strategies.CacheFirst(),
+  {
+    id: "tables-cache",
+  }
+);
+
+workbox.routing.registerRoute(
+  ({ url }) => url.href.includes("lp/tiles"),
+  new workbox.strategies.CacheFirst(),
+  {
+    id: "lp-cache",
+  }
 );

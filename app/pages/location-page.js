@@ -179,7 +179,7 @@ export default function LocationPage() {
 
       <div style={{ height: "1px" }} className="w-full bg-gray-500"></div>
 
-      <TabGroup defaultIndex={1}>
+      <TabGroup defaultIndex={0}>
         <TabList
           className="flex w-full tabs-bottom justify-center"
           style={{ padding: 0, height: "3rem" }}

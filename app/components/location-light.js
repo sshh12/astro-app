@@ -39,7 +39,7 @@ async function fetchLPData(lat, lon, cacheStore) {
   if (tileY < 1 || tileY > 28) {
     return;
   }
-  const url = `https://djlorenz.github.io/astronomy/binary_tiles/2022/binary_tile_${tileX}_${tileY}.dat.gz`;
+  const url = `/lp/binary/binary_tile_${tileX}_${tileY}.dat.gz`;
   const ix = Math.round(
     120.0 * (lonFromDateLine - 5.0 * (tileX - 1) + 1.0 / 240.0)
   );

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Card } from "@tremor/react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useAPI } from "../api";
 
 export default function MapLightPollutionCard({ location }) {
   return (
@@ -29,7 +28,7 @@ export default function MapLightPollutionCard({ location }) {
             zoomOffset: -2,
             opacity: 0.5,
           }}
-          url="https://djlorenz.github.io/astronomy/lp2022/overlay/tiles/tile_{z}_{x}_{y}.png"
+          url="/lp/tiles/tile_{z}_{x}_{y}.png"
         />
         <Marker position={[location?.lat, location?.lon]}>
           <Popup keepInView={true}>{location?.name}</Popup>
