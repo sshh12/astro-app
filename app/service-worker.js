@@ -30,12 +30,6 @@ workbox.precaching.precacheAndRoute(
   })
 );
 
-console.log(
-  self.__WB_MANIFEST.filter((entry) => {
-    return !shouldExclude(entry.url);
-  })
-);
-
 // Set up App Shell-style routing, so that all navigation requests
 // are fulfilled with your index.html shell. Learn more at
 // https://developers.google.com/web/fundamentals/architecture/app-shell
