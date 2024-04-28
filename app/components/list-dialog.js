@@ -46,27 +46,30 @@ export default function ListDialog({ object, open, setOpen }) {
       <DialogPanel>
         <Title className="mb-3">Lists for {object.name}</Title>
         <List>
-          {existingLists.map((list) => (
-            <ListItem key={list.id}>
-              <span>{list.title}</span>
-              <span>
-                <Switch
-                  checked={
-                    !!objectLists.find((objList) => objList.id === list.id)
-                  }
-                  onChange={(checked) => {
-                    if (checked) {
-                      setObjectLists([...objectLists, list]);
-                    } else {
-                      setObjectLists(
-                        objectLists.filter((objList) => objList.id !== list.id)
-                      );
+          {user &&
+            existingLists.map((list) => (
+              <ListItem key={list.id}>
+                <span>{list.title}</span>
+                <span>
+                  <Switch
+                    checked={
+                      !!objectLists.find((objList) => objList.id === list.id)
                     }
-                  }}
-                />
-              </span>
-            </ListItem>
-          ))}
+                    onChange={(checked) => {
+                      if (checked) {
+                        setObjectLists([...objectLists, list]);
+                      } else {
+                        setObjectLists(
+                          objectLists.filter(
+                            (objList) => objList.id !== list.id
+                          )
+                        );
+                      }
+                    }}
+                  />
+                </span>
+              </ListItem>
+            ))}
           <ListItem>
             <span>
               <TextInput

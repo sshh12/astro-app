@@ -133,7 +133,7 @@ export default function ProfilePage() {
         />
         <LinkCard
           title="Acknowledgements"
-          subtitle="Thanks to HiPS2FITS for sky survey data, wikipedia for object descriptions, and astronomy.tools for equipment data."
+          subtitle="Thanks to HiPS2FITS for sky survey data, wikipedia for object descriptions, astronomy.tools for equipment data, and David Lorenz for light pollution tools."
           color="red"
           icon={HeartIcon}
           truncate={false}

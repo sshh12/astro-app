@@ -36,6 +36,14 @@ import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
 import { objectSize, formatTime, formatLocation } from "../utils";
+import dynamic from "next/dynamic";
+
+const MapFullScreenDialog = dynamic(
+  () => import("../components/map-fullscreen-dialog"),
+  {
+    ssr: false,
+  }
+);
 
 const USEFUL_PREFIXES = [
   "NAME ",
@@ -49,6 +57,7 @@ const USEFUL_PREFIXES = [
 ];
 
 function DetailsCard({ object, dataProps }) {
+  const [showMap, setShowMap] = useState(false);
   return (
     <Card>
       <Flex alignItems="start " className="mb-2">
@@ -84,9 +93,16 @@ function DetailsCard({ object, dataProps }) {
           </ListItem>
         )}
         {dataProps.result && (
-          <ListItem>
+          <ListItem onClick={() => setShowMap(true)}>
+            <MapFullScreenDialog
+              open={showMap}
+              setOpen={setShowMap}
+              lat={dataProps.result.lat}
+              lon={dataProps.result.lon}
+              popupTitle={`${object.name} is directly overhead`}
+            />
             <Text color="slate-400">LAT / LON</Text>
-            <Text color="slate-400">
+            <Text color="slate-400 underline decoration-dotted underline-offset-4">
               {formatLocation(
                 dataProps.result.lat,
                 dataProps.result.lon,
@@ -475,7 +491,7 @@ export default function SkyObjectPage() {
         lon: location.lon,
         elevation: location.elevation,
       },
-    { proactiveRequest: true }
+    { proactiveRequest: true, refreshInterval: 1000 * 60 }
   );
 
   const isOnList = user?.lists.find((list) =>

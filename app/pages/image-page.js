@@ -45,9 +45,6 @@ export default function ImagePage() {
 
       <Grid numItemsMd={2} numItemsLg={3} className="mt-3 gap-1 ml-2 mr-2">
         {equipment && <EquipmentCard equipment={equipment} />}
-        {/* {user.equipment.map((equipment) => (
-          <EquipmentCard key={equipment.id} equipment={equipment} />
-        ))} */}
       </Grid>
     </div>
   );

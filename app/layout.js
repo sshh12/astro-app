@@ -27,6 +27,9 @@ export default function RootLayout({ children }) {
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-JY9C3ZHSYL"
         ></script>
+         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossOrigin=""/>
       </head>
       <body className={inter.className}>{children}</body>
     </html>

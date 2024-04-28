@@ -93,7 +93,7 @@ export default function SearchPage() {
   const { result: publicLists } = usePostWithCache("get_public_lists");
 
   useEffect(() => {
-    if (publicLists && objectStore) {
+    if (publicLists && objectStore && listStore) {
       const objects = publicLists.lists.reduce((acc, list) => {
         return acc.concat(list.objects);
       }, []);
@@ -102,7 +102,7 @@ export default function SearchPage() {
         publicLists.lists.map((list) => listStore.setItem(list.id, list))
       );
     }
-  }, [publicLists, objectStore]);
+  }, [publicLists, objectStore, listStore]);
 
   useEffect(() => {
     if (matchingObjects && objectStore) {

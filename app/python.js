@@ -139,6 +139,7 @@ export function useControlledCallWithCache(
 ) {
   const { cacheStore } = useAPI();
   const proactiveRequest = opts.proactiveRequest || false;
+  const refreshInterval = opts.refreshInterval || 0;
   const { call, ready: pythonReady } = usePython();
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -173,7 +174,22 @@ export function useControlledCallWithCache(
       cacheStore
     ) {
       load();
+      if (refreshInterval > 0) {
+        const interval = setInterval(() => {
+          load();
+        }, refreshInterval);
+        return () => clearInterval(interval);
+      }
     }
-  }, [func, argsStr, key, load, proactiveRequest, pythonReady, cacheStore]);
+  }, [
+    func,
+    argsStr,
+    key,
+    load,
+    proactiveRequest,
+    pythonReady,
+    cacheStore,
+    refreshInterval,
+  ]);
   return { load, ready, loading, result };
 }
