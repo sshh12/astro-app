@@ -15,7 +15,7 @@ export default function Tabs() {
   const { page, setPage } = useNav();
   const emitEvent = useAnalytics();
   return (
-    <TabGroup className="tabs-bottom-group">
+    <TabGroup className="tabs-bottom-group" style={{ zIndex: 99999 }}>
       <TabList
         className="flex w-full tabs-bottom justify-center"
         variant="solid"

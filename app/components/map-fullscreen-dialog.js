@@ -13,20 +13,20 @@ export default function MapFullScreenDialog({
 }) {
   const mapRef = useRef();
   useEffect(() => {
-    if (open) {
-      const fixInterval = setInterval(() => {
-        if (mapRef.current) {
-          mapRef.current.invalidateSize();
-          if (lat && lon) {
-            mapRef.panTo([lat, lon]);
-          }
-          clearInterval(fixInterval);
-        }
-      }, 100);
-    }
-  }, [open, lat, lon]);
+    const fixInterval = setInterval(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 100);
+    return () => clearInterval(fixInterval);
+  }, [mapRef]);
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} static={true}>
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      static={true}
+      style={{ zIndex: 999999 }}
+    >
       <DialogPanel
         style={{ height: "calc(88vh+1rem)", width: "1000px !important" }}
         className="p-1"
