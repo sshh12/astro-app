@@ -106,3 +106,7 @@ body {
   max-height: 24rem;
   overflow-y: scroll;
 }
+
+.tremor-dialog-root {
+  z-index: 9999999;
+}
