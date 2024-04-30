@@ -446,7 +446,7 @@ export default function SkyObjectPage() {
 
   const { result: objOrbits, ready: objOrbitsReady } = useCallWithCache(
     object && user && "get_orbit_calculations",
-    object?.id + "_orbits",
+    location && object && `${location.id}_${object.id}_orbits`,
     object &&
       location && {
         objects: [object],
@@ -466,7 +466,7 @@ export default function SkyObjectPage() {
 
   const objLongTermProps = useControlledCallWithCache(
     "get_longterm_orbit_calculations",
-    pageParams.id && pageParams.id + "_longterm",
+    location && pageParams.id && `${location.id}_${pageParams.id}_longterm`,
     location &&
       object && {
         object: object,
@@ -482,7 +482,7 @@ export default function SkyObjectPage() {
 
   const objPosProps = useControlledCallWithCache(
     "get_current_orbit_calculations",
-    pageParams.id && pageParams.id + "_current",
+    location && pageParams.id && `${location.id}_${pageParams.id}_current`,
     location &&
       object && {
         object: object,
@@ -491,7 +491,7 @@ export default function SkyObjectPage() {
         lon: location.lon,
         elevation: location.elevation,
       },
-    { proactiveRequest: true, refreshInterval: 1000 * 60 }
+    { proactiveRequest: true, refreshInterval: 1000 * 30 }
   );
 
   const isOnList = user?.lists.find((list) =>

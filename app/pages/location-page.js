@@ -60,7 +60,7 @@ const useWeather = () => {
 
   const { result: weatherResult, ready: weatherReady } = useCallWithCache(
     "get_week_info_with_weather_data",
-    "weather",
+    location && `${location.id}_weather`,
     forecast &&
       location && {
         weather_data: forecast,

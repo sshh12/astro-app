@@ -42,7 +42,7 @@ export default function SkyPage() {
 
   const { result: favOrbits } = useCallWithCache(
     "get_orbit_calculations",
-    "fav_orbits",
+    location && `${location.id}_favorites_orbits`,
     favListObjects &&
       location && {
         objects: favListObjects,

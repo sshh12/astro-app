@@ -173,7 +173,7 @@ export default function LocationLightPollution() {
   }, [location, cacheStore]);
   return (
     <Grid numItemsMd={2} numItemsLg={3} className="mt-2 gap-1 ml-2 mr-2">
-      <Card className="cursor-pointer">
+      <Card>
         <Flex alignItems="start">
           <div className="truncate">
             <Text color="white">Sky Quality</Text>

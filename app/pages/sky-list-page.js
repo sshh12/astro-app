@@ -29,7 +29,7 @@ export default function SkyListPage() {
 
   const { ready: listOrbitsReady, result: listOrbits } = useCallWithCache(
     "get_orbit_calculations",
-    list && list.id + "_orbits",
+    location && list && `${location.id}_${list.id}_orbits`,
     location &&
       list && {
         objects: list.objects,
