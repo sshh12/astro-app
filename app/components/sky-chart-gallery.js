@@ -3,13 +3,20 @@ import ObjectImage from "./object-image";
 import { Grid } from "@tremor/react";
 
 export default function SkyChartGallery({ objects }) {
+  const numItems = objects.length;
+  const colCount = (maxRowItems) => {
+    if (numItems <= maxRowItems) {
+      return numItems;
+    }
+    return maxRowItems;
+  };
   return (
     <div style={{ height: "20rem" }} className="overflow-y-scroll">
       <Grid
-        numItems={3}
-        numItemsSm={3}
-        numItemsMd={6}
-        numItemsLg={10}
+        numItems={colCount(3)}
+        numItemsSm={colCount(3)}
+        numItemsMd={colCount(6)}
+        numItemsLg={colCount(10)}
         className="mt-2 gap-1"
       >
         {objects.map((obj) => (
