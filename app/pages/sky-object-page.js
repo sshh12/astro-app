@@ -34,6 +34,7 @@ import ListDialog from "../components/list-dialog";
 import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
+import SkyFullScreenDialog from "../components/sky-fullscreen-dialog";
 import { SKY_SURVEYS } from "./../sky-surveys";
 import { objectSize, formatTime, formatLocation } from "../utils";
 import dynamic from "next/dynamic";
@@ -58,6 +59,7 @@ const USEFUL_PREFIXES = [
 
 function DetailsCard({ object, dataProps }) {
   const [showMap, setShowMap] = useState(false);
+  const [showSky, setShowSky] = useState(false);
   return (
     <Card>
       <Flex alignItems="start " className="mb-2">
@@ -67,26 +69,33 @@ function DetailsCard({ object, dataProps }) {
       </Flex>
       <List>
         {object.ra && (
-          <ListItem>
+          <ListItem onClick={() => setShowSky(true)}>
             <Text color="slate-400">RA / DEC</Text>
-            <Text color="slate-400">
+            <Text color="slate-400 underline decoration-dotted underline-offset-4 cursor-pointer">
               {object.ra.toFixed(2)} / {object.dec.toFixed(2)}
             </Text>
           </ListItem>
         )}
         {dataProps.result && (
-          <ListItem>
+          <ListItem onClick={() => setShowSky(true)}>
+            <SkyFullScreenDialog
+              open={showSky}
+              object={object}
+              setOpen={setShowSky}
+              alt={dataProps.result.alt}
+              az={dataProps.result.az}
+            />
             <Text color="slate-400">ALT / AZ</Text>
-            <Text color="slate-400">
+            <Text color="slate-400 underline decoration-dotted underline-offset-4 cursor-pointer">
               {Math.round(dataProps.result.alt)}° /{" "}
               {Math.round(dataProps.result.az)}°
             </Text>
           </ListItem>
         )}
         {!object.ra && dataProps.result && (
-          <ListItem>
+          <ListItem onClick={() => setShowSky(true)}>
             <Text color="slate-400">RA / DEC</Text>
-            <Text color="slate-400">
+            <Text color="slate-400 underline decoration-dotted underline-offset-4 cursor-pointer">
               {dataProps.result.ra.toFixed(2)} /{" "}
               {dataProps.result.dec.toFixed(2)}
             </Text>
@@ -102,7 +111,7 @@ function DetailsCard({ object, dataProps }) {
               popupTitle={`${object.name} is directly overhead this location`}
             />
             <Text color="slate-400">LAT / LON</Text>
-            <Text color="slate-400 underline decoration-dotted underline-offset-4">
+            <Text color="slate-400 underline decoration-dotted underline-offset-4 cursor-pointer">
               {formatLocation(
                 dataProps.result.lat,
                 dataProps.result.lon,

@@ -22,10 +22,7 @@ export default function MapFullScreenDialog({
   }, [mapRef]);
   return (
     <Dialog open={open} onClose={() => setOpen(false)} static={true}>
-      <DialogPanel
-        style={{ height: "calc(88vh+1rem)", width: "1000px !important" }}
-        className="p-1"
-      >
+      <DialogPanel style={{ height: "calc(88vh+1rem)" }} className="p-1">
         <MapContainer
           center={[lat, lon]}
           zoom={5}
