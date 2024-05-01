@@ -110,7 +110,7 @@ export function useCallWithCache(func, cacheKey, args = {}) {
   const key = `python:${func}:${cacheKey}`;
   useEffect(() => {
     if (cacheStore && cacheKey && argsStr) {
-      cacheStore.getItem(key, argsStr).then((val) => {
+      cacheStore.getItem(key).then((val) => {
         val && setResult(val);
       });
     }

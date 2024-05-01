@@ -233,7 +233,7 @@ def get_longterm_orbit_calculations(
 
 @method_api()
 def get_current_orbit_calculations(
-    object: List,
+    object: Dict,
     timezone: str,
     lat: float,
     lon: float,

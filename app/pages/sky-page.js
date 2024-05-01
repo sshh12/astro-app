@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Grid, Title } from "@tremor/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
@@ -32,17 +32,25 @@ export default function SkyPage() {
   }, [user, listStore]);
 
   const { ts } = useTimestamp();
+  const timeFormatted = formatTime(ts, location?.timezone);
 
-  let favListObjects = [];
-  if (user) {
-    favListObjects = user.lists.find(
-      (list) => list.title === "Favorites"
-    ).objects;
-  }
+  const favListObjects = useMemo(() => {
+    if (user) {
+      return user.lists.find((list) => list.title === "Favorites").objects;
+    }
+    return [];
+  }, [user]);
+
+  const lists = useMemo(() => {
+    if (user) {
+      return user.lists.filter((list) => list.title !== "Favorites");
+    }
+    return [];
+  }, [user]);
 
   const { result: favOrbits } = useCallWithCache(
     "get_orbit_calculations",
-    location && `${location.id}_favorites_orbits`,
+    favListObjects && location && `${location.id}_favorites_orbits`,
     favListObjects &&
       location && {
         objects: favListObjects,
@@ -53,13 +61,6 @@ export default function SkyPage() {
         resolution_mins: 10,
       }
   );
-
-  let lists = [];
-  if (user) {
-    lists = user.lists.filter((list) => list.title !== "Favorites");
-  }
-
-  const timeFormatted = formatTime(ts, location?.timezone);
 
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
