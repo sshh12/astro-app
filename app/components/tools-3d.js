@@ -375,10 +375,10 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
         !event.absolute
       )
         return;
-      const alpha = THREE.MathUtils.degToRad(event.alpha);
-      const beta = THREE.MathUtils.degToRad(event.beta);
-      const gamma = THREE.MathUtils.degToRad(event.gamma);
-      camera.rotation.set(beta, gamma, alpha);
+      // const alpha = THREE.MathUtils.degToRad(event.alpha);
+      // const beta = THREE.MathUtils.degToRad(event.beta);
+      // const gamma = THREE.MathUtils.degToRad(event.gamma);
+      // camera.rotation.set(beta, gamma, alpha);
     };
 
     window.addEventListener(
