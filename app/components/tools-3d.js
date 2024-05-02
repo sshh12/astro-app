@@ -50,7 +50,7 @@ const TextMark = ({ text, position, fontSize = 100 }) => {
         attach="material"
         map={canvasTexture}
         transparent={true}
-        opacity={0.9}
+        opacity={1.0}
       />
     </mesh>
   );
@@ -280,19 +280,18 @@ export const ObjectPath = ({ object, times }) => {
 
 export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
   const { camera, gl } = useThree();
+  const draggingRef = useRef(false);
+  const prevTapRef = useRef({ x: 0, y: 0 });
+  const lookRef = useRef({ alt: startAlt, az: startAz });
 
   useEffect(() => {
-    window.dragging = false;
-    window.alt = startAlt;
-    window.az = startAz;
-
-    const vector = altAzToCartesian(window.alt, window.az, RADIUS);
+    const vector = altAzToCartesian(lookRef.current.alt, lookRef.current.az);
     camera.lookAt(vector);
 
     const onMouseDown = (event) => {
       event.preventDefault();
-      window.dragging = true;
-      window.prev = !event.touches
+      draggingRef.current = true;
+      prevTapRef.current = !event.touches
         ? {
             x: event.clientX,
             y: event.clientY,
@@ -304,28 +303,31 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
     };
 
     const onMouseMove = (event) => {
-      if (window.dragging) {
+      if (draggingRef.current) {
         event.preventDefault();
         const deltaMove = !event.touches
           ? {
-              x: event.clientX - window.prev.x,
-              y: event.clientY - window.prev.y,
+              x: event.clientX - prevTapRef.current.x,
+              y: event.clientY - prevTapRef.current.y,
             }
           : {
-              x: event.touches[0].clientX - window.prev.x,
-              y: event.touches[0].clientY - window.prev.y,
+              x: event.touches[0].clientX - prevTapRef.current.x,
+              y: event.touches[0].clientY - prevTapRef.current.y,
             };
 
-        window.alt = Math.min(
-          Math.max(window.alt + deltaMove.y * 0.5, -89),
+        lookRef.current.alt = Math.min(
+          Math.max(lookRef.current.alt + deltaMove.y * 0.5, -89),
           89
         );
-        window.az -= deltaMove.x * 0.5;
+        lookRef.current.az -= deltaMove.x * 0.5;
 
-        const vector = altAzToCartesian(window.alt, window.az, 2);
+        const vector = altAzToCartesian(
+          lookRef.current.alt,
+          lookRef.current.az
+        );
         camera.lookAt(vector);
 
-        window.prev = !event.touches
+        prevTapRef.current = !event.touches
           ? {
               x: event.clientX,
               y: event.clientY,
@@ -338,7 +340,7 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
     };
 
     const onMouseUp = () => {
-      window.dragging = false;
+      draggingRef.current = false;
     };
 
     gl.domElement.addEventListener("mousedown", onMouseDown);
@@ -348,6 +350,16 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
     gl.domElement.addEventListener("touchmove", onMouseMove);
     gl.domElement.addEventListener("touchend", onMouseUp);
 
+    const onDeviceOrientation = (event) => {
+      console.log("onDeviceOrientation", event.alpha, event.beta, event.gamma);
+      const alpha = THREE.MathUtils.degToRad(event.alpha);
+      const beta = THREE.MathUtils.degToRad(event.beta - 90);
+      const gamma = THREE.MathUtils.degToRad(event.gamma);
+      camera.rotation.set(beta, alpha, gamma);
+    };
+
+    window.addEventListener("deviceorientation", onDeviceOrientation);
+
     return () => {
       gl.domElement.removeEventListener("mousedown", onMouseDown);
       gl.domElement.removeEventListener("mousemove", onMouseMove);
@@ -355,8 +367,9 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
       gl.domElement.removeEventListener("touchstart", onMouseDown);
       gl.domElement.removeEventListener("touchmove", onMouseMove);
       gl.domElement.removeEventListener("touchend", onMouseUp);
+      window.removeEventListener("deviceorientation", onDeviceOrientation);
     };
-  }, [gl.domElement, camera, startAlt, startAz]);
+  }, [gl.domElement, camera, lookRef, draggingRef, prevTapRef]);
 
   return null;
 };
