@@ -42,6 +42,7 @@ export default function SkyChartPanel({
           </Tab>
           <Tab
             style={{ height: "3rem" }}
+            disabled={objects.length === 0}
             onClick={() =>
               setPage("/sky/orbits", {
                 orbitObjectIds: objects.map((o) => o.object.id),

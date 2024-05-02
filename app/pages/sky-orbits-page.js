@@ -77,7 +77,7 @@ export default function SkyOrbitsPage() {
         setOrbitObjects(objects.filter((o) => !!o));
       });
     }
-  }, [pageParams, objectStore]);
+  }, [pageParams.orbitObjectIds, objectStore]);
 
   const { ready: orbitsReady, result: orbits } = useCallWithCache(
     "get_orbit_calculations",
@@ -106,7 +106,8 @@ export default function SkyOrbitsPage() {
           <SphereGrid />
           <CameraControls startAlt={20} startAz={0} />
           {orbits &&
-            Object.values(orbits.objects).length === orbitObjects.length &&
+            orbitObjects.filter((o) => !(o.id in orbits.objects)).length ===
+              0 &&
             orbitObjects.map((obj) => (
               <ObjectPath
                 key={obj.name}
