@@ -11,10 +11,13 @@ import SkyListPage from "./pages/sky-list-page";
 import LocationPage from "./pages/location-page";
 import IntroDialog from "./components/intro-dialog";
 import ImagePage from "./pages/image-page";
+import SkyOrbitsPage from "./pages/sky-orbits-page";
 
 import { NavContext, useNavControl, useNav } from "./nav";
 import { APIContext, useAPIControl } from "./api";
 import { PythonContext, usePythonSetup } from "./python";
+
+const fullScreenPaths = ["/sky/orbits"];
 
 export function App() {
   const { page, pageTransition } = useNav();
@@ -32,11 +35,12 @@ export function App() {
               {page === "/sky/search" && <SearchPage />}
               {page === "/sky/object" && <SkyObjectPage />}
               {page === "/sky/list" && <SkyListPage />}
+              {page === "/sky/orbits" && <SkyOrbitsPage />}
             </>
           </CSSTransition>
         </TransitionGroup>
       </div>
-      <Tabs />
+      {!fullScreenPaths.includes(page) && <Tabs />}
     </main>
   );
 }

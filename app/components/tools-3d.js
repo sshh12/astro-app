@@ -32,7 +32,7 @@ const TextMark = ({ text, position, fontSize = 100 }) => {
     context.fillText(text, canvas.width / 2, canvas.height / 2);
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
-  }, [text]);
+  }, [text, fontSize]);
 
   const meshRef = useRef();
 
@@ -177,6 +177,8 @@ export const SphereGrid = () => {
     return marks;
   }, []);
 
+  const origin = new THREE.Vector3(0, 0, 0);
+
   return (
     <>
       {altLines}
@@ -189,6 +191,14 @@ export const SphereGrid = () => {
           fontSize={mark.fontSize}
         />
       ))}
+      <mesh position={origin}>
+        <sphereGeometry attach="geometry" args={[RADIUS * 2, 32, 32]} />
+        <meshBasicMaterial
+          attach="material"
+          color={"#242d2e"}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
     </>
   );
 };
@@ -351,11 +361,17 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
     gl.domElement.addEventListener("touchend", onMouseUp);
 
     const onDeviceOrientation = (event) => {
-      console.log("onDeviceOrientation", event.alpha, event.beta, event.gamma);
-      const alpha = THREE.MathUtils.degToRad(event.alpha);
-      const beta = THREE.MathUtils.degToRad(event.beta - 90);
-      const gamma = THREE.MathUtils.degToRad(event.gamma);
-      camera.rotation.set(beta, alpha, gamma);
+      console.log(
+        "onDeviceOrientation",
+        event.alpha,
+        event.beta,
+        event.gamma,
+        event.absolute
+      );
+      // const alpha = THREE.MathUtils.degToRad(event.alpha);
+      // const beta = THREE.MathUtils.degToRad(event.beta);
+      // const gamma = THREE.MathUtils.degToRad(event.gamma);
+      // camera.rotation.set(beta, alpha, gamma);
     };
 
     window.addEventListener("deviceorientation", onDeviceOrientation);

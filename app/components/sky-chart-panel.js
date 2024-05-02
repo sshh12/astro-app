@@ -1,7 +1,7 @@
 import { TabGroup, TabPanels, TabPanel, TabList, Tab } from "@tremor/react";
-import SkyChart3D from "./sky-chart-3d";
 import SkyChart from "./sky-chart";
 import SkyChartGallery from "./sky-chart-gallery";
+import { useNav } from "../nav";
 
 export default function SkyChartPanel({
   times,
@@ -9,6 +9,7 @@ export default function SkyChartPanel({
   timezone,
   objects,
 }) {
+  const { setPage } = useNav();
   return (
     <div>
       <TabGroup>
@@ -22,25 +23,15 @@ export default function SkyChartPanel({
             />
           </TabPanel>
           <TabPanel>
-            <SkyChart3D
-              times={times}
-              timeStates={timeStates}
-              timezone={timezone}
-              objects={objects}
-            />
-          </TabPanel>
-          <TabPanel>
             <SkyChartGallery objects={objects} />
           </TabPanel>
+          <TabPanel></TabPanel>
         </TabPanels>
         <TabList
           className="flex w-full tabs-bottom justify-center"
           style={{ padding: 0, height: "3rem" }}
         >
-          <Tab style={{ height: "3rem" }}>
-            Altitude
-          </Tab>
-          <Tab style={{ height: "3rem" }}>Orbits</Tab>
+          <Tab style={{ height: "3rem" }}>Altitude</Tab>
           <Tab
             style={{
               height: "3rem",
@@ -48,6 +39,16 @@ export default function SkyChartPanel({
             }}
           >
             Gallery
+          </Tab>
+          <Tab
+            style={{ height: "3rem" }}
+            onClick={() =>
+              setPage("/sky/orbits", {
+                orbitObjectIds: objects.map((o) => o.object.id),
+              })
+            }
+          >
+            Orbits
           </Tab>
         </TabList>
       </TabGroup>
