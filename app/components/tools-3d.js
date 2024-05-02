@@ -374,7 +374,11 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
       // camera.rotation.set(beta, alpha, gamma);
     };
 
-    window.addEventListener("deviceorientation", onDeviceOrientation);
+    window.addEventListener(
+      "deviceorientationabsolute",
+      onDeviceOrientation,
+      true
+    );
 
     return () => {
       gl.domElement.removeEventListener("mousedown", onMouseDown);
@@ -383,7 +387,10 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
       gl.domElement.removeEventListener("touchstart", onMouseDown);
       gl.domElement.removeEventListener("touchmove", onMouseMove);
       gl.domElement.removeEventListener("touchend", onMouseUp);
-      window.removeEventListener("deviceorientation", onDeviceOrientation);
+      window.removeEventListener(
+        "deviceorientationabsolute",
+        onDeviceOrientation
+      );
     };
   }, [gl.domElement, camera, lookRef, draggingRef, prevTapRef]);
 
