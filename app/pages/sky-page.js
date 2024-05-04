@@ -48,9 +48,11 @@ export default function SkyPage() {
     return [];
   }, [user]);
 
-  const { result: favOrbits } = useCallWithCache(
+  const { result: favOrbits, ready: favOrbitsReady } = useCallWithCache(
     "get_orbit_calculations",
-    favListObjects && location && `${location.id}_${objectsToKey(favListObjects)}`,
+    favListObjects &&
+      location &&
+      `${location.id}_${objectsToKey(favListObjects)}`,
     favListObjects &&
       location && {
         objects: favListObjects,
@@ -72,6 +74,7 @@ export default function SkyPage() {
           { icon: MagnifyingGlassIcon, onClick: () => setPage("/sky/search") },
         ]}
         loading={!ready}
+        computing={favOrbits && favOrbitsReady}
       />
 
       <div className="pb-5 mt-6">

@@ -333,6 +333,7 @@ export const ObjectPath = ({
 
   useFrame(() => {
     if (!tracerMesh.current) return;
+    const ts = +Date.now();
     const tsOffset = ts + tracerOffset.current;
     const inbounds =
       tsOffset >= times[0] && tsOffset <= times[times.length - 1];
@@ -348,9 +349,9 @@ export const ObjectPath = ({
     tracerMesh.current.position.z = posTracer.z;
     tracerOffset.current += 1000 * 60;
     if (tracerOffset.current > TRACER_OFFSET) {
-      tracerOffset.current = -TRACER_OFFSET;
+      tracerOffset.current = 0;
     }
-    tracerMesh.current.visible = altTracer > 0;
+    tracerMesh.current.visible = true;
   });
 
   const points = [];
@@ -381,7 +382,7 @@ export const ObjectPath = ({
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
       <mesh ref={tracerMesh}>
-        <sphereGeometry attach="geometry" args={[0.01, 32, 32]} />
+        <sphereGeometry attach="geometry" args={[0.005, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
     </>
