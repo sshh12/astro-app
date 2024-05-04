@@ -128,7 +128,8 @@ export function objectSize(object) {
 }
 
 export function objectsToKey(objects) {
-  return objects.map((x) => x.id).join(",");
+  const objectsSorted = objects.sort((a, b) => a.id - b.id);
+  return objectsSorted.map((x) => x.id).join(",");
 }
 
 export function equipmentToDimensions(equipment) {
