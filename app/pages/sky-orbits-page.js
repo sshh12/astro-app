@@ -122,7 +122,7 @@ export default function SkyOrbitsPage() {
                 }}
                 times={orbits.time}
                 timezone={location.timezone}
-                showTimeCheckpoints={orbitObjects.length <= 10}
+                showHourCheckpoints={orbitObjects.length <= 10}
               />
             ))}
         </Canvas>

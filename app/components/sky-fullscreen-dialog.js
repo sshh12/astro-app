@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Flex, Dialog, DialogPanel, Button } from "@tremor/react";
 import {
@@ -8,26 +8,48 @@ import {
   SphereGrid,
   CameraControls,
   ObjectPoint,
+  LongTermPath,
 } from "./tools-3d";
 
 export default function SkyFullScreenDialog({
   object,
   open,
   setOpen,
-  alt,
-  az,
+  curPos,
+  longTermDays,
+  timezone,
 }) {
+  const [showCanvas, setShowCanvas] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        setShowCanvas(true);
+      }, 100);
+    } else {
+      setShowCanvas(false);
+    }
+  }, [open]);
   return (
     <Dialog open={open} onClose={() => setOpen(false)} static={true}>
-      <DialogPanel style={{ height: "88vh" }} className="p-1">
-        <Canvas>
-          <CameraSetter />
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
-          <SphereGrid />
-          <CameraControls startAlt={alt} startAz={az} />
-          <ObjectPoint alt={alt} az={az} object={object} />
-        </Canvas>
+      <DialogPanel className="p-1">
+        <div style={{ height: "88vh" }}>
+          {showCanvas && (
+            <Canvas>
+              <CameraSetter />
+              <SphereGrid />
+              <CameraControls
+                startAlt={curPos?.alt || 30}
+                startAz={curPos?.az || 0}
+              />
+              {curPos && (
+                <ObjectPoint alt={curPos.alt} az={curPos.az} object={object} />
+              )}
+              {longTermDays && (
+                <LongTermPath longTermDays={longTermDays} timezone={timezone} />
+              )}
+            </Canvas>
+          )}
+        </div>
         <Flex className="mt-3 justify-center p-3">
           <Button variant="light" onClick={() => setOpen(false)} color="slate">
             Close

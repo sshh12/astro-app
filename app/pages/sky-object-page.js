@@ -7,6 +7,7 @@ import {
   ListBulletIcon,
   ShareIcon,
   ArrowPathIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/solid";
 import {
   Card,
@@ -57,14 +58,14 @@ const USEFUL_PREFIXES = [
   "DESIGNATION ",
 ];
 
-function DetailsCard({ object, dataProps }) {
+function CurrentCard({ object, dataProps, timezone }) {
   const [showMap, setShowMap] = useState(false);
   const [showSky, setShowSky] = useState(false);
   return (
     <Card>
       <Flex alignItems="start " className="mb-2">
         <div className="truncate">
-          <Text color="white">Details</Text>
+          <Text color="white">Live Details</Text>
         </div>
       </Flex>
       <List>
@@ -82,8 +83,8 @@ function DetailsCard({ object, dataProps }) {
               open={showSky}
               object={object}
               setOpen={setShowSky}
-              alt={dataProps.result.alt}
-              az={dataProps.result.az}
+              curPos={{ alt: dataProps.result.alt, az: dataProps.result.az }}
+              timezone={timezone}
             />
             <Text color="slate-400">ALT / AZ</Text>
             <Text color="slate-400 underline decoration-dotted underline-offset-4 cursor-pointer">
@@ -265,16 +266,24 @@ function SurveyCard({ object }) {
   );
 }
 
-function AltitudeCard({ dataProps, timezone }) {
+function LongTermCard({ object, dataProps, timezone }) {
+  const [showDialog, setShowDialog] = useState(false);
   const result =
     dataProps.result && Object.values(dataProps.result).filter((x) => !!x);
   return (
     <Card>
       <Flex alignItems="start" className="mb-2">
         <div className="truncate">
-          <Text color="white">Annual Min/Max Altitude</Text>
+          <Text color="white">Annual Position</Text>
         </div>
       </Flex>
+      <SkyFullScreenDialog
+        object={object}
+        open={showDialog}
+        setOpen={setShowDialog}
+        longTermDays={result}
+        timezone={timezone}
+      />
       {result && timezone && (
         <SkyAltChart
           timezone={timezone}
@@ -301,8 +310,17 @@ function AltitudeCard({ dataProps, timezone }) {
           ]}
         />
       )}
-      {!dataProps.loading && result && (
-        <Flex className="justify-end mt-3">
+      <Flex className="justify-around mt-3">
+        {!dataProps.loading && result && (
+          <Button
+            icon={SparklesIcon}
+            variant="secondary"
+            onClick={() => setShowDialog(true)}
+          >
+            View 3D
+          </Button>
+        )}
+        {!dataProps.loading && result && (
           <Button
             icon={ArrowPathIcon}
             variant="primary"
@@ -310,10 +328,8 @@ function AltitudeCard({ dataProps, timezone }) {
           >
             Refresh
           </Button>
-        </Flex>
-      )}
-      {dataProps.loading && result && (
-        <Flex className="justify-end mt-3">
+        )}
+        {dataProps.loading && result && (
           <Button
             icon={ArrowPathIcon}
             variant="primary"
@@ -322,10 +338,8 @@ function AltitudeCard({ dataProps, timezone }) {
           >
             Computing... {Math.floor((result.length / 365) * 100)}%
           </Button>
-        </Flex>
-      )}
-      {!dataProps.loading && !result && (
-        <Flex className="justify-around mt-3">
+        )}
+        {!dataProps.loading && !result && (
           <Button
             icon={ArrowPathIcon}
             variant="secondary"
@@ -333,8 +347,8 @@ function AltitudeCard({ dataProps, timezone }) {
           >
             Load
           </Button>
-        </Flex>
-      )}
+        )}
+      </Flex>
     </Card>
   );
 }
@@ -500,7 +514,7 @@ export default function SkyObjectPage() {
         lon: location.lon,
         elevation: location.elevation,
       },
-    { proactiveRequest: true, refreshInterval: 1000 * 30 }
+    { proactiveRequest: true, refreshInterval: 1000 * 10 }
   );
 
   const isOnList = user?.lists.find((list) =>
@@ -577,13 +591,14 @@ export default function SkyObjectPage() {
         {object && object.description && <OverviewCard object={object} />}
         {object && object.ra && <SurveyCard object={object} />}
         {object && location && object.type != "EARTH_SATELLITE" && (
-          <AltitudeCard
+          <LongTermCard
+            object={object}
             dataProps={objLongTermProps}
             timezone={location.timezone}
           />
         )}
-        {object && objPosProps && (
-          <DetailsCard object={object} dataProps={objPosProps} />
+        {object && location && objPosProps && (
+          <CurrentCard object={object} dataProps={objPosProps} timezone={location.timezone} />
         )}
         {object && <NameCard object={object} />}
       </Grid>

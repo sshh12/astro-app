@@ -69,6 +69,13 @@ export function formatTime(ts, timezone, trimSeconds = false) {
   return timeString;
 }
 
+export function formatDate(ts, timezone) {
+  let timeString = new Date(ts).toLocaleDateString("en-US", {
+    timeZone: timezone || "UTC",
+  });
+  return timeString;
+}
+
 export function objectAKA(object) {
   const NGC = object.names.find((x) => x.startsWith("NGC "));
   const M = object.names.find((x) => x.startsWith("M "));

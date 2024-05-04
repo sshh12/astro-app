@@ -3,7 +3,12 @@ import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { COLORS } from "../colors";
-import { useTimestamp, getInterpolatedValue, formatTime } from "../utils";
+import {
+  useTimestamp,
+  getInterpolatedValue,
+  formatTime,
+  formatDate,
+} from "../utils";
 
 const RADIUS = 2;
 const TRACER_OFFSET = 1000 * 60 * 60 * 2;
@@ -279,7 +284,7 @@ export const ObjectPoint = ({ object, az, alt }) => {
   );
 };
 
-export const TimeCheckpoints = ({ object, times, timezone }) => {
+export const HourCheckpoints = ({ object, times, timezone }) => {
   const checkpointElements = useMemo(() => {
     const wholeHours = [
       ...new Set(
@@ -316,7 +321,7 @@ export const ObjectPath = ({
   object,
   times,
   timezone,
-  showTimeCheckpoints,
+  showHourCheckpoints,
 }) => {
   const { ts } = useTimestamp();
   const tracerMesh = useRef();
@@ -348,7 +353,7 @@ export const ObjectPath = ({
     tracerMesh.current.visible = altTracer > 0;
   });
 
-  let points = [];
+  const points = [];
   for (let i in object.az) {
     points.push(altAzToCartesian(object.alt[i], object.az[i]));
   }
@@ -363,8 +368,8 @@ export const ObjectPath = ({
   const color = COLORS[object.color.toLowerCase()];
   return (
     <>
-      {showTimeCheckpoints && (
-        <TimeCheckpoints object={object} times={times} timezone={timezone} />
+      {showHourCheckpoints && (
+        <HourCheckpoints object={object} times={times} timezone={timezone} />
       )}
       <line>
         <lineBasicMaterial attach="material" color={color} />
@@ -379,6 +384,45 @@ export const ObjectPath = ({
         <sphereGeometry attach="geometry" args={[0.01, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
+    </>
+  );
+};
+
+export const MonthlyCheckpoints = ({ days, timezone }) => {
+  const checkpointElements = useMemo(() => {
+    const dayCheckpoints = days.filter((day) => {
+      const dateFormatted = formatDate(day.start, timezone);
+      const regex = /(\d{1,2})\/(1|15)\/\d{4}/;
+      return regex.test(dateFormatted);
+    });
+    return dayCheckpoints.map((day) => {
+      const curPos = altAzToCartesian(day.max_alt, day.az_at_max_alt);
+      return (
+        <TextTimeLabel
+          key={`checkpoint-${day.start}`}
+          text={formatDate(day.start, timezone)}
+          position={curPos}
+          color={"#eeeeee"}
+        />
+      );
+    });
+  }, [days]);
+  return <>{checkpointElements}</>;
+};
+
+export const LongTermPath = ({ longTermDays, timezone }) => {
+  const maxAltPoints = [];
+  for (let day of longTermDays) {
+    maxAltPoints.push(altAzToCartesian(day.max_alt, day.az_at_max_alt));
+  }
+  const maxAltLine = new THREE.BufferGeometry().setFromPoints(maxAltPoints);
+  return (
+    <>
+      <MonthlyCheckpoints days={longTermDays} timezone={timezone} />
+      <line>
+        <lineBasicMaterial attach="material" color={"#3b82f6"} />
+        <primitive attach="geometry" object={maxAltLine} />
+      </line>
     </>
   );
 };
