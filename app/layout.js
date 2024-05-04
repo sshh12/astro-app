@@ -21,15 +21,22 @@ export default function RootLayout({ children }) {
         />
         <meta name="theme-color" content="#1e293b" />
         <meta name="description" content={metadata.description} />
+        <meta
+          http-equiv="ScreenOrientation"
+          content="autoRotate:disabled"
+        ></meta>
         <link rel="apple-touch-icon" href="/logo192.png" />
         <link rel="manifest" href="/manifest.json" />
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-JY9C3ZHSYL"
         ></script>
-         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossOrigin=""/>
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin=""
+        />
       </head>
       <body className={inter.className}>{children}</body>
     </html>

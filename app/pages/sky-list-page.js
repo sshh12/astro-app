@@ -17,7 +17,7 @@ import { useAPI, useList, useAnalytics } from "../api";
 import LinkCard from "../components/link-card";
 import ObjectsList from "../components/objects-list";
 import { useCallWithCache } from "../python";
-import {objectsToKey} from "../utils"
+import { objectsToKey } from "../utils";
 
 export default function SkyListPage() {
   const { pageParams, setPage, goBack } = useNav();

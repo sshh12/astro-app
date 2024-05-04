@@ -82,9 +82,11 @@ export default function SkyOrbitsPage() {
 
   const { ready: orbitsReady, result: orbits } = useCallWithCache(
     "get_orbit_calculations",
-    location && orbitObjects && `${location.id}_${objectsToKey(orbitObjects)}`,
     location &&
-      orbitObjects && {
+      orbitObjects.length > 0 &&
+      `${location.id}_${objectsToKey(orbitObjects)}`,
+    location &&
+    orbitObjects.length > 0 && {
         objects: orbitObjects,
         timezone: location.timezone,
         lat: location.lat,

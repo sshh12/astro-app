@@ -50,10 +50,10 @@ export default function SkyPage() {
 
   const { result: favOrbits, ready: favOrbitsReady } = useCallWithCache(
     "get_orbit_calculations",
-    favListObjects &&
+    favListObjects.length > 0 &&
       location &&
       `${location.id}_${objectsToKey(favListObjects)}`,
-    favListObjects &&
+    favListObjects.length &&
       location && {
         objects: favListObjects,
         timezone: location.timezone,
