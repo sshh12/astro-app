@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   PlusIcon,
   ArrowUturnLeftIcon,
@@ -24,6 +24,7 @@ import {
   TableHeaderCell,
   TableRow,
   Badge,
+  Switch,
 } from "@tremor/react";
 import { useCallWithCache } from "../python";
 import { useNav } from "../nav";
@@ -354,15 +355,22 @@ function LongTermCard({ object, dataProps, timezone }) {
 }
 
 function SatellitePassesCard({ dataProps, timezone }) {
+  const [visibleOnly, setVisibleOnly] = useState(true);
   const result =
     dataProps.result && Object.values(dataProps.result).filter((x) => !!x);
-  const passes = [];
-  if (result) {
-    for (let dayDetail of result) {
-      if (!dayDetail?.satellite_passes) continue;
-      passes.push(...dayDetail.satellite_passes);
+  const passes = useMemo(() => {
+    const passes = [];
+    if (result) {
+      for (let dayDetail of result) {
+        if (!dayDetail?.satellite_passes) continue;
+        for (let pass of dayDetail.satellite_passes) {
+          if (visibleOnly && !pass.sunlit) continue;
+          passes.push(pass);
+        }
+      }
     }
-  }
+    return passes;
+  }, [result, visibleOnly]);
   return (
     <Card>
       <Flex alignItems="start" className="mb-2">
@@ -370,70 +378,29 @@ function SatellitePassesCard({ dataProps, timezone }) {
           <Text color="white">Satellite Passes</Text>
         </div>
       </Flex>
-      {dataProps.loading && <Text>Calculating (up to 5m)...</Text>}
-      <Table className="mt-5">
-        <TableHead>
-          <TableRow>
-            <TableHeaderCell>Date</TableHeaderCell>
-            <TableHeaderCell>Rise</TableHeaderCell>
-            <TableHeaderCell>Peak</TableHeaderCell>
-            <TableHeaderCell>Set</TableHeaderCell>
-            <TableHeaderCell>Type</TableHeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody className="text-slate-400">
-          {passes.map((pass) => (
-            <TableRow key={pass.ts_start}>
-              <TableCell>
-                {new Date(pass.ts_start).toLocaleDateString("en-US", {
-                  timeZone: timezone,
-                })}
-                <br />
-                <Text>&nbsp;</Text>
-              </TableCell>
-              <TableCell>
-                {new Date(pass.ts_start).toLocaleTimeString("en-US", {
-                  timeZone: timezone,
-                })}
-                <br />
-                <Text>
-                  ALT {Math.round(pass.alt_start)}° / AZ{" "}
-                  {Math.round(pass.az_start)}°
-                </Text>
-              </TableCell>
-              <TableCell>
-                {new Date(pass.ts_culminate).toLocaleTimeString("en-US", {
-                  timeZone: timezone,
-                })}
-                <br />
-                <Text>
-                  ALT {Math.round(pass.alt_culminate)}° / AZ{" "}
-                  {Math.round(pass.az_culminate)}°
-                </Text>
-              </TableCell>
-              <TableCell>
-                {new Date(pass.ts_end).toLocaleTimeString("en-US", {
-                  timeZone: timezone,
-                })}
-                <br />
-                <Text>
-                  ALT {Math.round(pass.alt_culminate)}° / AZ{" "}
-                  {Math.round(pass.az_culminate)}°
-                </Text>
-              </TableCell>
-              <TableCell>
-                {pass.sunlit ? (
-                  <Badge color="yellow">Visable</Badge>
-                ) : (
-                  <Badge color="gray">Shadow</Badge>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {!dataProps.loading && dataProps.ready && (
-        <Flex className="justify-end mt-3">
+      <Flex className="justify-around mt-3">
+        <div className="flex items-center space-x-3">
+          <Switch
+            id="switch"
+            name="switch"
+            checked={visibleOnly}
+            onChange={() => setVisibleOnly((vo) => !vo)}
+          />
+          <label htmlFor="switch" className="text-slate-400">
+            Visible Passes Only
+          </label>
+        </div>
+        {dataProps.loading && (
+          <Button
+            icon={ArrowPathIcon}
+            variant="primary"
+            color="gray"
+            disabled={true}
+          >
+            Computing...
+          </Button>
+        )}
+        {!dataProps.loading && result && (
           <Button
             icon={ArrowPathIcon}
             variant="primary"
@@ -441,10 +408,8 @@ function SatellitePassesCard({ dataProps, timezone }) {
           >
             Refresh
           </Button>
-        </Flex>
-      )}
-      {!dataProps.loading && !dataProps.ready && (
-        <Flex className="justify-around mt-3">
+        )}
+        {!dataProps.loading && !result && (
           <Button
             icon={ArrowPathIcon}
             variant="secondary"
@@ -452,8 +417,76 @@ function SatellitePassesCard({ dataProps, timezone }) {
           >
             Load
           </Button>
-        </Flex>
-      )}
+        )}
+      </Flex>
+      <Table className="mt-5">
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>Date</TableHeaderCell>
+            <TableHeaderCell>Duration</TableHeaderCell>
+            <TableHeaderCell>Rise</TableHeaderCell>
+            <TableHeaderCell>Peak</TableHeaderCell>
+            <TableHeaderCell>Set</TableHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody className="text-slate-400">
+          {passes.map((pass) => {
+            const durationMins = (
+              (pass.ts_end - pass.ts_start) /
+              1000 /
+              60
+            ).toFixed(1);
+            return (
+              <TableRow key={pass.ts_start}>
+                <TableCell>
+                  <Text className="text-slate-400">
+                    {new Date(pass.ts_start).toLocaleDateString("en-US", {
+                      timeZone: timezone,
+                    })}
+                  </Text>
+                  <br />
+                  {pass.sunlit ? (
+                    <Badge color="yellow">Visible</Badge>
+                  ) : (
+                    <Badge color="gray">Shadow</Badge>
+                  )}
+                </TableCell>
+                <TableCell>{durationMins} mins</TableCell>
+                <TableCell>
+                  {new Date(pass.ts_start).toLocaleTimeString("en-US", {
+                    timeZone: timezone,
+                  })}
+                  <br />
+                  <Text>
+                    ALT {Math.round(pass.alt_start)}° / AZ{" "}
+                    {Math.round(pass.az_start)}°
+                  </Text>
+                </TableCell>
+                <TableCell>
+                  {new Date(pass.ts_culminate).toLocaleTimeString("en-US", {
+                    timeZone: timezone,
+                  })}
+                  <br />
+                  <Text>
+                    ALT {Math.round(pass.alt_culminate)}° / AZ{" "}
+                    {Math.round(pass.az_culminate)}°
+                  </Text>
+                </TableCell>
+                <TableCell>
+                  {new Date(pass.ts_end).toLocaleTimeString("en-US", {
+                    timeZone: timezone,
+                  })}
+                  <br />
+                  <Text>
+                    ALT {Math.round(pass.alt_culminate)}° / AZ{" "}
+                    {Math.round(pass.az_culminate)}°
+                  </Text>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </Card>
   );
 }
@@ -598,7 +631,11 @@ export default function SkyObjectPage() {
           />
         )}
         {object && location && objPosProps && (
-          <CurrentCard object={object} dataProps={objPosProps} timezone={location.timezone} />
+          <CurrentCard
+            object={object}
+            dataProps={objPosProps}
+            timezone={location.timezone}
+          />
         )}
         {object && <NameCard object={object} />}
       </Grid>
