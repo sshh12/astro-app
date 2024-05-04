@@ -127,6 +127,10 @@ export function objectSize(object) {
   }
 }
 
+export function objectsToKey(objects) {
+  return objects.map((x) => x.id).join(",");
+}
+
 export function equipmentToDimensions(equipment) {
   const baseWidth = 1000;
   if (equipment && equipment.type === "CAMERA") {

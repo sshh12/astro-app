@@ -17,6 +17,7 @@ import { useAPI, useList, useAnalytics } from "../api";
 import LinkCard from "../components/link-card";
 import ObjectsList from "../components/objects-list";
 import { useCallWithCache } from "../python";
+import {objectsToKey} from "../utils"
 
 export default function SkyListPage() {
   const { pageParams, setPage, goBack } = useNav();
@@ -29,7 +30,7 @@ export default function SkyListPage() {
 
   const { ready: listOrbitsReady, result: listOrbits } = useCallWithCache(
     "get_orbit_calculations",
-    location && list && `${location.id}_${list.id}_orbits`,
+    location && list && `${location.id}_${objectsToKey(list.objects)}`,
     location &&
       list && {
         objects: list.objects,

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
+import { objectsToKey } from "../utils";
 import { Flex, Button } from "@tremor/react";
 import { useCallWithCache } from "../python";
 import { Canvas } from "@react-three/fiber";
@@ -77,11 +78,11 @@ export default function SkyOrbitsPage() {
         setOrbitObjects(objects.filter((o) => !!o));
       });
     }
-  }, [pageParams.orbitObjectIds, objectStore]);
+  }, [pageParams, objectStore]);
 
   const { ready: orbitsReady, result: orbits } = useCallWithCache(
     "get_orbit_calculations",
-    location && orbitObjects && `${location.id}_${orbitObjects.length}_orbits`,
+    location && orbitObjects && `${location.id}_${objectsToKey(orbitObjects)}`,
     location &&
       orbitObjects && {
         objects: orbitObjects,
@@ -105,7 +106,8 @@ export default function SkyOrbitsPage() {
           <CameraSetter />
           <SphereGrid />
           <CameraControls startAlt={20} startAz={0} />
-          {orbits &&
+          {location &&
+            orbits &&
             orbitObjects.filter((o) => !(o.id in orbits.objects)).length ===
               0 &&
             orbitObjects.map((obj) => (
@@ -119,6 +121,8 @@ export default function SkyOrbitsPage() {
                   object: obj,
                 }}
                 times={orbits.time}
+                timezone={location.timezone}
+                showTimeCheckpoints={orbitObjects.length <= 10}
               />
             ))}
         </Canvas>

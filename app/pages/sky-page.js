@@ -10,7 +10,7 @@ import SkyChartPanel from "../components/sky-chart-panel";
 import StickyHeader from "../components/sticky-header";
 import ListCard from "../components/list-card";
 import ObjectsList from "../components/objects-list";
-import { useTimestamp, formatTime } from "../utils";
+import { useTimestamp, formatTime, objectsToKey } from "../utils";
 
 export default function SkyPage() {
   const { setPage } = useNav();
@@ -50,7 +50,7 @@ export default function SkyPage() {
 
   const { result: favOrbits } = useCallWithCache(
     "get_orbit_calculations",
-    favListObjects && location && `${location.id}_favorites_orbits`,
+    favListObjects && location && `${location.id}_${objectsToKey(favListObjects)}`,
     favListObjects &&
       location && {
         objects: favListObjects,

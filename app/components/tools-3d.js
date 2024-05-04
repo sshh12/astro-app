@@ -3,7 +3,7 @@ import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { COLORS } from "../colors";
-import { useTimestamp, getInterpolatedValue } from "../utils";
+import { useTimestamp, getInterpolatedValue, formatTime } from "../utils";
 
 const RADIUS = 2;
 const TRACER_OFFSET = 1000 * 60 * 60 * 2;
@@ -56,7 +56,7 @@ const TextMark = ({ text, position, fontSize = 100 }) => {
   );
 };
 
-const TextLabel = ({ text, position, color }) => {
+const TextObjectLabel = ({ text, position, color }) => {
   const width = text.length;
   const canvasTexture = useMemo(() => {
     const canvas = document.createElement("canvas");
@@ -88,7 +88,50 @@ const TextLabel = ({ text, position, color }) => {
 
   return (
     <mesh ref={meshRef} position={position}>
-      <planeGeometry attach="geometry" args={[0.12 * width, 0.12]} />
+      <planeGeometry attach="geometry" args={[0.1 * width, 0.1]} />
+      <meshBasicMaterial
+        attach="material"
+        map={canvasTexture}
+        transparent={true}
+        opacity={0.9}
+      />
+    </mesh>
+  );
+};
+
+const TextTimeLabel = ({ text, position, color }) => {
+  const width = text.length;
+  const canvasTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = 100 * width;
+    canvas.height = 100;
+    context.font = "100px Verdana, sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+
+    context.strokeStyle = "black";
+    context.lineWidth = 20;
+    context.strokeText(text, canvas.width / 2, canvas.height / 2);
+    context.fillStyle = color;
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  }, [text, color, width]);
+
+  const meshRef = useRef();
+
+  useEffect(() => {
+    if (meshRef.current) {
+      const target = new THREE.Vector3(0, 0, 0);
+      meshRef.current.lookAt(target);
+    }
+  }, []);
+
+  return (
+    <mesh ref={meshRef} position={position}>
+      <planeGeometry attach="geometry" args={[0.04 * width, 0.04]} />
       <meshBasicMaterial
         attach="material"
         map={canvasTexture}
@@ -100,48 +143,54 @@ const TextLabel = ({ text, position, color }) => {
 };
 
 export const SphereGrid = () => {
-  const altLines = [];
-  for (let alt = -90; alt <= 90; alt += 30) {
-    const points = [];
-    for (let az = 0; az <= 360; az += 5) {
-      points.push(altAzToCartesian(alt, az, RADIUS));
+  const altLines = useMemo(() => {
+    const lines = [];
+    for (let alt = -90; alt <= 90; alt += 30) {
+      const points = [];
+      for (let az = 0; az <= 360; az += 5) {
+        points.push(altAzToCartesian(alt, az, RADIUS));
+      }
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const opacity = alt === 0 ? 1 : 0.5;
+      const lineWidth = alt === 0 ? 2 : 1;
+      lines.push(
+        <line key={`alt-${alt}`}>
+          <lineBasicMaterial
+            attach="material"
+            color="white"
+            transparent={true}
+            opacity={opacity}
+            linewidth={lineWidth}
+          />
+          <primitive attach="geometry" object={lineGeometry} />
+        </line>
+      );
     }
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-    const opacity = alt === 0 ? 1 : 0.5;
-    const lineWidth = alt === 0 ? 2 : 1;
-    altLines.push(
-      <line key={`alt-${alt}`}>
-        <lineBasicMaterial
-          attach="material"
-          color="white"
-          transparent={true}
-          opacity={opacity}
-          linewidth={lineWidth}
-        />
-        <primitive attach="geometry" object={lineGeometry} />
-      </line>
-    );
-  }
+    return lines;
+  }, []);
 
-  const azLines = [];
-  for (let az = 0; az <= 360; az += 30) {
-    const points = [];
-    for (let alt = -90; alt <= 90; alt += 5) {
-      points.push(altAzToCartesian(alt, az, 2));
+  const azLines = useMemo(() => {
+    const lines = [];
+    for (let az = 0; az <= 360; az += 30) {
+      const points = [];
+      for (let alt = -90; alt <= 90; alt += 5) {
+        points.push(altAzToCartesian(alt, az, 2));
+      }
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      lines.push(
+        <line key={`az-${az}`}>
+          <lineBasicMaterial
+            attach="material"
+            color="white"
+            transparent={true}
+            opacity={0.5}
+          />
+          <primitive attach="geometry" object={lineGeometry} />
+        </line>
+      );
     }
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-    azLines.push(
-      <line key={`az-${az}`}>
-        <lineBasicMaterial
-          attach="material"
-          color="white"
-          transparent={true}
-          opacity={0.5}
-        />
-        <primitive attach="geometry" object={lineGeometry} />
-      </line>
-    );
-  }
+    return lines;
+  }, []);
 
   const markPos = useMemo(() => {
     const marks = [
@@ -192,6 +241,17 @@ export const SphereGrid = () => {
         />
       ))}
       <mesh position={origin}>
+        <sphereGeometry
+          attach="geometry"
+          args={[RADIUS * 1.9, 32, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI]}
+        />
+        <meshBasicMaterial
+          attach="material"
+          color={"#1c2424"}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <mesh position={origin}>
         <sphereGeometry attach="geometry" args={[RADIUS * 2, 32, 32]} />
         <meshBasicMaterial
           attach="material"
@@ -210,7 +270,7 @@ export const ObjectPoint = ({ object, az, alt }) => {
 
   return (
     <>
-      <TextLabel text={object.name} position={curPosText} color={color} />
+      <TextObjectLabel text={object.name} position={curPosText} color={color} />
       <mesh position={curPos}>
         <sphereGeometry attach="geometry" args={[0.04, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
@@ -219,23 +279,65 @@ export const ObjectPoint = ({ object, az, alt }) => {
   );
 };
 
-export const ObjectPath = ({ object, times }) => {
+export const TimeCheckpoints = ({ object, times, timezone }) => {
+  const checkpointElements = useMemo(() => {
+    const wholeHours = [
+      ...new Set(
+        times.map((ts) => {
+          const date = new Date(ts);
+          date.setMinutes(0);
+          date.setSeconds(0);
+          date.setMilliseconds(0);
+          return +date;
+        })
+      ),
+    ];
+    return wholeHours
+      .filter((ts) => ts >= times[0] && ts <= times[times.length - 1])
+      .map((ts) => {
+        const curAlt = getInterpolatedValue(times, ts, object.alt);
+        const curAz = getInterpolatedValue(times, ts, object.az);
+        const curPos = altAzToCartesian(curAlt, curAz);
+        return (
+          <TextTimeLabel
+            key={`checkpoint-${ts}`}
+            text={formatTime(ts, timezone, true)}
+            position={curPos}
+            color={COLORS[object.color.toLowerCase()]}
+          />
+        );
+      });
+  }, [object, times, timezone]);
+
+  return <>{checkpointElements}</>;
+};
+
+export const ObjectPath = ({
+  object,
+  times,
+  timezone,
+  showTimeCheckpoints,
+}) => {
   const { ts } = useTimestamp();
   const tracerMesh = useRef();
   const tracerOffset = useRef(0);
+  const tsIsInBounds = ts >= times[0] && ts <= times[times.length - 1];
+  const curAlt = getInterpolatedValue(times, ts, object.alt);
+  const curAz = getInterpolatedValue(times, ts, object.az);
+  const curPos = altAzToCartesian(curAlt, curAz);
+
   useFrame(() => {
     if (!tracerMesh.current) return;
-    const altTracer = getInterpolatedValue(
-      times,
-      ts + tracerOffset.current,
-      object.alt
-    );
-    const azTracer = getInterpolatedValue(
-      times,
-      ts + tracerOffset.current,
-      object.az
-    );
-    const posTracer = altAzToCartesian(altTracer, azTracer, RADIUS);
+    const tsOffset = ts + tracerOffset.current;
+    const inbounds =
+      tsOffset >= times[0] && tsOffset <= times[times.length - 1];
+    if (!inbounds) {
+      tracerMesh.current.visible = false;
+      return;
+    }
+    const altTracer = getInterpolatedValue(times, tsOffset, object.alt);
+    const azTracer = getInterpolatedValue(times, tsOffset, object.az);
+    const posTracer = altAzToCartesian(altTracer, azTracer);
     tracerMesh.current.position.x = posTracer.x;
     tracerMesh.current.position.y = posTracer.y;
     tracerMesh.current.position.z = posTracer.z;
@@ -246,42 +348,35 @@ export const ObjectPath = ({ object, times }) => {
     tracerMesh.current.visible = altTracer > 0;
   });
 
-  const lines = [];
-  let longestMidPoint = null;
-  let longestLength = 0;
   let points = [];
   for (let i in object.az) {
-    points.push(altAzToCartesian(object.alt[i], object.az[i], RADIUS));
+    points.push(altAzToCartesian(object.alt[i], object.az[i]));
   }
-  if (points.length > 0) {
-    if (points.length > longestLength) {
-      longestLength = points.length;
-      longestMidPoint = points[Math.floor(points.length / 2)];
-    }
-    lines.push(new THREE.BufferGeometry().setFromPoints(points));
-    points = [];
-  }
-
-  const curAlt = getInterpolatedValue(times, ts, object.alt);
-  const curAz = getInterpolatedValue(times, ts, object.az);
-  const curPos = altAzToCartesian(curAlt, curAz, RADIUS);
+  const orbitLine = new THREE.BufferGeometry().setFromPoints(points);
+  const midpointIdx = Math.floor(points.length / 2);
+  const labelPoint = altAzToCartesian(
+    object.alt[midpointIdx],
+    object.az[midpointIdx],
+    RADIUS - 0.1
+  );
 
   const color = COLORS[object.color.toLowerCase()];
   return (
     <>
-      {lines.map((lineGeometry, i) => (
-        <line key={`object-${object.name}-${i}`}>
-          <lineBasicMaterial attach="material" color={color} />
-          <primitive attach="geometry" object={lineGeometry} />
-        </line>
-      ))}
-      <TextLabel text={object.name} position={longestMidPoint} color={color} />
-      <mesh position={curPos} visible={curAlt > 0}>
+      {showTimeCheckpoints && (
+        <TimeCheckpoints object={object} times={times} timezone={timezone} />
+      )}
+      <line>
+        <lineBasicMaterial attach="material" color={color} />
+        <primitive attach="geometry" object={orbitLine} />
+      </line>
+      <TextObjectLabel text={object.name} position={labelPoint} color={color} />
+      <mesh position={curPos} visible={tsIsInBounds}>
         <sphereGeometry attach="geometry" args={[0.03, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
       <mesh ref={tracerMesh}>
-        <sphereGeometry attach="geometry" args={[0.02, 32, 32]} />
+        <sphereGeometry attach="geometry" args={[0.01, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
       </mesh>
     </>
