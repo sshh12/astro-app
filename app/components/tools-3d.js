@@ -24,6 +24,17 @@ export const altAzToCartesian = (alt, az, radius = RADIUS) => {
   );
 };
 
+export const CartesianToAltAz = (vector) => {
+  // return {alt, az} in degrees
+  const radius = vector.length();
+  const phi = Math.acos(vector.y / radius);
+  const theta = Math.atan2(vector.z, vector.x);
+  return {
+    alt: THREE.MathUtils.radToDeg(Math.PI / 2 - phi),
+    az: THREE.MathUtils.radToDeg(theta),
+  };
+};
+
 const TextMark = ({ text, position, fontSize = 100 }) => {
   const canvasTexture = useMemo(() => {
     const canvas = document.createElement("canvas");
@@ -431,61 +442,57 @@ export const LongTermPath = ({ longTermDays, timezone }) => {
 export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
   const { camera, gl } = useThree();
   const draggingRef = useRef(false);
-  const prevTapRef = useRef({ x: 0, y: 0 });
-  const lookRef = useRef({ alt: startAlt, az: startAz });
+  const dragFixedAltAz = useRef(null);
 
   useEffect(() => {
-    const vector = altAzToCartesian(lookRef.current.alt, lookRef.current.az);
+    const vector = altAzToCartesian(startAlt, startAz);
     camera.lookAt(vector);
+
+    const glWidth = gl.domElement.clientWidth;
+    const glHeight = gl.domElement.clientHeight;
+
+    const xYToAltAz = (x, y) => {
+      const screenPos = new THREE.Vector2(x, y);
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(screenPos, camera);
+      const point = new THREE.Vector3();
+      raycaster.ray.at(1, point);
+      return CartesianToAltAz(point);
+    };
 
     const onMouseDown = (event) => {
       event.preventDefault();
-      draggingRef.current = true;
-      prevTapRef.current = !event.touches
-        ? {
-            x: event.clientX,
-            y: event.clientY,
-          }
-        : {
-            x: event.touches[0].clientX,
-            y: event.touches[0].clientY,
-          };
+      const isDrag = event.touches ? event.touches.length === 1 : true;
+      if (isDrag) {
+        draggingRef.current = true;
+        const clickX = !event.touches
+          ? event.clientX
+          : event.touches[0].clientX;
+        const clickY = !event.touches
+          ? event.clientY
+          : event.touches[0].clientY;
+        dragFixedAltAz.current = xYToAltAz(
+          (clickX / glWidth) * 2 - 1,
+          -(clickY / glHeight) * 2 + 1
+        );
+      }
     };
 
     const onMouseMove = (event) => {
       if (draggingRef.current) {
         event.preventDefault();
-        const deltaMove = !event.touches
-          ? {
-              x: event.clientX - prevTapRef.current.x,
-              y: event.clientY - prevTapRef.current.y,
-            }
-          : {
-              x: event.touches[0].clientX - prevTapRef.current.x,
-              y: event.touches[0].clientY - prevTapRef.current.y,
-            };
-
-        lookRef.current.alt = Math.min(
-          Math.max(lookRef.current.alt + deltaMove.y * 0.5, -89),
-          89
+        const posX = !event.touches ? event.clientX : event.touches[0].clientX;
+        const posY = !event.touches ? event.clientY : event.touches[0].clientY;
+        const { alt: newAlt, az: newAz } = xYToAltAz(
+          (posX / glWidth) * 2 - 1,
+          -(posY / glHeight) * 2 + 1
         );
-        lookRef.current.az -= deltaMove.x * 0.5;
+        const { alt: centerAlt, az: centerAz } = xYToAltAz(0, 0);
 
-        const vector = altAzToCartesian(
-          lookRef.current.alt,
-          lookRef.current.az
-        );
-        camera.lookAt(vector);
-
-        prevTapRef.current = !event.touches
-          ? {
-              x: event.clientX,
-              y: event.clientY,
-            }
-          : {
-              x: event.touches[0].clientX,
-              y: event.touches[0].clientY,
-            };
+        const altAdj = centerAlt + (dragFixedAltAz.current.alt - newAlt);
+        const azAdj = centerAz + (dragFixedAltAz.current.az - newAz);
+        const newPoint = altAzToCartesian(altAdj, azAdj);
+        camera.lookAt(newPoint);
       }
     };
 
@@ -539,7 +546,7 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
         onDeviceOrientation
       );
     };
-  }, [gl.domElement, camera, lookRef, draggingRef, prevTapRef]);
+  }, [gl.domElement, camera, draggingRef, dragFixedAltAz]);
 
   return null;
 };
@@ -548,7 +555,7 @@ export function CameraSetter() {
   const { camera } = useThree();
 
   useEffect(() => {
-    camera.position.set(0, 0.01, 0);
+    camera.position.set(0, 0, 0);
   }, [camera]);
 
   return null;
