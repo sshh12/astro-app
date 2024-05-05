@@ -577,9 +577,8 @@ export const CameraControls = ({
     }
 
     if (!window.test) {
-      window.dx = -90;
-      window.dy = 0;
-      window.dz = 0;
+      window.fix = (a, b, c) => [a, b, c];
+      window.e = "ZXY";
       window.test = 1;
     }
 
@@ -601,15 +600,11 @@ export const CameraControls = ({
         )
           return;
         if (!compass) return;
-        const alpha = THREE.MathUtils.degToRad(event.alpha || 0);
-        const beta = THREE.MathUtils.degToRad(event.beta || 0);
-        const gamma = THREE.MathUtils.degToRad(event.gamma || 0);
-        const euler = new THREE.Euler(
-          beta + window.dx,
-          gamma + window.dy,
-          alpha + window.dz,
-          "ZXY"
-        );
+        const [a, b, c] = window.fix(event.alpha, event.beta, event.gamma);
+        const alpha = THREE.MathUtils.degToRad(a || 0);
+        const beta = THREE.MathUtils.degToRad(b || 0);
+        const gamma = THREE.MathUtils.degToRad(c || 0);
+        const euler = new THREE.Euler(beta, gamma, alpha, window.e);
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
         camera.quaternion.copy(quaternion);
       };
