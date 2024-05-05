@@ -51,7 +51,9 @@ export default function WrappedApp() {
       serviceWorkerRegistration.register()
     );
   }, []);
-  useEffect(() => {});
+  useEffect(() => {
+    screen.orientation.lock();
+  }, []);
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
     function gtag() {

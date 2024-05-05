@@ -418,7 +418,7 @@ export const MonthlyCheckpoints = ({ days, timezone }) => {
         />
       );
     });
-  }, [days]);
+  }, [days, timezone]);
   return <>{checkpointElements}</>;
 };
 
@@ -468,7 +468,7 @@ export const ConstellationShapes = ({ consts, constPos }) => {
       );
       const centerAltAz = constObj.objects.reduce(
         (acc, obj) => {
-          if(!constPos[obj.id]) {
+          if (!constPos[obj.id]) {
             return acc;
           }
           acc[0] += constPos[obj.id].alt;
@@ -495,7 +495,11 @@ export const ConstellationShapes = ({ consts, constPos }) => {
   return <>{constElements}</>;
 };
 
-export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
+export const CameraControls = ({
+  startAlt = 30,
+  startAz = 0,
+  compass = false,
+}) => {
   const { camera, gl } = useThree();
   const draggingRef = useRef(false);
   const dragFixedAltAz = useRef(null);
@@ -569,7 +573,8 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
         event.alpha,
         event.beta,
         event.gamma,
-        event.absolute
+        event.absolute,
+        compass
       );
       if (
         event.alpha === null ||
@@ -578,10 +583,12 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
         !event.absolute
       )
         return;
-      // const alpha = THREE.MathUtils.degToRad(event.alpha);
-      // const beta = THREE.MathUtils.degToRad(event.beta);
-      // const gamma = THREE.MathUtils.degToRad(event.gamma);
-      // camera.rotation.set(beta, gamma, alpha);
+      if (!compass) return;
+      const alpha = THREE.MathUtils.degToRad(event.alpha);
+      const beta = THREE.MathUtils.degToRad(event.beta);
+      const gamma = THREE.MathUtils.degToRad(event.gamma);
+      const compassPoint = altAzToCartesian(90 - beta, gamma);
+      camera.lookAt(compassPoint);
     };
 
     window.addEventListener(
@@ -602,7 +609,15 @@ export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
         onDeviceOrientation
       );
     };
-  }, [gl.domElement, camera, draggingRef, dragFixedAltAz]);
+  }, [
+    gl.domElement,
+    camera,
+    draggingRef,
+    dragFixedAltAz,
+    compass,
+    startAlt,
+    startAz,
+  ]);
 
   return null;
 };

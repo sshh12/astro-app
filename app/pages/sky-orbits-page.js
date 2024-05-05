@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowUturnLeftIcon,
+  DevicePhoneMobileIcon,
+} from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
 import { objectsToKey } from "../utils";
@@ -21,7 +24,8 @@ import { CONSTELLATIONS } from "../data/constellations";
 function OrbitsHeader({
   leftIcon,
   leftIconOnClick,
-  rightIcons = [],
+  compass,
+  setCompass,
   loading = false,
   computing = false,
 }) {
@@ -33,27 +37,19 @@ function OrbitsHeader({
         className="sticky-top bg-slate-800 flex items-center justify-between w-full"
         style={{ padding: "8px 10px 8px 12px" }}
       >
-        {leftIcon && (
-          <Button
-            onClick={leftIconOnClick}
-            color="slate-800"
-            icon={leftIcon}
-          ></Button>
-        )}
-        {!rightIcons && <div style={{ width: "50px" }}></div>}
+        <Button
+          onClick={leftIconOnClick}
+          color="slate-800"
+          icon={leftIcon}
+        ></Button>
 
-        {rightIcons.length > 0 && (
-          <div className="justify-end ml-auto">
-            {rightIcons.map((v, i) => (
-              <Button
-                key={i}
-                onClick={v.onClick}
-                color="slate-800"
-                icon={v.icon}
-              ></Button>
-            ))}
-          </div>
-        )}
+        <div className="justify-end ml-auto">
+          <Button
+            onClick={() => setCompass(!compass)}
+            color={compass ? "green-500" : "slate-800"}
+            icon={DevicePhoneMobileIcon}
+          ></Button>
+        </div>
       </Flex>
     </div>
   );
@@ -62,8 +58,8 @@ function OrbitsHeader({
 export default function SkyOrbitsPage() {
   const { pageParams, goBack } = useNav();
   const [orbitObjects, setOrbitObjects] = useState([]);
-
   const { objectStore, location } = useAPI();
+  const [compass, setCompass] = useState(false);
 
   useEffect(() => {
     if (pageParams.orbitObjectIds && objectStore) {
@@ -121,6 +117,8 @@ export default function SkyOrbitsPage() {
       <OrbitsHeader
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
+        compass={compass}
+        setCompass={setCompass}
         loading={false}
         computing={!orbitObjects || !orbitsReady || !constReady}
       />
@@ -128,7 +126,7 @@ export default function SkyOrbitsPage() {
         <Canvas>
           <CameraSetter />
           <SphereGrid />
-          <CameraControls startAlt={20} startAz={0} />
+          <CameraControls startAlt={20} startAz={0} compass={compass}/>
           {constPos && (
             <ConstellationShapes consts={CONSTELLATIONS} constPos={constPos} />
           )}
