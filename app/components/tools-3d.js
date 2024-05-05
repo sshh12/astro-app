@@ -583,8 +583,12 @@ export const CameraControls = ({
       )
         return;
       if (!compass) return;
-      const compassPoint = altAzToCartesian(event.beta, event.alpha);
-      camera.lookAt(compassPoint);
+      const alpha = THREE.MathUtils.degToRad(event.alpha || 0);
+      const beta = THREE.MathUtils.degToRad(event.beta || 0);
+      const gamma = THREE.MathUtils.degToRad(event.gamma || 0);
+      const euler = new THREE.Euler(beta, alpha, -gamma, "YXZ");
+      const quaternion = new THREE.Quaternion().setFromEuler(euler);
+      camera.quaternion.copy(quaternion);
     };
 
     if (compass) {
