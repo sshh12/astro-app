@@ -24,7 +24,13 @@ import {
 } from "@tremor/react";
 import BadgeIconRound from "../components/badge-icon-round";
 import { useAPI } from "../api";
-import { TELESCOPES, EYE_PIECES, BARLOWS, CAMERAS, BINOS } from "../equipment";
+import {
+  TELESCOPES,
+  EYE_PIECES,
+  BARLOWS,
+  CAMERAS,
+  BINOS,
+} from "../data/equipment";
 import { equipmentToDimensions } from "../utils";
 
 const EQUIP_MODES = [

@@ -13,8 +13,10 @@ import {
   SphereGrid,
   CameraControls,
   ObjectPath,
+  ConstellationShapes,
 } from "../components/tools-3d";
 import LoadingBar from "../components/loading-bar";
+import { CONSTELLATIONS } from "../data/constellations";
 
 function OrbitsHeader({
   leftIcon,
@@ -80,13 +82,31 @@ export default function SkyOrbitsPage() {
     }
   }, [pageParams, objectStore]);
 
+  const constellationObjects = Object.values(CONSTELLATIONS).reduce(
+    (acc, v) => acc.concat(v.objects),
+    []
+  );
+
+  const { ready: constReady, result: constPos } = useCallWithCache(
+    "get_current_positions",
+    location && `${location.id}_${objectsToKey(constellationObjects)}`,
+    location &&
+      constellationObjects.length > 0 && {
+        objects: constellationObjects,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+      }
+  );
+
   const { ready: orbitsReady, result: orbits } = useCallWithCache(
     "get_orbit_calculations",
     location &&
       orbitObjects.length > 0 &&
       `${location.id}_${objectsToKey(orbitObjects)}`,
     location &&
-    orbitObjects.length > 0 && {
+      orbitObjects.length > 0 && {
         objects: orbitObjects,
         timezone: location.timezone,
         lat: location.lat,
@@ -95,19 +115,23 @@ export default function SkyOrbitsPage() {
         resolution_mins: 10,
       }
   );
+
   return (
     <div className="bg-slate-800">
       <OrbitsHeader
         leftIcon={ArrowUturnLeftIcon}
         leftIconOnClick={() => goBack()}
         loading={false}
-        computing={!orbitObjects || !orbitsReady}
+        computing={!orbitObjects || !orbitsReady || !constReady}
       />
       <div style={{ height: "calc(100vh)" }}>
         <Canvas>
           <CameraSetter />
           <SphereGrid />
           <CameraControls startAlt={20} startAz={0} />
+          {constPos && (
+            <ConstellationShapes consts={CONSTELLATIONS} constPos={constPos} />
+          )}
           {location &&
             orbits &&
             orbitObjects.filter((o) => !(o.id in orbits.objects)).length ===

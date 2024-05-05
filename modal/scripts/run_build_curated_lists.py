@@ -493,7 +493,9 @@ async def main(args):
     await prisma.connect()
 
     if not args.dry:
-        public_lists = await prisma.list.find_many(where={"publicTemplate": True})
+        public_lists = await prisma.list.find_many(
+            where={"publicTemplate": True, "type": ListType.CURATED_LIST}
+        )
         await prisma.spaceobjectsonlists.delete_many(
             where={"listId": {"in": [l.id for l in public_lists]}}
         )
@@ -524,6 +526,23 @@ async def main(args):
                     },
                 },
             )
+
+    lists = await prisma.list.find_many(
+        where={"publicTemplate": True},
+        include={
+            "objects": {
+                "include": {
+                    "SpaceObject": True,
+                }
+            },
+        },
+    )
+    with open("../app/data/lists.js", "w") as f:
+        f.write(
+            "export const LISTS = "
+            + json.dumps([methods_web._list_to_dict(list) for list in lists], indent=2)
+            + ";\n\n"
+        )
 
 
 if __name__ == "__main__":

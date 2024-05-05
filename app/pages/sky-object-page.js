@@ -37,7 +37,7 @@ import ObjectImage from "../components/object-image";
 import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import SkyFullScreenDialog from "../components/sky-fullscreen-dialog";
-import { SKY_SURVEYS } from "./../sky-surveys";
+import { SKY_SURVEYS } from "./../data/sky-surveys";
 import { objectSize, formatTime, formatLocation } from "../utils";
 import dynamic from "next/dynamic";
 

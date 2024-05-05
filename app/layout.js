@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#1e293b" />
         <meta name="description" content={metadata.description} />
         <meta
-          http-equiv="ScreenOrientation"
+          httpEquiv="ScreenOrientation"
           content="autoRotate:disabled"
         ></meta>
         <link rel="apple-touch-icon" href="/logo192.png" />

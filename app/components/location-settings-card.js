@@ -25,7 +25,7 @@ import {
 } from "@tremor/react";
 import BadgeIconRound from "../components/badge-icon-round";
 import { useAPI } from "../api";
-import { TIMEZONES } from "../timezones";
+import { TIMEZONES } from "../data/timezones";
 import { formatLocation } from "../utils";
 
 const LOCATION_MODES = [

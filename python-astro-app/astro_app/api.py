@@ -232,6 +232,35 @@ def get_longterm_orbit_calculations(
 
 
 @method_api()
+def get_current_positions(
+    objects: List,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    send_js: Callable,
+):
+    ts, eph = get_commons()
+    earth = eph["earth"]
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
+    loc_place = earth + loc
+    t_now = ts.now()
+    loc_place_time = loc_place.at(t_now)
+    resp = {}
+    for object in objects:
+        obj = space_util.space_object_to_observables(ts, eph, object)
+        apparent_pos = loc_place_time.observe(obj).apparent()
+        alt_az = apparent_pos.altaz()
+        resp[object["id"]] = {
+            "id": object["id"],
+            "name": object["name"],
+            "alt": round(alt_az[0].degrees, 2),
+            "az": round(alt_az[1].degrees, 2),
+        }
+    return resp
+
+
+@method_api()
 def get_current_orbit_calculations(
     object: Dict,
     timezone: str,

@@ -9,6 +9,7 @@ import { useAPI, usePostWithCache } from "../api";
 import StickyHeader from "../components/sticky-header";
 import { useDebounce, objectAKA } from "../utils";
 import ObjectsList from "../components/objects-list";
+import { LISTS } from "./../data/lists";
 
 function ListBadge({ list, onClick }) {
   return (
@@ -32,7 +33,7 @@ function ListBadge({ list, onClick }) {
   );
 }
 
-function ListBadgeGroup({ lists }) {
+function ListBadgeGroup({ title, lists }) {
   const { setPage } = useNav();
   const rows = [];
   if (lists) {
@@ -45,7 +46,7 @@ function ListBadgeGroup({ lists }) {
   return (
     <div>
       <div className="mt-5 mb-2">
-        <Title>Curated Lists</Title>
+        <Title>{title}</Title>
       </div>
       <Flex className="overflow-x-scroll flex-col">
         {rows.map((row, i) => (
@@ -96,19 +97,15 @@ export default function SearchPage() {
   const [matchingObjects, setMatchingObjects] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { result: publicLists } = usePostWithCache("get_public_lists");
-
   useEffect(() => {
-    if (publicLists && objectStore && listStore) {
-      const objects = publicLists.lists.reduce((acc, list) => {
+    if (objectStore && listStore) {
+      const objects = LISTS.reduce((acc, list) => {
         return acc.concat(list.objects);
       }, []);
       Promise.all(objects.map((obj) => objectStore.setItem(obj.id, obj)));
-      Promise.all(
-        publicLists.lists.map((list) => listStore.setItem(list.id, list))
-      );
+      Promise.all(LISTS.map((list) => listStore.setItem(list.id, list)));
     }
-  }, [publicLists, objectStore, listStore]);
+  }, [objectStore, listStore]);
 
   useEffect(() => {
     if (matchingObjects && objectStore) {
@@ -173,6 +170,14 @@ export default function SearchPage() {
       }
   );
 
+  const curatedLists = useMemo(() => {
+    return LISTS.filter((list) => list.type === "CURATED_LIST");
+  }, []);
+
+  const constellationList = useMemo(() => {
+    return LISTS.filter((list) => list.type === "CONSTELLATION_GROUP");
+  }, []);
+
   return (
     <div className="bg-slate-800" style={{ paddingBottom: "6rem" }}>
       <StickyHeader
@@ -183,7 +188,7 @@ export default function SearchPage() {
         search={true}
         searchValue={searchValue}
         searchOnChange={(event) => setSearchValue(event.target.value)}
-        loading={loading || !publicLists}
+        loading={loading}
         computing={
           debouncedSearchTerm &&
           matchingObjectsShown.length > 0 &&
@@ -207,7 +212,13 @@ export default function SearchPage() {
           />
         )}
 
-        {publicLists && <ListBadgeGroup lists={publicLists.lists} />}
+        {curatedLists.length > 0 && (
+          <ListBadgeGroup title={"Curated Lists"} lists={curatedLists} />
+        )}
+
+        {constellationList.length > 0 && (
+          <ListBadgeGroup title={"Constellations"} lists={constellationList} />
+        )}
       </div>
     </div>
   );

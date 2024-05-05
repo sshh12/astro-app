@@ -548,21 +548,6 @@ async def search(ctx: context.Context, term: str) -> Dict:
 
 
 @method_web()
-async def get_public_lists(ctx: context.Context) -> Dict:
-    lists = await ctx.prisma.list.find_many(
-        where={"publicTemplate": True},
-        include={
-            "objects": {
-                "include": {
-                    "SpaceObject": True,
-                }
-            },
-        },
-    )
-    return {"lists": [_list_to_dict(list) for list in lists]}
-
-
-@method_web()
 async def add_list(ctx: context.Context, id: str) -> Dict:
     list = await ctx.prisma.list.find_unique(
         where={"id": id},

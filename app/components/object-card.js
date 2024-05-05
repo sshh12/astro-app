@@ -22,7 +22,7 @@ import {
 } from "../utils";
 import ObjectViewDialog from "./object-view-dialog";
 import ObjectImage from "./object-image";
-import { SKY_SURVEYS } from "../sky-surveys";
+import { SKY_SURVEYS } from "../data/sky-surveys";
 
 function altToDelta(alt) {
   if (alt < -20) {

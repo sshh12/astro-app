@@ -439,6 +439,58 @@ export const LongTermPath = ({ longTermDays, timezone }) => {
   );
 };
 
+export const ConstellationShapes = ({ consts, constPos }) => {
+  console.log(consts, constPos);
+  const constElements = useMemo(() => {
+    const elems = [];
+    for (let constObj of consts) {
+      const lines = [];
+      for (let edge of constObj.edges) {
+        const start = altAzToCartesian(
+          constPos[edge[0]].alt,
+          constPos[edge[0]].az
+        );
+        const end = altAzToCartesian(
+          constPos[edge[1]].alt,
+          constPos[edge[1]].az
+        );
+        lines.push(new THREE.BufferGeometry().setFromPoints([start, end]));
+      }
+      elems.push(
+        ...lines.map((line, i) => (
+          <line key={`line-${i}`}>
+            <lineBasicMaterial attach="material" color={"#eeeeee"} />
+            <primitive attach="geometry" object={line} />
+          </line>
+        ))
+      );
+      const centerAltAz = constObj.edges.reduce(
+        (acc, edge) => {
+          acc[0] += constPos[edge[0]].alt;
+          acc[1] += constPos[edge[0]].az;
+          return acc;
+        },
+        [0, 0]
+      );
+      const curPos = altAzToCartesian(
+        centerAltAz[0] / constObj.edges.length,
+        centerAltAz[1] / constObj.edges.length
+      );
+      elems.push(
+        <TextTimeLabel
+          key={`label-${constObj.name}`}
+          text={constObj.name}
+          position={curPos}
+          color={"#eeeeee"}
+        />
+      );
+    }
+    return elems;
+  }, [consts, constPos]);
+  console.log(constElements);
+  return <>{constElements}</>;
+};
+
 export const CameraControls = ({ startAlt = 30, startAz = 0 }) => {
   const { camera, gl } = useThree();
   const draggingRef = useRef(false);
