@@ -25,7 +25,6 @@ export const altAzToCartesian = (alt, az, radius = RADIUS) => {
 };
 
 export const CartesianToAltAz = (vector) => {
-  // return {alt, az} in degrees
   const radius = vector.length();
   const phi = Math.acos(vector.y / radius);
   const theta = Math.atan2(vector.z, vector.x);
@@ -584,10 +583,7 @@ export const CameraControls = ({
       )
         return;
       if (!compass) return;
-      const alpha = THREE.MathUtils.degToRad(event.alpha);
-      const beta = THREE.MathUtils.degToRad(event.beta);
-      const gamma = THREE.MathUtils.degToRad(event.gamma);
-      const compassPoint = altAzToCartesian(90 - beta, gamma);
+      const compassPoint = altAzToCartesian(event.beta - 90, event.gamma);
       camera.lookAt(compassPoint);
     };
 
