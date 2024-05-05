@@ -583,7 +583,7 @@ export const CameraControls = ({
       )
         return;
       if (!compass) return;
-      const compassPoint = altAzToCartesian(event.beta - 90, event.gamma);
+      const compassPoint = altAzToCartesian(event.beta - 90, event.alpha);
       camera.lookAt(compassPoint);
     };
 
