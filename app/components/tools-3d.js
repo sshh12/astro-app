@@ -501,7 +501,8 @@ export const CameraControls = ({
 }) => {
   const { camera, gl } = useThree();
   const draggingRef = useRef(false);
-  const dragFixedAltAz = useRef(null);
+  const dragFixedAltAzRef = useRef(null);
+  const onDeviceOrientationRef = useRef(null);
 
   useEffect(() => {
     const vector = altAzToCartesian(startAlt, startAz);
@@ -530,7 +531,7 @@ export const CameraControls = ({
         const clickY = !event.touches
           ? event.clientY
           : event.touches[0].clientY;
-        dragFixedAltAz.current = xYToAltAz(
+        dragFixedAltAzRef.current = xYToAltAz(
           (clickX / glWidth) * 2 - 1,
           -(clickY / glHeight) * 2 + 1
         );
@@ -548,8 +549,8 @@ export const CameraControls = ({
         );
         const { alt: centerAlt, az: centerAz } = xYToAltAz(0, 0);
 
-        const altAdj = centerAlt + (dragFixedAltAz.current.alt - newAlt);
-        const azAdj = centerAz + (dragFixedAltAz.current.az - newAz);
+        const altAdj = centerAlt + (dragFixedAltAzRef.current.alt - newAlt);
+        const azAdj = centerAz + (dragFixedAltAzRef.current.az - newAz);
         const newPoint = altAzToCartesian(altAdj, azAdj);
         camera.lookAt(newPoint);
       }
@@ -566,44 +567,44 @@ export const CameraControls = ({
     gl.domElement.addEventListener("touchmove", onMouseMove);
     gl.domElement.addEventListener("touchend", onMouseUp);
 
-    const onDeviceOrientation = (event) => {
-      console.log(
-        "onDeviceOrientation",
-        event.alpha,
-        event.beta,
-        event.gamma,
-        event.absolute,
-        compass
+    if (!compass && onDeviceOrientationRef.current) {
+      window.removeEventListener(
+        "deviceorientationabsolute",
+        onDeviceOrientationRef.current
       );
-      if (
-        event.alpha === null ||
-        event.beta === null ||
-        event.gamma === null ||
-        !event.absolute
-      )
-        return;
-      if (!compass) return;
-      const alpha = THREE.MathUtils.degToRad(event.alpha || 0);
-      const beta = THREE.MathUtils.degToRad(event.beta || 0);
-      const gamma = THREE.MathUtils.degToRad(event.gamma || 0);
-      const euler = new THREE.Euler(beta, alpha, -gamma, "YXZ");
-      const quaternion = new THREE.Quaternion().setFromEuler(euler);
-      camera.quaternion.copy(quaternion);
-    };
+      onDeviceOrientationRef.current = null;
+    }
 
     if (compass) {
+      onDeviceOrientationRef.current = (event) => {
+        console.log(
+          "onDeviceOrientation",
+          event.alpha,
+          event.beta,
+          event.gamma,
+          event.absolute,
+          compass
+        );
+        if (
+          event.alpha === null ||
+          event.beta === null ||
+          event.gamma === null ||
+          !event.absolute
+        )
+          return;
+        if (!compass) return;
+        const alpha = THREE.MathUtils.degToRad(event.alpha || 0);
+        const beta = THREE.MathUtils.degToRad(event.beta || 0);
+        const gamma = THREE.MathUtils.degToRad(event.gamma || 0);
+        const euler = new THREE.Euler(beta, alpha, gamma, "YZX");
+        const quaternion = new THREE.Quaternion().setFromEuler(euler);
+        camera.quaternion.copy(quaternion);
+      };
       window.addEventListener(
         "deviceorientationabsolute",
-        onDeviceOrientation,
+        onDeviceOrientationRef.current,
         true
       );
-    } else {
-      try {
-        window.removeEventListener(
-          "deviceorientationabsolute",
-          onDeviceOrientation
-        );
-      } catch (e) {}
     }
 
     return () => {
@@ -613,17 +614,18 @@ export const CameraControls = ({
       gl.domElement.removeEventListener("touchstart", onMouseDown);
       gl.domElement.removeEventListener("touchmove", onMouseMove);
       gl.domElement.removeEventListener("touchend", onMouseUp);
-      compass &&
+      onDeviceOrientationRef.current &&
         window.removeEventListener(
           "deviceorientationabsolute",
-          onDeviceOrientation
+          onDeviceOrientationRef.current
         );
     };
   }, [
     gl.domElement,
     camera,
     draggingRef,
-    dragFixedAltAz,
+    onDeviceOrientationRef,
+    dragFixedAltAzRef,
     compass,
     startAlt,
     startAz,
