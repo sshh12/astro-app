@@ -26,7 +26,7 @@ export function usePythonSetup() {
       console.log(`python: Creating ${numWorkers} web workers`);
 
       for (let i = 0; i < numWorkers; i++) {
-        const worker = new Worker("web-worker.js");
+        const worker = new Worker("/web-worker.js");
         workersActive.current[i] = false;
         workers.current.push(worker);
         worker.onmessage = (event) => {
