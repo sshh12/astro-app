@@ -1,6 +1,6 @@
 from typing import List, Dict
 from prisma import Prisma, models, errors
-from prisma.enums import SpaceObjectType, Color
+from prisma.enums import SpaceObjectType, Color, ListType
 from decimal import Decimal
 import context
 import random
@@ -162,6 +162,7 @@ def _list_to_dict(list: models.List, show_objects: bool = True) -> dict:
         "color": list.color,
         "credit": list.credit,
         "imgURL": list.imgURL,
+        "type": list.type,
     }
     if list.objects:
         list_dict["objects"] = [

@@ -15,11 +15,6 @@ model User {
   apiKey    String
   createdAt DateTime @default(now())
 
-  timezone  String // deprecated
-  lat       Decimal? // deprecated
-  lon       Decimal? // deprecated
-  elevation Decimal? // deprecated
-
   lists     ListsOnUsers[]
   objects   SpaceObjectsOnUsers[]
   equipment Equipment[]
@@ -64,6 +59,12 @@ enum EquipmentType {
   BINOCULARS
 }
 
+enum ListType {
+  PERSONAL_COLLECTION
+  CURATED_LIST
+  CONSTELLATION_GROUP
+}
+
 model SpaceObject {
   id        BigInt   @id @default(autoincrement())
   name      String   @unique
@@ -95,10 +96,10 @@ model SpaceObject {
 }
 
 model List {
-  id             BigInt  @id @default(autoincrement())
+  id             BigInt   @id @default(autoincrement())
   title          String
-  commonTemplate Boolean @default(false) // deprecated
-  publicTemplate Boolean @default(false)
+  publicTemplate Boolean  @default(false)
+  type           ListType @default(PERSONAL_COLLECTION)
   imgURL         String?
   credit         String?
 

@@ -8,7 +8,7 @@ import asyncio
 import argparse
 import json
 from prisma import Prisma
-from prisma.enums import Color
+from prisma.enums import Color, ListType
 import methods_web
 
 CACHE_FN = "spaceobject.cache.json"
@@ -497,7 +497,9 @@ async def main(args):
         await prisma.spaceobjectsonlists.delete_many(
             where={"listId": {"in": [l.id for l in public_lists]}}
         )
-        await prisma.list.delete_many(where={"publicTemplate": True})
+        await prisma.list.delete_many(
+            where={"publicTemplate": True, "type": ListType.CURATED_LIST}
+        )
 
     cache = Cache()
 
@@ -516,6 +518,7 @@ async def main(args):
                     "credit": credit,
                     "imgURL": img,
                     "publicTemplate": True,
+                    "type": ListType.CURATED_LIST,
                     "objects": {
                         "create": [{"spaceObjectId": objId} for objId in obj_ids]
                     },
