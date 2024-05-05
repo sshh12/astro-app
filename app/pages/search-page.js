@@ -5,7 +5,7 @@ import { Title, Text, Flex, Badge } from "@tremor/react";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useCallWithCache } from "../python";
-import { useAPI, usePostWithCache } from "../api";
+import { useAPI } from "../api";
 import StickyHeader from "../components/sticky-header";
 import { useDebounce, objectAKA } from "../utils";
 import ObjectsList from "../components/objects-list";
@@ -33,13 +33,12 @@ function ListBadge({ list, onClick }) {
   );
 }
 
-function ListBadgeGroup({ title, lists }) {
+function ListBadgeGroup({ title, lists, maxRows }) {
   const { setPage } = useNav();
   const rows = [];
   if (lists) {
-    const totalChunks = 3;
-    const chunkSize = Math.ceil(lists.length / totalChunks);
-    for (let i = 0; i < totalChunks; i++) {
+    const chunkSize = Math.ceil(lists.length / maxRows);
+    for (let i = 0; i < maxRows; i++) {
       rows.push(lists.slice(i * chunkSize, (i + 1) * chunkSize));
     }
   }
@@ -100,7 +99,7 @@ export default function SearchPage() {
   useEffect(() => {
     if (objectStore && listStore) {
       const objects = LISTS.reduce((acc, list) => {
-        return acc.concat(list.objects);
+        return list.objects ? acc.concat(list.objects) : acc;
       }, []);
       Promise.all(objects.map((obj) => objectStore.setItem(obj.id, obj)));
       Promise.all(LISTS.map((list) => listStore.setItem(list.id, list)));
@@ -213,11 +212,19 @@ export default function SearchPage() {
         )}
 
         {curatedLists.length > 0 && (
-          <ListBadgeGroup title={"Curated Lists"} lists={curatedLists} />
+          <ListBadgeGroup
+            title={"Curated Lists"}
+            lists={curatedLists}
+            maxRows={3}
+          />
         )}
 
         {constellationList.length > 0 && (
-          <ListBadgeGroup title={"Constellations"} lists={constellationList} />
+          <ListBadgeGroup
+            title={"Constellations"}
+            lists={constellationList}
+            maxRows={3}
+          />
         )}
       </div>
     </div>

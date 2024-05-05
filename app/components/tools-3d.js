@@ -440,12 +440,14 @@ export const LongTermPath = ({ longTermDays, timezone }) => {
 };
 
 export const ConstellationShapes = ({ consts, constPos }) => {
-  console.log(consts, constPos);
   const constElements = useMemo(() => {
     const elems = [];
     for (let constObj of consts) {
       const lines = [];
       for (let edge of constObj.edges) {
+        if (!constPos[edge[0]] || !constPos[edge[1]]) {
+          continue;
+        }
         const start = altAzToCartesian(
           constPos[edge[0]].alt,
           constPos[edge[0]].az
@@ -464,17 +466,20 @@ export const ConstellationShapes = ({ consts, constPos }) => {
           </line>
         ))
       );
-      const centerAltAz = constObj.edges.reduce(
-        (acc, edge) => {
-          acc[0] += constPos[edge[0]].alt;
-          acc[1] += constPos[edge[0]].az;
+      const centerAltAz = constObj.objects.reduce(
+        (acc, obj) => {
+          if(!constPos[obj.id]) {
+            return acc;
+          }
+          acc[0] += constPos[obj.id].alt;
+          acc[1] += constPos[obj.id].az;
           return acc;
         },
         [0, 0]
       );
       const curPos = altAzToCartesian(
-        centerAltAz[0] / constObj.edges.length,
-        centerAltAz[1] / constObj.edges.length
+        centerAltAz[0] / constObj.objects.length,
+        centerAltAz[1] / constObj.objects.length
       );
       elems.push(
         <TextTimeLabel
@@ -487,7 +492,6 @@ export const ConstellationShapes = ({ consts, constPos }) => {
     }
     return elems;
   }, [consts, constPos]);
-  console.log(constElements);
   return <>{constElements}</>;
 };
 

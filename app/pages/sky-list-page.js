@@ -129,7 +129,7 @@ export default function SkyListPage() {
         )}
 
         {list && list.credit && !ownedList && (
-          <Flex className="mt-3">
+          <Flex className="mt-1">
             <LinkCard
               title={"View Source"}
               subtitle={list.credit}
