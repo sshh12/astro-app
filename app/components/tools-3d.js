@@ -570,7 +570,8 @@ export const CameraControls = ({
     if (!compass && onDeviceOrientationRef.current) {
       window.removeEventListener(
         "deviceorientationabsolute",
-        onDeviceOrientationRef.current
+        onDeviceOrientationRef.current,
+        true
       );
       onDeviceOrientationRef.current = null;
     }
@@ -596,7 +597,7 @@ export const CameraControls = ({
         const alpha = THREE.MathUtils.degToRad(event.alpha || 0);
         const beta = THREE.MathUtils.degToRad(event.beta || 0);
         const gamma = THREE.MathUtils.degToRad(event.gamma || 0);
-        const euler = new THREE.Euler(beta, alpha, gamma, "YZX");
+        const euler = new THREE.Euler(beta, gamma, alpha, "ZXY");
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
         camera.quaternion.copy(quaternion);
       };
@@ -617,7 +618,8 @@ export const CameraControls = ({
       onDeviceOrientationRef.current &&
         window.removeEventListener(
           "deviceorientationabsolute",
-          onDeviceOrientationRef.current
+          onDeviceOrientationRef.current,
+          true
         );
     };
   }, [
