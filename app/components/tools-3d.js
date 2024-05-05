@@ -576,6 +576,13 @@ export const CameraControls = ({
       onDeviceOrientationRef.current = null;
     }
 
+    if (!window.test) {
+      window.dx = -90;
+      window.dy = 0;
+      window.dz = 0;
+      window.test = 1;
+    }
+
     if (compass) {
       onDeviceOrientationRef.current = (event) => {
         console.log(
@@ -597,7 +604,12 @@ export const CameraControls = ({
         const alpha = THREE.MathUtils.degToRad(event.alpha || 0);
         const beta = THREE.MathUtils.degToRad(event.beta || 0);
         const gamma = THREE.MathUtils.degToRad(event.gamma || 0);
-        const euler = new THREE.Euler(beta, gamma, alpha, "ZXY");
+        const euler = new THREE.Euler(
+          beta + window.dx,
+          gamma + window.dy,
+          alpha + window.dz,
+          "ZXY"
+        );
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
         camera.quaternion.copy(quaternion);
       };
