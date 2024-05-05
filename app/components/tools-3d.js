@@ -583,15 +583,24 @@ export const CameraControls = ({
       )
         return;
       if (!compass) return;
-      const compassPoint = altAzToCartesian(event.beta - 90, event.alpha);
+      const compassPoint = altAzToCartesian(event.beta, event.alpha);
       camera.lookAt(compassPoint);
     };
 
-    window.addEventListener(
-      "deviceorientationabsolute",
-      onDeviceOrientation,
-      true
-    );
+    if (compass) {
+      window.addEventListener(
+        "deviceorientationabsolute",
+        onDeviceOrientation,
+        true
+      );
+    } else {
+      try {
+        window.removeEventListener(
+          "deviceorientationabsolute",
+          onDeviceOrientation
+        );
+      } catch (e) {}
+    }
 
     return () => {
       gl.domElement.removeEventListener("mousedown", onMouseDown);
@@ -600,10 +609,11 @@ export const CameraControls = ({
       gl.domElement.removeEventListener("touchstart", onMouseDown);
       gl.domElement.removeEventListener("touchmove", onMouseMove);
       gl.domElement.removeEventListener("touchend", onMouseUp);
-      window.removeEventListener(
-        "deviceorientationabsolute",
-        onDeviceOrientation
-      );
+      compass &&
+        window.removeEventListener(
+          "deviceorientationabsolute",
+          onDeviceOrientation
+        );
     };
   }, [
     gl.domElement,

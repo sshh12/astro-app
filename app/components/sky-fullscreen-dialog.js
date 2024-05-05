@@ -9,7 +9,12 @@ import {
   CameraControls,
   ObjectPoint,
   LongTermPath,
+  ConstellationShapes,
 } from "./tools-3d";
+import { useCallWithCache } from "../python";
+import { CONSTELLATIONS } from "../data/constellations";
+import { objectsToKey } from "../utils";
+import { useAPI } from "../api";
 
 export default function SkyFullScreenDialog({
   object,
@@ -19,6 +24,7 @@ export default function SkyFullScreenDialog({
   longTermDays,
   timezone,
 }) {
+  const { location } = useAPI();
   const [showCanvas, setShowCanvas] = useState(false);
   useEffect(() => {
     if (open) {
@@ -29,6 +35,25 @@ export default function SkyFullScreenDialog({
       setShowCanvas(false);
     }
   }, [open]);
+
+  const constellationObjects = Object.values(CONSTELLATIONS).reduce(
+    (acc, v) => acc.concat(v.objects),
+    []
+  );
+
+  const { result: constPos } = useCallWithCache(
+    "get_current_positions",
+    location && `${location.id}_${objectsToKey(constellationObjects)}`,
+    location &&
+      constellationObjects.length > 0 && {
+        objects: constellationObjects,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+      }
+  );
+
   return (
     <Dialog open={open} onClose={() => setOpen(false)} static={true}>
       <DialogPanel className="p-1">
@@ -46,6 +71,12 @@ export default function SkyFullScreenDialog({
               )}
               {longTermDays && (
                 <LongTermPath longTermDays={longTermDays} timezone={timezone} />
+              )}
+              {constPos && (
+                <ConstellationShapes
+                  consts={CONSTELLATIONS}
+                  constPos={constPos}
+                />
               )}
             </Canvas>
           )}
