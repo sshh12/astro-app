@@ -74,7 +74,7 @@ export default function SkyPage() {
           { icon: MagnifyingGlassIcon, onClick: () => setPage("/sky/search") },
         ]}
         loading={!ready}
-        computing={favOrbits && favOrbitsReady}
+        computing={favOrbits && !favOrbitsReady}
       />
 
       <div className="pb-5 mt-6">
