@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import {
   ArrowUturnLeftIcon,
   DevicePhoneMobileIcon,
+  GlobeAltIcon,
+  RectangleGroupIcon,
 } from "@heroicons/react/24/solid";
 import { useNav } from "../nav";
 import { useAPI } from "../api";
@@ -26,6 +28,10 @@ function OrbitsHeader({
   leftIconOnClick,
   compass,
   setCompass,
+  grid,
+  setGrid,
+  showConsts,
+  setShowConsts,
   loading = false,
   computing = false,
 }) {
@@ -45,9 +51,24 @@ function OrbitsHeader({
 
         <div className="justify-end ml-auto">
           <Button
+            onClick={() => setGrid(!grid)}
+            color={grid ? "green-500" : "slate-800"}
+            icon={GlobeAltIcon}
+            variant={grid ? "secondary" : "primary"}
+          ></Button>
+          <Button
+            className="ml-1"
+            onClick={() => setShowConsts(!showConsts)}
+            color={showConsts ? "green-500" : "slate-800"}
+            icon={RectangleGroupIcon}
+            variant={showConsts ? "secondary" : "primary"}
+          ></Button>
+          <Button
+            className="ml-1"
             onClick={() => setCompass(!compass)}
             color={compass ? "green-500" : "slate-800"}
             icon={DevicePhoneMobileIcon}
+            variant={compass ? "secondary" : "primary"}
           ></Button>
         </div>
       </Flex>
@@ -60,6 +81,8 @@ export default function SkyOrbitsPage() {
   const [orbitObjects, setOrbitObjects] = useState([]);
   const { objectStore, location } = useAPI();
   const [compass, setCompass] = useState(false);
+  const [grid, setGrid] = useState(true);
+  const [showConsts, setShowConsts] = useState(true);
 
   useEffect(() => {
     if (pageParams.orbitObjectIds && objectStore) {
@@ -119,15 +142,19 @@ export default function SkyOrbitsPage() {
         leftIconOnClick={() => goBack()}
         compass={compass}
         setCompass={setCompass}
+        grid={grid}
+        setGrid={setGrid}
+        showConsts={showConsts}
+        setShowConsts={setShowConsts}
         loading={false}
         computing={!orbitObjects || !orbitsReady || !constReady}
       />
       <div style={{ height: "calc(100vh)" }}>
         <Canvas>
           <CameraSetter />
-          <SphereGrid />
-          <CameraControls startAlt={20} startAz={0} compass={compass}/>
-          {constPos && (
+          {grid && <SphereGrid />}
+          <CameraControls startAlt={20} startAz={0} compass={compass} />
+          {showConsts && constPos && (
             <ConstellationShapes consts={CONSTELLATIONS} constPos={constPos} />
           )}
           {location &&
