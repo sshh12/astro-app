@@ -606,9 +606,8 @@ export const CameraControls = ({
         const gamma = THREE.MathUtils.degToRad(c || 0);
         const euler = new THREE.Euler(alpha, beta, gamma, window.e);
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
-        quaternion.multiply(
-          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0)
-        );
+        const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+        quaternion.multiply(q1);
         camera.quaternion.copy(quaternion);
       };
       window.addEventListener(
