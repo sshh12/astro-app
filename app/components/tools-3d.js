@@ -617,7 +617,7 @@ export const CameraControls = ({
           )
         );
         q.multiply(adjQ);
-        camera.quaternion.copy(quaternion);
+        camera.quaternion.copy(q);
       };
       window.addEventListener(
         "deviceorientationabsolute",
