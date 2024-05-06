@@ -577,7 +577,7 @@ export const CameraControls = ({
     }
 
     if (!window.test) {
-      window.fix = (a, b, c) => [a, b, c];
+      window.fix = (a, b, c) => [b, a, -c];
       window.e = "ZXY";
       window.test = 1;
     }
@@ -604,8 +604,11 @@ export const CameraControls = ({
         const alpha = THREE.MathUtils.degToRad(a || 0);
         const beta = THREE.MathUtils.degToRad(b || 0);
         const gamma = THREE.MathUtils.degToRad(c || 0);
-        const euler = new THREE.Euler(beta, gamma, alpha, window.e);
+        const euler = new THREE.Euler(alpha, beta, gamma, window.e);
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
+        quaternion.multiply(
+          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0)
+        );
         camera.quaternion.copy(quaternion);
       };
       window.addEventListener(
