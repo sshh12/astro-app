@@ -52,7 +52,7 @@ export default function WrappedApp() {
     );
   }, []);
   useEffect(() => {
-    screen.orientation.lock();
+    screen.orientation.lock("natural");
   }, []);
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];

@@ -576,48 +576,22 @@ export const CameraControls = ({
       onDeviceOrientationRef.current = null;
     }
 
-    if (!window.test) {
-      window.fix = (a, b, c) => [a, b, c];
-      window.adj = [0, 0, 0];
-      window.e = "XYZ";
-      window.test = 1;
-    }
-
     if (compass) {
       onDeviceOrientationRef.current = (event) => {
-        console.log(
-          "onDeviceOrientation",
-          event.alpha,
-          event.beta,
-          event.gamma,
-          event.absolute,
-          compass
-        );
         if (
+          !compass ||
           event.alpha === null ||
           event.beta === null ||
           event.gamma === null ||
           !event.absolute
         )
           return;
-        if (!compass) return;
-        const [a, b, c] = window.fix(event.alpha, event.beta, event.gamma);
-        const ax = THREE.MathUtils.degToRad(a);
-        const ay = THREE.MathUtils.degToRad(b);
-        const az = THREE.MathUtils.degToRad(c);
-        const q = new THREE.Quaternion().setFromEuler(
-          new THREE.Euler(ax, ay, az, window.e)
+        console.log(
+          "onDeviceOrientation",
+          event.alpha.toFixed(2),
+          event.beta.toFixed(2),
+          event.gamma.toFixed(2)
         );
-        const adjQ = new THREE.Quaternion().setFromEuler(
-          new THREE.Euler(
-            THREE.MathUtils.degToRad(window.adj[0]),
-            THREE.MathUtils.degToRad(window.adj[1]),
-            THREE.MathUtils.degToRad(window.adj[2]),
-            "XYZ"
-          )
-        );
-        q.multiply(adjQ);
-        camera.quaternion.copy(q);
       };
       window.addEventListener(
         "deviceorientationabsolute",
