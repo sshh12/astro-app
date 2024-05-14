@@ -12,13 +12,10 @@ import {
   Title,
   Button,
   NumberInput,
-  SearchSelect,
-  SearchSelectItem,
   TextInput,
 } from "@tremor/react";
 import BadgeIconRound from "../components/badge-icon-round";
 import { useAPI } from "../api";
-import { TIMEZONES } from "../data/timezones";
 
 export default function SettingsCard({
   title,
@@ -32,27 +29,16 @@ export default function SettingsCard({
   const { ready } = useAPI();
 
   const [editValues, setEditValues] = useState({});
-  const [showCurLocation, setShowCurLocation] = useState(false);
-
-  const hasLatLonItem = !!items.find((item) => item.key === "lat");
   useEffect(() => {
-    if (hasLatLonItem && navigator.geolocation) {
-      setShowCurLocation(true);
-    }
-  }, [hasLatLonItem, open]);
-
-  const updateCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const tzExists = TIMEZONES.find((t) => t.name === tz);
+    if (open) {
       setEditValues({
-        ...editValues,
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-        timezone: tzExists ? tz : editValues.timezone,
+        ...items.reduce((acc, item) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {}),
       });
-    });
-  };
+    }
+  }, [open]);
 
   return (
     <>
@@ -95,11 +81,6 @@ export default function SettingsCard({
           )}
 
           <Flex className="mt-4 justify-between">
-            {showCurLocation && (
-              <Button variant="light" onClick={() => updateCurrentLocation()}>
-                Use Device Location
-              </Button>
-            )}
             {ready && (
               <Button variant="primary" onClick={() => onSave(editValues)}>
                 Save

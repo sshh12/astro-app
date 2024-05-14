@@ -15,8 +15,6 @@ import {
   TextInput,
   SearchSelect,
   SearchSelectItem,
-  Select,
-  SelectItem,
   TabGroup,
   Tab,
   TabList,
@@ -130,6 +128,7 @@ export default function LocationSettingsCard({
 
   const [tabIdx, setTabIdx] = useState(0);
   const [editValues, setEditValues] = useState({});
+  const [deviceLocationState, setDeviceLocationState] = useState({});
   useEffect(() => {
     setEditValues({
       lat: "",
@@ -138,6 +137,7 @@ export default function LocationSettingsCard({
       elevation: "",
       timezone: "",
     });
+    setDeviceLocationState({});
   }, [open]);
 
   useEffect(() => {
@@ -169,20 +169,36 @@ export default function LocationSettingsCard({
   const existingLocation = user?.location || [];
   existingLocation.sort((a, b) => b.active - a.active);
 
-  const updateCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const tzExists = TIMEZONES.find((t) => t.name === tz);
-      console.log(position);
-      setEditValues({
-        ...editValues,
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-        timezone: tzExists ? tz : editValues.timezone,
-        elevation: 0,
-        name: "Current Location",
-      });
-    });
+  const setWithDeviceLocation = () => {
+    if (!navigator.geolocation) {
+      setDeviceLocationState({ error: "Not Supported" });
+      return;
+    }
+    setDeviceLocationState({ loading: true });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const tzExists = TIMEZONES.find((t) => t.name === tz);
+        setEditValues({
+          ...editValues,
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+          timezone: tzExists ? tz : editValues.timezone,
+          elevation: 0,
+          name: "Current Location",
+        });
+        setDeviceLocationState({ position: position });
+      },
+      (error) => {
+        if (error.code == error.PERMISSION_DENIED) {
+          setDeviceLocationState({ error: "Permission Denied" });
+        } else if (error.code == error.POSITION_UNAVAILABLE) {
+          setDeviceLocationState({ error: "Position Unavailable" });
+        } else if (error.code == error.TIMEOUT) {
+          setDeviceLocationState({ error: "Timeout" });
+        }
+      }
+    );
   };
 
   return (
@@ -190,6 +206,8 @@ export default function LocationSettingsCard({
       <Dialog open={open} onClose={() => setOpen(false)} static={true}>
         <DialogPanel>
           <Title className="mb-3">{title}</Title>
+
+          <p>{JSON.stringify(deviceLocationState)}</p>
 
           {ready && (
             <Flex className="flex-col">
@@ -269,6 +287,32 @@ export default function LocationSettingsCard({
           )}
 
           <Flex className="mt-4 justify-between">
+            <Button variant="light" onClick={() => setWithDeviceLocation()}>
+              Select On Map
+            </Button>
+
+            <Button variant="light" color="slate-500">
+              OR
+            </Button>
+
+            {!deviceLocationState.error &&
+              (deviceLocationState.loading ? (
+                <Button variant="light" color="slate">
+                  Locating Device...
+                </Button>
+              ) : (
+                <Button variant="light" onClick={() => setWithDeviceLocation()}>
+                  Use Device Location
+                </Button>
+              ))}
+            {deviceLocationState.error && (
+              <Button variant="light" color="red">
+                {deviceLocationState.error}
+              </Button>
+            )}
+          </Flex>
+
+          <Flex className="mt-4 justify-between">
             <Button
               variant="light"
               onClick={() => setOpen(false)}
@@ -276,9 +320,7 @@ export default function LocationSettingsCard({
             >
               Close
             </Button>
-            <Button variant="light" onClick={() => updateCurrentLocation()}>
-              Use Device Location
-            </Button>
+
             {canSave && (
               <Button variant="primary" onClick={() => onAdd(fixedEditValues)}>
                 Add
