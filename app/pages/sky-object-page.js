@@ -38,7 +38,12 @@ import SkyAltChart from "../components/sky-alt-chart";
 import ShareLinkDialog from "../components/share-link-dialog";
 import SkyFullScreenDialog from "../components/sky-fullscreen-dialog";
 import { SKY_SURVEYS } from "./../data/sky-surveys";
-import { objectSize, formatTime, formatLocation } from "../utils";
+import {
+  objectSize,
+  formatTime,
+  formatLocation,
+  equipmentToDimensions,
+} from "../utils";
 import dynamic from "next/dynamic";
 
 const MapFullScreenDialog = dynamic(
@@ -240,6 +245,7 @@ function OverviewCard({ object }) {
 }
 
 function SurveyCard({ object }) {
+  const { user } = useAPI();
   return (
     <Card>
       <Flex alignItems="start">
@@ -247,22 +253,34 @@ function SurveyCard({ object }) {
           <Text color="white">Sky Surveys</Text>
         </div>
       </Flex>
-      <Grid
-        numItems={2}
-        numItemsSm={2}
-        numItemsMd={3}
-        numItemsLg={3}
-        className="mt-3 gap-1 ml-2 mr-2"
-      >
-        {SKY_SURVEYS.map((survey) => (
-          <Flex className="flex-col" key={survey.hips}>
-            <Text>{survey.name}</Text>
-            <Flex className="border-solid border-2 border-gray-700">
-              <ObjectImage object={object} source={survey.hips} />
-            </Flex>
-          </Flex>
+      {user &&
+        user.equipment.map((eq) => (
+          <div key={eq.id}>
+            <Text color="slate-400 mt-3">
+              {equipmentToDimensions(eq).title}
+            </Text>
+            <Grid
+              numItems={2}
+              numItemsSm={2}
+              numItemsMd={4}
+              numItemsLg={4}
+              className="mt-2 gap-1 ml-2 mr-2"
+            >
+              {SKY_SURVEYS.map((survey) => (
+                <Flex className="flex-col" key={survey.hips + eq.id}>
+                  <Text color="slate-300">{survey.name}</Text>
+                  <Flex className="border-solid border-2 border-gray-700">
+                    <ObjectImage
+                      object={object}
+                      source={survey.hips}
+                      equipment={eq}
+                    />
+                  </Flex>
+                </Flex>
+              ))}
+            </Grid>
+          </div>
         ))}
-      </Grid>
     </Card>
   );
 }

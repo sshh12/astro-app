@@ -110,9 +110,16 @@ function ImageWithBackgound({ src, width, height, alt, fill, scale }) {
   );
 }
 
-export default function ObjectImage({ object, source, style = {} }) {
-  const { equipment } = useAPI();
-  const { width, height, fov } = equipmentToDimensions(equipment);
+export default function ObjectImage({
+  object,
+  source,
+  style = {},
+  equipment = null,
+}) {
+  const { equipment: existingEquipment } = useAPI();
+  const { width, height, fov } = equipmentToDimensions(
+    equipment || existingEquipment
+  );
   const override = OVERRIDES.find((o) => o.id === object.id);
   if (source != "wiki" && !!object.ra) {
     return (
