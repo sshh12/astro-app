@@ -63,13 +63,13 @@ function OrbitsHeader({
             icon={RectangleGroupIcon}
             variant={showConsts ? "secondary" : "primary"}
           ></Button>
-          <Button
+          {/* <Button
             className="ml-1"
             onClick={() => setCompass(!compass)}
             color={compass ? "green-500" : "slate-800"}
             icon={DevicePhoneMobileIcon}
             variant={compass ? "secondary" : "primary"}
-          ></Button>
+          ></Button> */}
         </div>
       </Flex>
     </div>
