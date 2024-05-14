@@ -24,7 +24,7 @@ export default function MapFullScreenDialog({ open, setOpen, setLocation }) {
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [mapRef]);
+  }, [mapRef, setLocation]);
   useEffect(() => {
     if (open) {
       const interval = setInterval(() => {

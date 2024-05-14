@@ -38,7 +38,7 @@ export default function SettingsCard({
         }, {}),
       });
     }
-  }, [open]);
+  }, [open, items]);
 
   return (
     <>
