@@ -291,10 +291,6 @@ async def _create_user(prisma: Prisma) -> models.User:
         data={
             "name": _gen_name(),
             "apiKey": _gen_api_key(),
-            "timezone": DEFAULT_TZ,
-            "lat": DEFAULT_LAT,
-            "lon": DEFAULT_LON,
-            "elevation": DEFAULT_ELEVATION,
         },
     )
     await asyncio.gather(
