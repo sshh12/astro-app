@@ -22,7 +22,7 @@ self.addEventListener("activate", (event) => {
 });
 
 function shouldExclude(fileUrl) {
-  return fileUrl.includes("lp/tiles");
+  return fileUrl.includes("lp/tiles") || fileUrl.includes(".txt");
 }
 workbox.precaching.precacheAndRoute(
   self.__WB_MANIFEST.filter((entry) => {
