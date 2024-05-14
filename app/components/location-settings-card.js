@@ -25,6 +25,14 @@ import BadgeIconRound from "../components/badge-icon-round";
 import { useAPI } from "../api";
 import { TIMEZONES } from "../data/timezones";
 import { formatLocation } from "../utils";
+import dynamic from "next/dynamic";
+
+const MapFullScreenInput = dynamic(
+  () => import("../components/map-fullscreen-input"),
+  {
+    ssr: false,
+  }
+);
 
 const LOCATION_MODES = [
   {
@@ -129,7 +137,10 @@ export default function LocationSettingsCard({
   const [tabIdx, setTabIdx] = useState(0);
   const [editValues, setEditValues] = useState({});
   const [deviceLocationState, setDeviceLocationState] = useState({});
-  useEffect(() => {
+  const [selectOnMapOpen, setSelectOnMapOpen] = useState(false);
+  const [selectOnMapLocation, setSelectOnMapLocation] = useState([]);
+
+  const clearValues = () => {
     setEditValues({
       lat: "",
       lon: "",
@@ -138,7 +149,7 @@ export default function LocationSettingsCard({
       timezone: "",
     });
     setDeviceLocationState({});
-  }, [open]);
+  };
 
   useEffect(() => {
     if (open) {
@@ -203,11 +214,32 @@ export default function LocationSettingsCard({
 
   return (
     <>
-      <Dialog open={open} onClose={() => setOpen(false)} static={true}>
+      <MapFullScreenInput
+        open={selectOnMapOpen}
+        setOpen={(open) => {
+          setSelectOnMapOpen(open);
+          if (!open) {
+            setOpen(true);
+            setEditValues({
+              ...editValues,
+              lat: selectOnMapLocation[0].toFixed(6),
+              lon: selectOnMapLocation[1].toFixed(6),
+              name: "Custom Location",
+              elevation: 0,
+            });
+          }
+        }}
+        setLocation={setSelectOnMapLocation}
+      />
+      <Dialog
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        static={true}
+      >
         <DialogPanel>
           <Title className="mb-3">{title}</Title>
-
-          <p>{JSON.stringify(deviceLocationState)}</p>
 
           {ready && (
             <Flex className="flex-col">
@@ -287,7 +319,7 @@ export default function LocationSettingsCard({
           )}
 
           <Flex className="mt-4 justify-between">
-            <Button variant="light" onClick={() => setWithDeviceLocation()}>
+            <Button variant="light" onClick={() => setSelectOnMapOpen(true)}>
               Select On Map
             </Button>
 
@@ -315,7 +347,10 @@ export default function LocationSettingsCard({
           <Flex className="mt-4 justify-between">
             <Button
               variant="light"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                clearValues();
+              }}
               color="slate"
             >
               Close

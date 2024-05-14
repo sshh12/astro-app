@@ -146,7 +146,7 @@ function LiveWeatherCard({ wfo }) {
     <Card>
       <Flex alignItems="start" className="mb-3">
         <div className="truncate">
-          <Text color="white">Live Weather</Text>
+          <Text color="white">Live Weather (US Only)</Text>
         </div>
         <BadgeIconRound icon={CloudIcon} color={"green"} />
       </Flex>
