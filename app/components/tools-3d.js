@@ -287,7 +287,7 @@ export const ObjectPoints = ({ objects, objectsPos }) => {
       );
       const color = COLORS[object.color.toLowerCase()];
       return (
-        <mesh position={curPos}>
+        <mesh position={curPos} key={`${object.id}`}>
           <sphereGeometry attach="geometry" args={[0.02, 32, 32]} />
           <meshBasicMaterial attach="material" color={color} />
         </mesh>
