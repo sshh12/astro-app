@@ -218,14 +218,6 @@ export default function SearchPage() {
             maxRows={3}
           />
         )}
-
-        {constellationList.length > 0 && (
-          <ListBadgeGroup
-            title={"Constellations"}
-            lists={constellationList}
-            maxRows={3}
-          />
-        )}
       </div>
     </div>
   );

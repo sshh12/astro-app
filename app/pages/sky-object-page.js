@@ -397,17 +397,19 @@ function SatellitePassesCard({ dataProps, timezone }) {
         </div>
       </Flex>
       <Flex className="justify-around mt-3">
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="switch"
-            name="switch"
-            checked={visibleOnly}
-            onChange={() => setVisibleOnly((vo) => !vo)}
-          />
-          <label htmlFor="switch" className="text-slate-400">
-            Visible Passes Only
-          </label>
-        </div>
+        {!dataProps.loading && result && (
+          <div className="flex items-center space-x-3">
+            <Switch
+              id="switch"
+              name="switch"
+              checked={visibleOnly}
+              onChange={() => setVisibleOnly((vo) => !vo)}
+            />
+            <label htmlFor="switch" className="text-slate-400">
+              Visible Passes Only
+            </label>
+          </div>
+        )}
         {dataProps.loading && (
           <Button
             icon={ArrowPathIcon}
