@@ -85,7 +85,7 @@ export default function ObjectsList({
       <div className="mt-5">
         <Title>{title}</Title>
         {!keepOrder && (
-          <div className="mt-1" style={{ width: "14rem" }}>
+          <div className="mt-1" style={{ width: "15rem" }}>
             <Select
               enableClear={false}
               value={objectViewMode?.sortMode}

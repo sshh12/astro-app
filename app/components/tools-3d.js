@@ -278,6 +278,26 @@ export const SphereGrid = () => {
   );
 };
 
+export const ObjectPoints = ({ objects, objectsPos }) => {
+  const pointElements = useMemo(() => {
+    return objects.map((object) => {
+      const curPos = altAzToCartesian(
+        objectsPos[object.id].alt,
+        objectsPos[object.id].az
+      );
+      const color = COLORS[object.color.toLowerCase()];
+      return (
+        <mesh position={curPos}>
+          <sphereGeometry attach="geometry" args={[0.02, 32, 32]} />
+          <meshBasicMaterial attach="material" color={color} />
+        </mesh>
+      );
+    });
+  }, [objects, objectsPos]);
+
+  return <>{pointElements}</>;
+};
+
 export const ObjectPoint = ({ object, az, alt }) => {
   const curPos = altAzToCartesian(alt, az, RADIUS);
   const curPosText = altAzToCartesian(alt + 6, az, RADIUS);
@@ -336,10 +356,6 @@ export const ObjectPath = ({
   const { ts } = useTimestamp();
   const tracerMesh = useRef();
   const tracerOffset = useRef(0);
-  const tsIsInBounds = ts >= times[0] && ts <= times[times.length - 1];
-  const curAlt = getInterpolatedValue(times, ts, object.alt);
-  const curAz = getInterpolatedValue(times, ts, object.az);
-  const curPos = altAzToCartesian(curAlt, curAz);
 
   useFrame(() => {
     if (!tracerMesh.current) return;
@@ -387,10 +403,6 @@ export const ObjectPath = ({
         <primitive attach="geometry" object={orbitLine} />
       </line>
       <TextObjectLabel text={object.name} position={labelPoint} color={color} />
-      <mesh position={curPos} visible={tsIsInBounds}>
-        <sphereGeometry attach="geometry" args={[0.03, 32, 32]} />
-        <meshBasicMaterial attach="material" color={color} />
-      </mesh>
       <mesh ref={tracerMesh}>
         <sphereGeometry attach="geometry" args={[0.005, 32, 32]} />
         <meshBasicMaterial attach="material" color={color} />
@@ -456,10 +468,16 @@ export const ConstellationShapes = ({ consts, constPos }) => {
           constPos[edge[1]].az
         );
         lines.push(new THREE.BufferGeometry().setFromPoints([start, end]));
+        elems.push(
+          <mesh position={start} key={`${constObj.name}-${elems.length}`}>
+            <sphereGeometry attach="geometry" args={[0.005, 32, 32]} />
+            <meshBasicMaterial attach="material" color={"#eeeeee"} />
+          </mesh>
+        );
       }
       elems.push(
         ...lines.map((line, i) => (
-          <line key={`line-${i}`}>
+          <line key={`line-${i}-${constObj.name}`}>
             <lineBasicMaterial attach="material" color={"#eeeeee"} />
             <primitive attach="geometry" object={line} />
           </line>

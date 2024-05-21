@@ -18,6 +18,7 @@ import {
   SphereGrid,
   CameraControls,
   ObjectPath,
+  ObjectPoints,
   ConstellationShapes,
 } from "../components/tools-3d";
 import LoadingBar from "../components/loading-bar";
@@ -119,6 +120,19 @@ export default function SkyOrbitsPage() {
       }
   );
 
+  const { ready: curReady, result: curPos } = useCallWithCache(
+    "get_current_positions",
+    location && `${location.id}_${objectsToKey(orbitObjects)}`,
+    location &&
+      orbitObjects.length > 0 && {
+        objects: orbitObjects,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+      }
+  );
+
   const { ready: orbitsReady, result: orbits } = useCallWithCache(
     "get_orbit_calculations",
     location &&
@@ -156,6 +170,9 @@ export default function SkyOrbitsPage() {
           <CameraControls startAlt={20} startAz={0} compass={compass} />
           {showConsts && constPos && (
             <ConstellationShapes consts={CONSTELLATIONS} constPos={constPos} />
+          )}
+          {orbitObjects && curPos && (
+            <ObjectPoints objects={orbitObjects} objectsPos={curPos} />
           )}
           {location &&
             orbits &&
