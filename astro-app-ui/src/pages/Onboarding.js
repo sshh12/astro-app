@@ -62,7 +62,10 @@ export default function JoySignInSideTemplate() {
           zIndex: 1,
           display: "flex",
           justifyContent: "flex-end",
-          backdropFilter: "blur(12px)",
+          backdropFilter:
+            theme.palette.mode == "dark"
+              ? "blur(12px) brightness(60%)"
+              : "blur(20px) brightness(100%)",
           backgroundColor: "rgba(255 255 255 / 0.2)",
           [theme.getColorSchemeSelector("dark")]: {
             backgroundColor: "rgba(19 19 24 / 0.4)",
