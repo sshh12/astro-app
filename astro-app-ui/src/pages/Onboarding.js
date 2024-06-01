@@ -41,7 +41,7 @@ function ColorSchemeToggle(props) {
   );
 }
 
-export default function JoySignInSideTemplate() {
+export default function OnboardingPage() {
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
       <CssBaseline />
@@ -63,9 +63,9 @@ export default function JoySignInSideTemplate() {
           display: "flex",
           justifyContent: "flex-end",
           backdropFilter:
-            theme.palette.mode == "dark"
-              ? "blur(12px) brightness(60%)"
-              : "blur(20px) brightness(100%)",
+            theme.palette.mode === "dark"
+              ? "blur(12px) brightness(20%)"
+              : "blur(25px) brightness(120%)",
           backgroundColor: "rgba(255 255 255 / 0.2)",
           [theme.getColorSchemeSelector("dark")]: {
             backgroundColor: "rgba(19 19 24 / 0.4)",

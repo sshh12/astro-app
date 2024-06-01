@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 
+const Sky = lazy(() => import("./pages/Sky"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 function App() {
@@ -8,8 +9,9 @@ function App() {
   return (
     <Suspense fallback={<>Loading...</>}>
       <Routes key={location.pathname} location={location}>
-        <Route path="/" element={<Onboarding />} />
-        <Route path={`*`} element={<Navigate to="/" replace />} />
+        <Route path="/sky" element={<Sky />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path={`*`} element={<Navigate to="/sky" replace />} />
       </Routes>
     </Suspense>
   );
