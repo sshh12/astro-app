@@ -1,6 +1,9 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "display_override": ["window-controls-overlay"],
+  "short_name": "Astro App",
+  "name": "Astro App",
+  "description": "The Astro App is a tool for exploring the night sky and tracking celestial events.",
+  "orientation": "any",
   "icons": [
     {
       "src": "favicon.ico",
