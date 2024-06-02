@@ -57,7 +57,6 @@ function Header(props) {
       {...props}
       sx={[
         {
-          p: 2,
           gap: 2,
           bgcolor: { xs: "background", sm: "background.surface" },
           display: "flex",

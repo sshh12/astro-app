@@ -22,7 +22,7 @@ import Layout from "../components/Layout";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { theme } from "../theme/theme";
-import SkyViewSheet from "../components/SkyViewSheet";
+import SkySummarySheet from "../components/SkySummarySheet";
 
 export default function SkyPage() {
   const location = useLocation();
@@ -110,7 +110,7 @@ export default function SkyPage() {
               gap: 2,
             }}
           >
-            <SkyViewSheet />
+            <SkySummarySheet />
             {Array.from({ length: 10 }).map((_, index) => (
               <Card variant="outlined" size="sm">
                 <Box sx={{ display: "flex", alignItems: "center" }}>

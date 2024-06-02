@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import LoadingBackground from "./components/LoadingBackground";
 
-const Sky = lazy(() => import("./pages/Sky"));
+const SkyPage = lazy(() => import("./pages/SkyPage"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
   return (
     <Suspense fallback={<LoadingBackground />}>
       <Routes key={location.pathname} location={location}>
-        <Route path="/sky" element={<Sky />} />
+        <Route path="/sky" element={<SkyPage />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path={`*`} element={<Navigate to="/sky" replace />} />
       </Routes>

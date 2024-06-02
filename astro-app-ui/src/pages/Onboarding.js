@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
+import { CssVarsProvider } from "@mui/joy/styles";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
@@ -12,34 +12,9 @@ import Link from "@mui/joy/Link";
 import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
-import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
-import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { theme } from "../theme/theme";
-
-function ColorSchemeToggle(props) {
-  const { onClick, ...other } = props;
-  const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => setMounted(true), []);
-
-  return (
-    <IconButton
-      aria-label="toggle light/dark mode"
-      size="sm"
-      variant="outlined"
-      disabled={!mounted}
-      onClick={(event) => {
-        setMode(mode === "light" ? "dark" : "light");
-        onClick?.(event);
-      }}
-      {...other}
-    >
-      {mode === "light" ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
-    </IconButton>
-  );
-}
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function OnboardingPage() {
   return (
@@ -92,14 +67,14 @@ export default function OnboardingPage() {
             <Box sx={{ gap: 2, display: "flex", alignItems: "center" }}>
               <IconButton
                 variant="soft"
-                sx={{ backgroundColor: "rgb(10, 39, 68)" }}
+                sx={{ backgroundColor: "#111827" }}
                 size="sm"
               >
                 <AutoAwesomeIcon sx={{ color: "#e9b307" }} />
               </IconButton>
               <Typography level="title-lg">The Astro App</Typography>
             </Box>
-            <ColorSchemeToggle />
+            <ThemeToggle />
           </Box>
           <Box
             component="main"

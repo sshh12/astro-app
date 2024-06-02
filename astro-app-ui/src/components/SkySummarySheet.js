@@ -5,7 +5,7 @@ import Tab from "@mui/joy/Tab";
 import TabPanel from "@mui/joy/TabPanel";
 import Typography from "@mui/joy/Typography";
 
-function SkyViews() {
+function SkySummaries() {
   return (
     <Tabs>
       <TabList>
@@ -26,7 +26,7 @@ function SkyViews() {
   );
 }
 
-export default function SkyViewSheet() {
+export default function SkySummarySheet() {
   return (
     <>
       <Sheet
@@ -37,7 +37,7 @@ export default function SkyViewSheet() {
           display: { xs: "none", sm: "inherit", md: "flex", lg: "flex" },
         }}
       >
-        <SkyViews />
+        <SkySummaries />
       </Sheet>
       <Sheet
         variant="outlined"
@@ -48,7 +48,7 @@ export default function SkyViewSheet() {
           backgroundColor: "background.surface",
         }}
       >
-        <SkyViews />
+        <SkySummaries />
       </Sheet>
     </>
   );

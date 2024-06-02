@@ -9,6 +9,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import Layout from "./Layout";
 import { useLocation } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const location = useLocation();
@@ -16,8 +17,11 @@ export default function Header() {
     <Box
       sx={{
         display: "flex",
+        p: 2,
         flexGrow: 1,
         justifyContent: "space-between",
+        bgcolor: "background.surface",
+        height: "100%",
       }}
     >
       <Stack
@@ -32,7 +36,9 @@ export default function Header() {
           sx={{
             display: { xs: "none", sm: "inline-flex" },
             borderRadius: "50%",
-            backgroundColor: "rgb(10, 39, 68)",
+            border: "2px solid",
+            borderColor: "divider",
+            backgroundColor: "#111827",
           }}
         >
           <AutoAwesomeIcon sx={{ color: yellow[500] }} />
@@ -86,6 +92,9 @@ export default function Header() {
         >
           <SearchRoundedIcon />
         </IconButton>
+        <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+          <ThemeToggle />
+        </Box>
       </Box>
     </Box>
   );
