@@ -10,6 +10,7 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import Layout from "./Layout";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import { Typography } from "@mui/material";
 
 export default function Header() {
   const location = useLocation();
@@ -20,7 +21,7 @@ export default function Header() {
         p: 2,
         flexGrow: 1,
         justifyContent: "space-between",
-        bgcolor: "background.surface",
+        bgcolor: { xs: "background.body", sm: "background.surface" },
         height: "100%",
       }}
     >
@@ -57,6 +58,19 @@ export default function Header() {
             {tab.label}
           </Button>
         ))}
+      </Stack>
+      <Stack
+        direction="column"
+        alignItems="start"
+        sx={{
+          display: { xs: "inline-flex", sm: "none" },
+          marginTop: "-0.5rem",
+        }}
+      >
+        <Typography level="body-sm">Sky</Typography>
+        <Typography component="h4" level="h4">
+          1:36:33 PM
+        </Typography>
       </Stack>
       <Box
         sx={{
