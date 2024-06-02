@@ -8,7 +8,7 @@ import CameraIcon from "@mui/icons-material/Camera";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 
 const Tabs = [
-  { label: "Sky", href: "/sky", icon: AutoAwesome, color: yellow[500] },
+  { label: "Sky", href: "/sky", icon: AutoAwesome, color: "#e9b307" },
   { label: "Image", href: "/image", icon: CameraIcon, color: yellow[500] },
   {
     label: "Location",
@@ -59,14 +59,14 @@ function Header(props) {
         {
           p: 2,
           gap: 2,
-          bgcolor: "background.surface",
+          bgcolor: { xs: "background", sm: "background.surface" },
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
           gridColumn: "1 / -1",
-          borderBottom: "1px solid",
-          borderColor: "divider",
+          borderBottom: { xs: "none", sm: "1px solid" },
+          borderColor: { xs: "none", sm: "divider" },
           position: "sticky",
           top: 0,
           zIndex: 1100,

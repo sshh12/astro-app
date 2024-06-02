@@ -12,10 +12,10 @@ import Link from "@mui/joy/Link";
 import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
-import { yellow } from "@mui/material/colors";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { theme } from "../theme/theme";
 
 function ColorSchemeToggle(props) {
   const { onClick, ...other } = props;
@@ -43,7 +43,7 @@ function ColorSchemeToggle(props) {
 
 export default function OnboardingPage() {
   return (
-    <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
+    <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
       <CssBaseline />
       <GlobalStyles
         styles={{
@@ -95,7 +95,7 @@ export default function OnboardingPage() {
                 sx={{ backgroundColor: "rgb(10, 39, 68)" }}
                 size="sm"
               >
-                <AutoAwesomeIcon sx={{ color: yellow[500] }} />
+                <AutoAwesomeIcon sx={{ color: "#e9b307" }} />
               </IconButton>
               <Typography level="title-lg">The Astro App</Typography>
             </Box>

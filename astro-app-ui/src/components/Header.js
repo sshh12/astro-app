@@ -4,20 +4,14 @@ import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
-import Drawer from "@mui/joy/Drawer";
-import ModalClose from "@mui/joy/ModalClose";
-import DialogTitle from "@mui/joy/DialogTitle";
 import { yellow } from "@mui/material/colors";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import Navigation from "./Navigation";
 import Layout from "./Layout";
 import { useLocation } from "react-router-dom";
 
 export default function Header() {
   const location = useLocation();
-  const [open, setOpen] = React.useState(false);
   return (
     <Box
       sx={{
@@ -58,38 +52,20 @@ export default function Header() {
           </Button>
         ))}
       </Stack>
-      <Box sx={{ display: { xs: "inline-flex", sm: "none" } }}>
-        <IconButton
-          variant="plain"
-          color="neutral"
-          onClick={() => setOpen(true)}
-        >
-          <MenuRoundedIcon />
-        </IconButton>
-        <Drawer
-          sx={{ display: { xs: "inline-flex", sm: "none" } }}
-          open={open}
-          onClose={() => setOpen(false)}
-        >
-          <ModalClose />
-          <DialogTitle>Acme Co.</DialogTitle>
-          <Box sx={{ px: 1 }}>
-            <Navigation />
-          </Box>
-        </Drawer>
-      </Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           gap: 1.5,
           alignItems: "center",
+          justifyItems: "end",
+          marginLeft: "auto",
         }}
       >
         <Input
           size="sm"
           variant="outlined"
-          placeholder="Search anything…"
+          placeholder="Search"
           startDecorator={<SearchRoundedIcon color="primary" />}
           sx={{
             alignSelf: "center",
