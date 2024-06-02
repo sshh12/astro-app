@@ -14,11 +14,11 @@ import Dropdown from "@mui/joy/Dropdown";
 import Menu from "@mui/joy/Menu";
 import MenuButton from "@mui/joy/MenuButton";
 import MenuItem from "@mui/joy/MenuItem";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
-import ShareRoundedIcon from "@mui/icons-material/ShareRounded";
+import SortIcon from "@mui/icons-material/Sort";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import Layout from "../components/Layout";
+import ViewComfyIcon from "@mui/icons-material/ViewComfy";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { theme } from "../theme/theme";
@@ -147,16 +147,16 @@ export default function SkyPage() {
                       }}
                     >
                       <MenuItem>
-                        <EditRoundedIcon />
-                        Rename file
+                        <SortIcon />
+                        Change sorting
                       </MenuItem>
                       <MenuItem>
-                        <ShareRoundedIcon />
-                        Share file
+                        <ViewComfyIcon />
+                        Change display
                       </MenuItem>
                       <MenuItem sx={{ textColor: "danger.500" }}>
                         <DeleteRoundedIcon color="danger" />
-                        Delete file
+                        Remove from list
                       </MenuItem>
                     </Menu>
                   </Dropdown>
