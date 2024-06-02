@@ -88,7 +88,6 @@ export default function SkyPage() {
           gridTemplateColumns: {
             xs: "1fr",
             sm: "minmax(64px, 200px) minmax(450px, 1fr)",
-            md: "minmax(160px, 300px) minmax(600px, 1fr) minmax(300px, 420px)",
           },
           ...(drawerOpen && {
             height: "100vh",
@@ -107,7 +106,7 @@ export default function SkyPage() {
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: 2,
+              gap: { xs: 0.5, sm: 2 },
             }}
           >
             <SkySummarySheet />
@@ -115,10 +114,8 @@ export default function SkyPage() {
               <Card variant="outlined" size="sm">
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Box sx={{ flex: 1 }}>
-                    <Typography level="title-md">
-                      lotr-two-towers.pdf
-                    </Typography>
-                    <Typography level="body-sm">132.2MB</Typography>
+                    <Typography level="title-md">Andromeda Galaxy</Typography>
+                    <Typography level="body-sm">Max 53°</Typography>
                   </Box>
                   <Dropdown>
                     <MenuButton
@@ -178,12 +175,10 @@ export default function SkyPage() {
                   >
                     <img
                       alt=""
-                      src="https://images.unsplash.com/photo-1621351183012-e2f9972dd9bf?w=400&h=400&auto=format"
-                      srcSet="https://images.unsplash.com/photo-1621351183012-e2f9972dd9bf?w=400&h=400&auto=format&dpr=2 2x"
+                      src="https://alasky.cds.unistra.fr/hips-image-services/hips2fits?hips=CDS/P/DSS2/color&width=1778&height=1000&fov=1.2760916013153696&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=10.684708333333331&dec=41.26875&format=jpg"
                     />
                   </AspectRatio>
                 </CardOverflow>
-                <Typography level="body-xs">Added 27 Jun 2023</Typography>
               </Card>
             ))}
           </Box>

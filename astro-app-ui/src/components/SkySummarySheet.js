@@ -4,20 +4,27 @@ import TabList from "@mui/joy/TabList";
 import Tab from "@mui/joy/Tab";
 import TabPanel from "@mui/joy/TabPanel";
 import Typography from "@mui/joy/Typography";
+import SkyAltChart from "../charts/SkyAltitudesChart";
 
 function SkySummaries() {
   return (
     <Tabs>
-      <TabList>
-        <Tab sx={{ flexGrow: 1 }}>
+      <TabList
+        sx={{
+          justifyContent: { xs: "center", sm: "start" },
+          display: "flex",
+          overflow: "hidden",
+        }}
+      >
+        <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
           <Typography level="title-sm">Altitudes</Typography>
         </Tab>
-        <Tab sx={{ flexGrow: 1 }}>
+        <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
           <Typography level="title-sm">Orbits</Typography>
         </Tab>
       </TabList>
       <TabPanel value={0} sx={{ p: 0 }}>
-        A
+        <SkyAltChart />
       </TabPanel>
       <TabPanel value={1} sx={{ p: 0 }}>
         B
@@ -28,28 +35,18 @@ function SkySummaries() {
 
 export default function SkySummarySheet() {
   return (
-    <>
-      <Sheet
-        variant="outlined"
-        sx={{
-          borderRadius: "sm",
-          gridColumn: "1/-1",
-          display: { xs: "none", sm: "inherit", md: "flex", lg: "flex" },
-        }}
-      >
-        <SkySummaries />
-      </Sheet>
-      <Sheet
-        variant="outlined"
-        sx={{
-          display: { xs: "inherit", sm: "none" },
-          borderRadius: "sm",
-          overflow: "auto",
-          backgroundColor: "background.surface",
-        }}
-      >
-        <SkySummaries />
-      </Sheet>
-    </>
+    <Sheet
+      variant="outlined"
+      sx={{
+        display: "inherit",
+        borderRadius: "sm",
+        overflow: "hidden",
+        backgroundColor: "background.surface",
+        gridColumn: "1/-1",
+        height: "20rem",
+      }}
+    >
+      <SkySummaries />
+    </Sheet>
   );
 }
