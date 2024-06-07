@@ -10,13 +10,15 @@ import Layout from "../components/Layout";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import ListItemContent from "@mui/joy/ListItemContent";
 import Header from "../components/Header";
+import Skeleton from "@mui/joy/Skeleton";
 import { theme } from "../theme/theme";
 import SkySummarySheet from "../components/SkySummarySheet";
 import SkyObjectsList from "../components/SkyObjectsList";
 import { useBackend } from "../providers/backend";
 
 function ListSideBar({ lists }) {
-  const lsts = lists || [];
+  const lsts =
+    lists || Array.from({ length: 5 }).map((_, i) => ({ id: i, fake: true }));
   return (
     <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
       <ListItem nested>
@@ -31,23 +33,33 @@ function ListSideBar({ lists }) {
             "& .JoyListItemButton-root": { p: "8px" },
           }}
         >
-          {lsts.map((lst) => (
-            <ListItem key={lst.id}>
-              <ListItemButton>
-                <ListItemDecorator>
-                  <Box
-                    sx={{
-                      width: "10px",
-                      height: "10px",
-                      borderRadius: "99px",
-                      bgcolor: "primary.500",
-                    }}
-                  />
-                </ListItemDecorator>
-                <ListItemContent>{lst.title}</ListItemContent>
-              </ListItemButton>
-            </ListItem>
-          ))}
+          {lsts.map((lst) =>
+            lst.fake ? (
+              <ListItem key={lst.id}>
+                <ListItemButton>
+                  <ListItemContent>
+                    <Skeleton variant="text"></Skeleton>
+                  </ListItemContent>
+                </ListItemButton>
+              </ListItem>
+            ) : (
+              <ListItem key={lst.id}>
+                <ListItemButton>
+                  <ListItemDecorator>
+                    <Box
+                      sx={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "99px",
+                        bgcolor: "primary.500",
+                      }}
+                    />
+                  </ListItemDecorator>
+                  <ListItemContent>{lst.title}</ListItemContent>
+                </ListItemButton>
+              </ListItem>
+            )
+          )}
         </List>
       </ListItem>
     </List>

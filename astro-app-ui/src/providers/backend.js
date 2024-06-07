@@ -37,12 +37,17 @@ function usePost() {
 
 function useUser() {
   const { post } = usePost();
+  const { settingsStore } = useStorage();
   const [user, setUser] = useState(null);
   useEffect(() => {
-    if (post) {
-      post("get_user").then((user) => setUser(user));
+    if (post && settingsStore) {
+      settingsStore.getItem(API_KEY_KEY).then((apiKey) => {
+        if (apiKey) {
+          post("get_user").then((user) => setUser(user));
+        }
+      });
     }
-  }, [post]);
+  }, [post, settingsStore]);
   return { user };
 }
 

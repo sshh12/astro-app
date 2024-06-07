@@ -13,8 +13,42 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import ViewComfyIcon from "@mui/icons-material/ViewComfy";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardOverflow from "@mui/joy/CardOverflow";
+import Skeleton from "@mui/joy/Skeleton";
+
+function SkyObjectCardSkeleton() {
+  return (
+    <Card variant="outlined" size="sm">
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box sx={{ flex: 1 }}>
+          <Typography level="title-md">
+            <Skeleton>A sky object</Skeleton>
+          </Typography>
+        </Box>
+      </Box>
+      <CardOverflow
+        sx={{
+          borderBottom: "1px solid",
+          borderTop: "1px solid",
+          borderColor: "neutral.outlinedBorder",
+        }}
+      >
+        <AspectRatio ratio="16/9" color="primary" sx={{ borderRadius: 0 }}>
+          <Skeleton variant="overlay">
+            <img
+              alt=""
+              src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+            />
+          </Skeleton>
+        </AspectRatio>
+      </CardOverflow>
+    </Card>
+  );
+}
 
 export default function SkyObjectCard({ object }) {
+  if (!object) {
+    return <SkyObjectCardSkeleton />;
+  }
   return (
     <Card variant="outlined" size="sm">
       <Box sx={{ display: "flex", alignItems: "center" }}>
