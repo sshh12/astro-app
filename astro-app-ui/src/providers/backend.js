@@ -27,7 +27,16 @@ function usePost() {
             args: args,
             api_key: apiKey,
           }),
-        }).then((response) => response.json())
+        })
+          .then((response) => response.json())
+          .then((resp) => {
+            if (resp.error) {
+              throw new Error(resp.error);
+            } else if (resp.detail) {
+              throw new Error(resp.detail[0]);
+            }
+            return resp;
+          })
       );
     },
     [settingsStore]
@@ -43,7 +52,9 @@ function useUser() {
     if (post && settingsStore) {
       settingsStore.getItem(API_KEY_KEY).then((apiKey) => {
         if (apiKey) {
-          post("get_user").then((user) => setUser(user));
+          post("get_user")
+            .then((user) => setUser(user))
+            .catch(console.error);
         }
       });
     }
