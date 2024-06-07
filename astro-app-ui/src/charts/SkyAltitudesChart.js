@@ -1,4 +1,12 @@
 import React, { Fragment } from "react";
+import Card from "@mui/joy/Card";
+import Typography from "@mui/joy/Typography";
+import List from "@mui/joy/List";
+import ListItem from "@mui/joy/ListItem";
+import ListItemButton from "@mui/joy/ListItemButton";
+import ListItemDecorator from "@mui/joy/ListItemDecorator";
+import Box from "@mui/joy/Box";
+import ListItemContent from "@mui/joy/ListItemContent";
 import {
   CartesianGrid,
   Line,
@@ -8,6 +16,45 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
+function HoverCard({ ts, objects }) {
+  const objs = objects;
+  return (
+    <Card>
+      <div>
+        <Typography level="title-md">{ts}</Typography>
+        <List
+          aria-labelledby="nav-list-tags"
+          size="sm"
+          sx={{
+            "--ListItemDecorator-size": "20px",
+            "& .JoyListItemButton-root": { p: "8px" },
+          }}
+        >
+          {objs.map((obj) => (
+            <ListItem key={obj.id}>
+              <ListItemButton>
+                <ListItemDecorator>
+                  <Box
+                    sx={{
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "99px",
+                      bgcolor: "primary.500",
+                    }}
+                  />
+                </ListItemDecorator>
+                <ListItemContent>
+                  {obj.name} {obj.alt}
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </div>
+    </Card>
+  );
+}
 
 export default function SkyAltitudesChart() {
   const objects = [
@@ -66,10 +113,11 @@ export default function SkyAltitudesChart() {
           isAnimationActive={false}
           cursor={{ stroke: "#d1d5db", strokeWidth: 1 }}
           content={({ payload, label }) => {
-            let note = label + " " + JSON.stringify(payload);
-            const dateLabel = new Date(label).toLocaleDateString("en-US", {});
-            const itemLabel = `${dateLabel} (${note})`;
-            return <div>{itemLabel}</div>;
+            const objs = payload.map((p) => ({
+              ...objects.find((o) => o.id === p.dataKey),
+              alt: p.value,
+            }));
+            return <HoverCard ts={label} objects={objs} />;
           }}
           position={{ y: 0 }}
         />
