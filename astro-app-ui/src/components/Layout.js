@@ -6,6 +6,9 @@ import AutoAwesome from "@mui/icons-material/AutoAwesome";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CameraIcon from "@mui/icons-material/Camera";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import Button from "@mui/joy/Button";
+import Stack from "@mui/joy/Stack";
+import { useLocation } from "react-router-dom";
 
 const Tabs = [
   { label: "Sky", href: "/sky", icon: AutoAwesome, color: "#e9b307" },
@@ -167,8 +170,63 @@ function SideDrawer(props) {
   );
 }
 
+function MobileTabs() {
+  const location = useLocation();
+  return (
+    <Stack
+      id="tab-bar"
+      direction="row"
+      justifyContent="space-around"
+      sx={{
+        display: { xs: "flex", sm: "none" },
+        zIndex: "999",
+        bottom: 0,
+        position: "fixed",
+        width: "100dvw",
+        py: 2,
+        backgroundColor: "background.body",
+        borderTop: "1px solid",
+        borderColor: "divider",
+        marginX: "calc(1 * var(--joy-spacing))",
+        paddingBottom: "calc(1 * var(--joy-spacing))",
+        paddingTop: "calc(1 * var(--joy-spacing))",
+      }}
+    >
+      {Tabs.map((tab) => (
+        <Button
+          key={tab.label}
+          variant="plain"
+          color="neutral"
+          component="a"
+          href={tab.href}
+          size="sm"
+          startDecorator={
+            <tab.icon
+              sx={{
+                color:
+                  locationToTab(location).label === tab.label
+                    ? tab.color
+                    : undefined,
+              }}
+            />
+          }
+          aria-pressed={locationToTab(location).label === tab.label}
+          sx={{
+            flexDirection: "column",
+            "--Button-gap": 0,
+            flex: 1,
+          }}
+        >
+          {tab.label}
+        </Button>
+      ))}
+    </Stack>
+  );
+}
+
 const Layout = {
   Tabs,
+  MobileTabs,
   locationToTab,
   Root,
   Header,

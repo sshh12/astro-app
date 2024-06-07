@@ -12,7 +12,7 @@ import { useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import { Typography } from "@mui/material";
 
-export default function Header() {
+export default function Header({ title, subtitle }) {
   const location = useLocation();
   return (
     <Box
@@ -67,9 +67,9 @@ export default function Header() {
           marginTop: "-0.5rem",
         }}
       >
-        <Typography level="body-sm">Sky</Typography>
+        <Typography level="body-sm">{title}</Typography>
         <Typography component="h4" level="h4">
-          1:36:33 PM
+          {subtitle}
         </Typography>
       </Stack>
       <Box
