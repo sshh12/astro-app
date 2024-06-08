@@ -58,12 +58,24 @@ const OVERRIDES = [
   },
 ];
 
+export function getImageURL(object) {
+  const override = OVERRIDES.find((o) => o.id === object.id);
+  if (override) {
+    return override.imgURL;
+  }
+  return getSkySurveyImageURL(object, "CDS/P/DSS2/color", 600, 600);
+}
+
+export function getSkySurveyImageURL(object, hips, width, height, fov = 1.0) {
+  return `${HIPS2FITS_URL}?hips=${hips}&width=${width}&height=${height}&fov=${fov}&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=${
+    object.ra * 15
+  }&dec=${object.dec}&format=jpg`;
+}
+
 function SkySurveyImage({ object, hips, width, height, style, fov = 1.0 }) {
   return (
     <img
-      src={`${HIPS2FITS_URL}?hips=${hips}&width=${width}&height=${height}&fov=${fov}&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=${
-        object.ra * 15
-      }&dec=${object.dec}&format=jpg`}
+      src={getSkySurveyImageURL(object, hips, width, height, fov)}
       alt="Astro Survey"
       crossOrigin="anonymous"
       style={style}

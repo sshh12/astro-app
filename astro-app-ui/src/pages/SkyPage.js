@@ -16,6 +16,12 @@ import SkySummarySheet from "../components/SkySummarySheet";
 import SkyObjectsList from "../components/SkyObjectsList";
 import { useBackend } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
+import { getImageURL } from "../components/SkyObjectImage";
+import Sheet from "@mui/joy/Sheet";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import Typography from "@mui/joy/Typography";
+import AvatarGroup from "@mui/joy/AvatarGroup";
+import Avatar from "@mui/joy/Avatar";
 
 function ListSideBar({ lists }) {
   const lsts =
@@ -27,7 +33,6 @@ function ListSideBar({ lists }) {
           Lists
         </ListSubheader>
         <List
-          aria-labelledby="nav-list-tags"
           size="sm"
           sx={{
             "--ListItemDecorator-size": "20px",
@@ -64,6 +69,73 @@ function ListSideBar({ lists }) {
         </List>
       </ListItem>
     </List>
+  );
+}
+
+function ListMobileTab({ lists }) {
+  const lsts = lists || [];
+  return (
+    <Sheet
+      variant="outlined"
+      sx={{
+        display: { xs: "inherit", sm: "none" },
+        borderRadius: "sm",
+        overflow: "hidden",
+        backgroundColor: "background.surface",
+        gridColumn: "1/-1",
+      }}
+    >
+      <Typography
+        id="decorated-list-demo"
+        level="body-xs"
+        textTransform="uppercase"
+        fontWeight="lg"
+        mb={1}
+        sx={{
+          pt: 2,
+          pl: 2,
+        }}
+      >
+        Lists
+      </Typography>
+      <List
+        size="sm"
+        sx={{
+          "--ListItemDecorator-size": "20px",
+          "& .JoyListItemButton-root": { p: "8px" },
+          pl: 1,
+        }}
+      >
+        {lsts.map((lst) => {
+          const avatarsObjs = lst.objects.slice(0, 3);
+          const extras = lst.objects.length - avatarsObjs.length;
+          return (
+            <ListItem>
+              <ListItemButton>
+                <ListItemDecorator>
+                  <Box
+                    sx={{
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "99px",
+                      bgcolor: lst.color,
+                    }}
+                  />
+                </ListItemDecorator>
+                <ListItemContent>{lst.title}</ListItemContent>
+                <AvatarGroup>
+                  {avatarsObjs.map((obj) => (
+                    <Avatar key={obj.id} src={getImageURL(obj)} />
+                  ))}
+                  {!!extras && <Avatar>+{extras}</Avatar>}
+                </AvatarGroup>
+                <KeyboardArrowRight />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    </Sheet>
   );
 }
 
@@ -116,6 +188,7 @@ export default function SkyPage() {
           >
             <SkySummarySheet objects={favoriteObjects} orbits={favOrbits} />
             <SkyObjectsList objects={favoriteObjects} orbits={favOrbits} />
+            <ListMobileTab lists={user?.lists} />
             <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
           </Box>
         </Layout.Main>
