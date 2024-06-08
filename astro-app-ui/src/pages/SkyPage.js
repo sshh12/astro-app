@@ -116,6 +116,7 @@ export default function SkyPage() {
           >
             <SkySummarySheet objects={favoriteObjects} orbits={favOrbits} />
             <SkyObjectsList objects={favoriteObjects} orbits={favOrbits} />
+            <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
           </Box>
         </Layout.Main>
       </Layout.Root>

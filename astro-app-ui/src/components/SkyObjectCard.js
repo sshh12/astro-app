@@ -14,8 +14,11 @@ import ViewComfyIcon from "@mui/icons-material/ViewComfy";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardOverflow from "@mui/joy/CardOverflow";
 import Skeleton from "@mui/joy/Skeleton";
+import ObjectImage from "./SkyObjectImage";
+import { useBackend } from "../providers/backend";
+import { equipmentToDetails } from "../utils/equipment";
 
-function SkyObjectCardSkeleton() {
+function SkyObjectCardSkeleton({ eqDetails }) {
   return (
     <Card variant="outlined" size="sm">
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -32,7 +35,11 @@ function SkyObjectCardSkeleton() {
           borderColor: "neutral.outlinedBorder",
         }}
       >
-        <AspectRatio ratio="16/9" color="primary" sx={{ borderRadius: 0 }}>
+        <AspectRatio
+          ratio={eqDetails.aspectRatio}
+          color="primary"
+          sx={{ borderRadius: 0 }}
+        >
           <Skeleton variant="overlay">
             <img
               alt=""
@@ -46,8 +53,10 @@ function SkyObjectCardSkeleton() {
 }
 
 export default function SkyObjectCard({ object }) {
+  const { equipment } = useBackend();
+  const eqDetails = equipmentToDetails(equipment);
   if (!object) {
-    return <SkyObjectCardSkeleton />;
+    return <SkyObjectCardSkeleton eqDetails={eqDetails} />;
   }
   return (
     <Card variant="outlined" size="sm">
@@ -107,11 +116,12 @@ export default function SkyObjectCard({ object }) {
           borderColor: "neutral.outlinedBorder",
         }}
       >
-        <AspectRatio ratio="16/9" color="primary" sx={{ borderRadius: 0 }}>
-          <img
-            alt=""
-            src="https://alasky.cds.unistra.fr/hips-image-services/hips2fits?hips=CDS/P/DSS2/color&width=1778&height=1000&fov=1.2760916013153696&projection=TAN&coordsys=icrs&rotation_angle=0.0&ra=10.684708333333331&dec=41.26875&format=jpg"
-          />
+        <AspectRatio
+          ratio={eqDetails.aspectRatio}
+          color="primary"
+          sx={{ borderRadius: 0 }}
+        >
+          <ObjectImage object={object} />
         </AspectRatio>
       </CardOverflow>
     </Card>

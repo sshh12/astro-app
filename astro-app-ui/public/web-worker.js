@@ -1,4 +1,4 @@
-importScripts("/static/pyodide.js");
+importScripts("/static/whl/pyodide.js");
 
 async function loadPyodideAndPackages() {
   self.pyodide = await loadPyodide();
@@ -40,9 +40,9 @@ async function loadPyodideAndPackages() {
     micropip.install([
       "pytz",
       "pandas",
-      "/static/sgp4-2.23-cp310-cp310-emscripten_3_1_27_wasm32.whl",
-      "/static/skyfield-1.48-py3-none-any.whl",
-      "/static/astro_app-0.1234.5-py3-none-any.whl",
+      "/static/whl/sgp4-2.23-cp310-cp310-emscripten_3_1_27_wasm32.whl",
+      "/static/whl/skyfield-1.48-py3-none-any.whl",
+      "/static/whl/astro_app-0.1234.5-py3-none-any.whl",
     ]),
     getNASAEph(),
     getComets(),

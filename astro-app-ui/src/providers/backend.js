@@ -70,5 +70,6 @@ export function useBackend() {
 export function useBackendControl() {
   const { user } = useUser();
   const location = !!user ? user.location.find((v) => v.active) : null;
-  return { user, location };
+  const equipment = !!user ? user.equipment.find((v) => v.active) : null;
+  return { user, location, equipment };
 }
