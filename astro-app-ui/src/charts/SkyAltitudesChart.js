@@ -84,7 +84,6 @@ export default function SkyAltitudesChart({ objects, orbits }) {
           verticalPoints={[30, 60]}
         />
         <XAxis
-          padding={{ left: 20, right: 20 }}
           hide={true}
           dataKey={"time"}
           interval={"equidistantPreserveStart"}
@@ -97,7 +96,7 @@ export default function SkyAltitudesChart({ objects, orbits }) {
           minTickGap={5}
         />
         <YAxis
-          width={40}
+          width={0}
           hide={true}
           axisLine={true}
           tickLine={true}
