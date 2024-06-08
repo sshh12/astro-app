@@ -72,7 +72,7 @@ export default function SkyListPage() {
   );
 
   return (
-    <CssVarsProvider theme={theme} disableTransitionOnChange>
+    <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
       <CssBaseline />
       <Layout.MobileTabs />
       <Layout.Root
