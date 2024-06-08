@@ -11,8 +11,10 @@ import Layout from "./Layout";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import { Typography } from "@mui/material";
+import ArrowBack from "@mui/icons-material/ArrowBack";
+import { Link } from "react-router-dom";
 
-export default function Header({ title, subtitle }) {
+export function Header({ title, subtitle }) {
   const location = useLocation();
   return (
     <Box
@@ -106,6 +108,116 @@ export default function Header({ title, subtitle }) {
         >
           <SearchRoundedIcon />
         </IconButton>
+        <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+          <ThemeToggle />
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+export function SubPageHeader({ title, backPath }) {
+  const location = useLocation();
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        p: 2,
+        flexGrow: 1,
+        justifyContent: "space-between",
+        bgcolor: { xs: "background.body", sm: "background.surface" },
+        height: "100%",
+      }}
+    >
+      <Stack
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+        spacing={1}
+        sx={{ display: { xs: "none", sm: "flex" } }}
+      >
+        <IconButton
+          size="md"
+          sx={{
+            display: { xs: "none", sm: "inline-flex" },
+            borderRadius: "50%",
+            border: "2px solid",
+            borderColor: "divider",
+            backgroundColor: "#111827",
+          }}
+        >
+          <AutoAwesomeIcon sx={{ color: yellow[500] }} />
+        </IconButton>
+        {Layout.Tabs.map((tab) => (
+          <Button
+            key={tab.label}
+            variant="plain"
+            color="neutral"
+            component="a"
+            aria-pressed={Layout.locationToTab(location).label === tab.label}
+            href={tab.href}
+            size="sm"
+            sx={{ alignSelf: "center" }}
+          >
+            {tab.label}
+          </Button>
+        ))}
+      </Stack>
+      <Stack
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+        spacing={1}
+        sx={{ display: { xs: "flex", sm: "none" } }}
+      >
+        <Link to={{ pathname: backPath }}>
+          <IconButton
+            size="sm"
+            variant="outlined"
+            color="neutral"
+            sx={{
+              display: { xs: "inline-flex", sm: "none" },
+              alignSelf: "center",
+            }}
+          >
+            <ArrowBack />
+          </IconButton>
+        </Link>
+      </Stack>
+      <Stack
+        alignItems="center"
+        sx={{
+          display: { xs: "flex", sm: "none" },
+          ml: 1,
+          mt: "0.2rem",
+        }}
+      >
+        <Typography level="body-sm">{title}</Typography>
+      </Stack>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: 1.5,
+          alignItems: "center",
+          justifyItems: "end",
+          marginLeft: "auto",
+        }}
+      >
+        <Input
+          size="sm"
+          variant="outlined"
+          placeholder="Search"
+          startDecorator={<SearchRoundedIcon color="primary" />}
+          sx={{
+            alignSelf: "center",
+            display: {
+              xs: "none",
+              sm: "flex",
+            },
+          }}
+        />
+
         <Box sx={{ display: { xs: "none", sm: "flex" } }}>
           <ThemeToggle />
         </Box>

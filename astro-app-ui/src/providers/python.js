@@ -10,20 +10,51 @@ import { useStorage } from "./storage";
 export const PythonContext = React.createContext({});
 
 export function usePythonControl() {
-  const asyncRun = useRef();
+  const numWorkers =
+    (navigator.hardwareConcurrency &&
+      Math.min(navigator.hardwareConcurrency, 5)) ||
+    4;
   const workers = useRef([]);
   const workersActive = useRef({});
   const callbacks = useRef({});
   const sendJsCallbacks = useRef({});
+
+  const asyncRun = useCallback(
+    (script, onSendJs) => {
+      const submitJob = () => {
+        const runWorker =
+          workers.current.findIndex((_, i) => !workersActive.current[i]) ||
+          Math.floor(Math.random() * numWorkers);
+        const worker = workers.current[runWorker];
+        const id = Date.now() + Math.random();
+
+        return new Promise((resolve) => {
+          callbacks.current[id] = resolve;
+          sendJsCallbacks.current[id] = onSendJs;
+          workersActive.current[runWorker] = true;
+          worker.postMessage({
+            python: script,
+            id,
+          });
+        });
+      };
+      if (!workers.current.length) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(submitJob());
+          }, 100);
+        });
+      } else {
+        return submitJob();
+      }
+    },
+    [numWorkers]
+  );
+
   useEffect(() => {
     if (window.Worker && !window.pyinit) {
       window.pyinit = true;
-      const numWorkers =
-        (navigator.hardwareConcurrency &&
-          Math.min(navigator.hardwareConcurrency, 5)) ||
-        4;
       console.log(`python: Creating ${numWorkers} web workers`);
-
       for (let i = 0; i < numWorkers; i++) {
         const worker = new Worker("/web-worker.js");
         workersActive.current[i] = false;
@@ -42,55 +73,40 @@ export function usePythonControl() {
           }
         };
       }
-      asyncRun.current = (script, onSendJs) => {
-        const runWorker =
-          workers.current.findIndex((_, i) => !workersActive.current[i]) ||
-          Math.floor(Math.random() * numWorkers);
-        const worker = workers.current[runWorker];
-        const id = Date.now() + Math.random();
-
-        return new Promise((resolve) => {
-          callbacks.current[id] = resolve;
-          sendJsCallbacks.current[id] = onSendJs;
-          workersActive.current[runWorker] = true;
-          worker.postMessage({
-            python: script,
-            id,
-          });
-        });
-      };
     }
-
     return () => {};
-  }, []);
+  }, [numWorkers]);
 
-  const call = useCallback(async (method, args = {}, onStream = null) => {
-    console.log("python:", method);
-    const val = await asyncRun.current(
-      `
+  const call = useCallback(
+    async (method, args = {}, onStream = null) => {
+      console.log("python:", method);
+      const val = await asyncRun(
+        `
     from astro_app.api import call;
     call(send_js, "${method}", ${JSON.stringify(args)
-        .replaceAll("null", "None")
-        .replaceAll("true", "True")
-        .replaceAll("false", "Frue")})
+          .replaceAll("null", "None")
+          .replaceAll("true", "True")
+          .replaceAll("false", "Frue")})
     `,
-      (val) => {
-        console.log("python:", method);
-        if (onStream) {
-          onStream(val);
+        (val) => {
+          console.log("python:", method);
+          if (onStream) {
+            onStream(val);
+          }
         }
-      }
-    );
+      );
 
-    const result = JSON.parse(val.results);
-    if (val.error) {
-      console.error(val.error);
-      // alert(val.error);
-      result.error = val.error;
-    }
-    console.log("python:", method, "complete");
-    return result;
-  }, []);
+      const result = JSON.parse(val.results);
+      if (val.error) {
+        console.error(val.error);
+        // alert(val.error);
+        result.error = val.error;
+      }
+      console.log("python:", method, "complete");
+      return result;
+    },
+    [asyncRun]
+  );
   return { call };
 }
 

@@ -9,7 +9,7 @@ import Box from "@mui/joy/Box";
 import Layout from "../components/Layout";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import ListItemContent from "@mui/joy/ListItemContent";
-import Header from "../components/Header";
+import { Header } from "../components/Headers";
 import Skeleton from "@mui/joy/Skeleton";
 import { theme } from "../theme/theme";
 import SkySummarySheet from "../components/SkySummarySheet";
@@ -22,10 +22,12 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import Typography from "@mui/joy/Typography";
 import AvatarGroup from "@mui/joy/AvatarGroup";
 import Avatar from "@mui/joy/Avatar";
+import { Link } from "react-router-dom";
 
 function ListSideBar({ lists }) {
   const lsts =
-    lists || Array.from({ length: 5 }).map((_, i) => ({ id: i, fake: true }));
+    (lists && lists.filter((lst) => lst.title !== "Favorites")) ||
+    Array.from({ length: 5 }).map((_, i) => ({ id: i, fake: true }));
   return (
     <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
       <ListItem nested>
@@ -49,21 +51,26 @@ function ListSideBar({ lists }) {
                 </ListItemButton>
               </ListItem>
             ) : (
-              <ListItem key={lst.id}>
-                <ListItemButton>
-                  <ListItemDecorator>
-                    <Box
-                      sx={{
-                        width: "10px",
-                        height: "10px",
-                        borderRadius: "99px",
-                        bgcolor: lst.color,
-                      }}
-                    />
-                  </ListItemDecorator>
-                  <ListItemContent>{lst.title}</ListItemContent>
-                </ListItemButton>
-              </ListItem>
+              <Link
+                to={{ pathname: `/sky/list/${lst.id}` }}
+                style={{ textDecoration: "none" }}
+              >
+                <ListItem key={lst.id}>
+                  <ListItemButton>
+                    <ListItemDecorator>
+                      <Box
+                        sx={{
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "99px",
+                          bgcolor: lst.color,
+                        }}
+                      />
+                    </ListItemDecorator>
+                    <ListItemContent>{lst.title}</ListItemContent>
+                  </ListItemButton>
+                </ListItem>
+              </Link>
             )
           )}
         </List>
@@ -73,7 +80,9 @@ function ListSideBar({ lists }) {
 }
 
 function ListMobileTab({ lists }) {
-  const lsts = lists || [];
+  const lsts =
+    (lists && lists.filter((lst) => lst.title !== "Favorites")) ||
+    Array.from({ length: 5 }).map((_, i) => ({ id: i, fake: true }));
   return (
     <Sheet
       variant="outlined"
@@ -107,31 +116,47 @@ function ListMobileTab({ lists }) {
         }}
       >
         {lsts.map((lst) => {
+          if (lst.fake) {
+            return (
+              <ListItem key={lst.id}>
+                <ListItemButton>
+                  <ListItemContent>
+                    <Skeleton variant="text"></Skeleton>
+                  </ListItemContent>
+                </ListItemButton>
+              </ListItem>
+            );
+          }
           const avatarsObjs = lst.objects.slice(0, 3);
           const extras = lst.objects.length - avatarsObjs.length;
           return (
-            <ListItem>
-              <ListItemButton>
-                <ListItemDecorator>
-                  <Box
-                    sx={{
-                      width: "10px",
-                      height: "10px",
-                      borderRadius: "99px",
-                      bgcolor: lst.color,
-                    }}
-                  />
-                </ListItemDecorator>
-                <ListItemContent>{lst.title}</ListItemContent>
-                <AvatarGroup>
-                  {avatarsObjs.map((obj) => (
-                    <Avatar key={obj.id} src={getImageURL(obj)} />
-                  ))}
-                  {!!extras && <Avatar>+{extras}</Avatar>}
-                </AvatarGroup>
-                <KeyboardArrowRight />
-              </ListItemButton>
-            </ListItem>
+            <Link
+              to={{ pathname: `/sky/list/${lst.id}` }}
+              style={{ textDecoration: "none" }}
+            >
+              <ListItem href="/sky/list">
+                <ListItemButton>
+                  <ListItemDecorator>
+                    <Box
+                      sx={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "99px",
+                        bgcolor: lst.color,
+                      }}
+                    />
+                  </ListItemDecorator>
+                  <ListItemContent>{lst.title}</ListItemContent>
+                  <AvatarGroup>
+                    {avatarsObjs.map((obj) => (
+                      <Avatar key={obj.id} src={getImageURL(obj)} />
+                    ))}
+                    {!!extras && <Avatar>+{extras}</Avatar>}
+                  </AvatarGroup>
+                  <KeyboardArrowRight />
+                </ListItemButton>
+              </ListItem>
+            </Link>
           );
         })}
       </List>

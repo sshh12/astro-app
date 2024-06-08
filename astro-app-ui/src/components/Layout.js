@@ -28,7 +28,7 @@ const Tabs = [
 ];
 
 function locationToTab(location) {
-  return Tabs.find((tab) => tab.href === location.pathname);
+  return Tabs.find((tab) => location.pathname.startsWith(tab.href));
 }
 
 function Root(props) {

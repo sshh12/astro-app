@@ -19,12 +19,13 @@ import {
 } from "recharts";
 
 function HoverCard({ ts, objects, tz }) {
-  const objs = objects.filter((obj) => obj.alt > 0);
+  let objs = objects.filter((obj) => obj.alt > 0);
   objs.sort((a, b) => b.alt - a.alt);
+  objs = objs.slice(0, 5);
   return (
     <Card>
       <div>
-        <Typography level="title-md">{renderTime(ts)}</Typography>
+        <Typography level="title-md">{renderTime(ts, tz)}</Typography>
         <List
           aria-labelledby="nav-list-tags"
           size="sm"
@@ -127,7 +128,7 @@ export default function SkyAltitudesChart({ objects, orbits }) {
           <Line
             className=""
             dot={({ index }) => {
-              return <Fragment key={index}>test</Fragment>;
+              return <Fragment key={index}></Fragment>;
             }}
             activeDot={{
               strokeWidth: 0,

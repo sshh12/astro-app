@@ -62,6 +62,28 @@ function useUser() {
   return { user };
 }
 
+export function useList(id) {
+  const [list, setList] = useState(null);
+  const { post } = usePost();
+  const { listStore } = useStorage();
+  useEffect(() => {
+    if (listStore && post && id) {
+      (async () => {
+        const cacheVal = await listStore.getItem(id);
+        if (cacheVal) {
+          setList(cacheVal);
+        } else {
+          post("get_list", { id: id }).then((list) => {
+            listStore.setItem(id, list);
+            setList(list);
+          });
+        }
+      })();
+    }
+  }, [listStore, id, post]);
+  return { list };
+}
+
 export function useBackend() {
   const backend = useContext(BackendContext);
   return backend;
