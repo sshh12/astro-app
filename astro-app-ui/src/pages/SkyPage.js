@@ -15,6 +15,7 @@ import { theme } from "../theme/theme";
 import SkySummarySheet from "../components/SkySummarySheet";
 import SkyObjectsList from "../components/SkyObjectsList";
 import { useBackend } from "../providers/backend";
+import { useCachedPythonOutput } from "../providers/python";
 
 function ListSideBar({ lists }) {
   const lsts =
@@ -51,7 +52,7 @@ function ListSideBar({ lists }) {
                         width: "10px",
                         height: "10px",
                         borderRadius: "99px",
-                        bgcolor: "primary.500",
+                        bgcolor: lst.color,
                       }}
                     />
                   </ListItemDecorator>
@@ -67,12 +68,26 @@ function ListSideBar({ lists }) {
 }
 
 export default function SkyPage() {
-  const { user } = useBackend();
+  const { user, location } = useBackend();
 
   const favoriteObjects = user
     ? user.lists.find((lst) => lst.title === "Favorites").objects
     : null;
-  console.log(user);
+
+  const { result: favOrbits } = useCachedPythonOutput(
+    "get_orbit_calculations",
+    favoriteObjects &&
+      location && {
+        objects: favoriteObjects,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+        resolution_mins: 10,
+      },
+    { cacheKey: "favOrbits", staleCacheKey: "favOrbits" }
+  );
+
   return (
     <CssVarsProvider theme={theme} disableTransitionOnChange>
       <CssBaseline />
@@ -99,8 +114,8 @@ export default function SkyPage() {
               gap: { xs: 0.5, sm: 2 },
             }}
           >
-            <SkySummarySheet />
-            <SkyObjectsList objects={favoriteObjects} />
+            <SkySummarySheet objects={favoriteObjects} orbits={favOrbits} />
+            <SkyObjectsList objects={favoriteObjects} orbits={favOrbits} />
           </Box>
         </Layout.Main>
       </Layout.Root>

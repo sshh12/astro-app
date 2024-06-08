@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useMemo } from "react";
 import Card from "@mui/joy/Card";
 import Typography from "@mui/joy/Typography";
 import List from "@mui/joy/List";
@@ -7,6 +7,7 @@ import ListItemButton from "@mui/joy/ListItemButton";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import Box from "@mui/joy/Box";
 import ListItemContent from "@mui/joy/ListItemContent";
+import { renderTime } from "../utils/date";
 import {
   CartesianGrid,
   Line,
@@ -17,12 +18,13 @@ import {
   YAxis,
 } from "recharts";
 
-function HoverCard({ ts, objects }) {
-  const objs = objects;
+function HoverCard({ ts, objects, tz }) {
+  const objs = objects.filter((obj) => obj.alt > 0);
+  objs.sort((a, b) => b.alt - a.alt);
   return (
     <Card>
       <div>
-        <Typography level="title-md">{ts}</Typography>
+        <Typography level="title-md">{renderTime(ts)}</Typography>
         <List
           aria-labelledby="nav-list-tags"
           size="sm"
@@ -40,13 +42,14 @@ function HoverCard({ ts, objects }) {
                       width: "10px",
                       height: "10px",
                       borderRadius: "99px",
-                      bgcolor: "primary.500",
+                      bgcolor: obj.color,
                     }}
                   />
                 </ListItemDecorator>
-                <ListItemContent>
-                  {obj.name} {obj.alt}
-                </ListItemContent>
+                <ListItemContent>{obj.name}</ListItemContent>
+                <Typography textColor="text.tertiary">
+                  {Math.round(obj.alt)}°
+                </Typography>
               </ListItemButton>
             </ListItem>
           ))}
@@ -56,21 +59,21 @@ function HoverCard({ ts, objects }) {
   );
 }
 
-export default function SkyAltitudesChart() {
-  const objects = [
-    { id: 1, name: "object", color: "#ff00ff" },
-    { id: 2, name: "object2", color: "#ffff00" },
-  ];
-  const data = [];
-  const startDate = +new Date();
-  for (let i = 0; i < 300; i++) {
-    const row = {
-      time: startDate + i * 60000,
-    };
-    row["1"] = Math.sin(i / 10) * 30 + 45;
-    row["2"] = Math.sin((i - 100) / 10) * 30 + 45;
-    data.push(row);
-  }
+export default function SkyAltitudesChart({ objects, orbits }) {
+  const data = useMemo(() => {
+    const rows = [];
+    for (let i in orbits.time) {
+      const row = {
+        time: orbits.time[i],
+      };
+      for (let obj of objects) {
+        const alt = orbits.objects[obj.id].alt[i];
+        row[obj.id] = alt > 0 ? alt : null;
+      }
+      rows.push(row);
+    }
+    return rows;
+  }, [objects, orbits]);
   return (
     <ResponsiveContainer style={{}}>
       <ReChartsLineChart data={data}>
@@ -117,7 +120,7 @@ export default function SkyAltitudesChart() {
               ...objects.find((o) => o.id === p.dataKey),
               alt: p.value,
             }));
-            return <HoverCard ts={label} objects={objs} />;
+            return <HoverCard ts={label} objects={objs} tz={orbits.timezone} />;
           }}
           position={{ y: 0 }}
         />

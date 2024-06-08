@@ -1,6 +1,6 @@
 import SkyObjectCard from "./SkyObjectCard";
 
-export default function SkyObjectsList({ objects }) {
+export default function SkyObjectsList({ objects, orbits }) {
   const objs = objects || [];
   return (
     <>

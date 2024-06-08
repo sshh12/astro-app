@@ -5,8 +5,9 @@ import Tab from "@mui/joy/Tab";
 import TabPanel from "@mui/joy/TabPanel";
 import Typography from "@mui/joy/Typography";
 import SkyAltChart from "../charts/SkyAltitudesChart";
+import Skeleton from "@mui/joy/Skeleton";
 
-function SkySummaries() {
+function SkySummaries({ objects, orbits }) {
   return (
     <Tabs>
       <TabList
@@ -24,7 +25,11 @@ function SkySummaries() {
         </Tab>
       </TabList>
       <TabPanel value={0} sx={{ p: 0 }}>
-        <SkyAltChart />
+        {objects && orbits ? (
+          <SkyAltChart objects={objects} orbits={orbits} />
+        ) : (
+          <Skeleton variant="overlay"></Skeleton>
+        )}
       </TabPanel>
       <TabPanel value={1} sx={{ p: 0 }}>
         B
@@ -33,7 +38,7 @@ function SkySummaries() {
   );
 }
 
-export default function SkySummarySheet() {
+export default function SkySummarySheet({ objects, orbits }) {
   return (
     <Sheet
       variant="outlined"
@@ -46,7 +51,7 @@ export default function SkySummarySheet() {
         height: "20rem",
       }}
     >
-      <SkySummaries />
+      <SkySummaries objects={objects} orbits={orbits} />
     </Sheet>
   );
 }
