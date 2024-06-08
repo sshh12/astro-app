@@ -23,6 +23,7 @@ import Typography from "@mui/joy/Typography";
 import AvatarGroup from "@mui/joy/AvatarGroup";
 import Avatar from "@mui/joy/Avatar";
 import { Link } from "react-router-dom";
+import { renderTimeWithSeconds } from "../utils/date";
 
 function ListSideBar({ lists }) {
   const lsts =
@@ -164,8 +165,20 @@ function ListMobileTab({ lists }) {
   );
 }
 
+export function useTimestamp() {
+  const [ts, setTs] = React.useState(+Date.now());
+  React.useEffect(() => {
+    const intervalId = setInterval(() => {
+      setTs(+Date.now());
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+  return { ts };
+}
+
 export default function SkyPage() {
   const { user, location } = useBackend();
+  const { ts } = useTimestamp();
 
   const favoriteObjects = user
     ? user.lists.find((lst) => lst.title === "Favorites").objects
@@ -198,7 +211,10 @@ export default function SkyPage() {
         }}
       >
         <Layout.Header>
-          <Header title="Sky" subtitle="3:33:45 PM" />
+          <Header
+            title="Sky"
+            subtitle={renderTimeWithSeconds(ts, user?.timezone)}
+          />
         </Layout.Header>
         <Layout.SideNav>
           <ListSideBar lists={user?.lists} />
