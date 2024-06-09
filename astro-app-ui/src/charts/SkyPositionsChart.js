@@ -100,9 +100,16 @@ export default function SkyPositionsChart({ objects, orbits, stale }) {
             const objs = payload.map((p) => ({
               ...objects.find((o) => o.id === p.dataKey),
               alt: 90 - p.payload[p.dataKey],
+              az: p.payload["az"],
               ts: p.payload[p.dataKey + "_ts"],
             }));
-            return <HoverCard az={label} objects={objs} tz={orbits.timezone} />;
+            return (
+              <HoverCard
+                az={objs[0]?.az || 0}
+                objects={objs}
+                tz={orbits.timezone}
+              />
+            );
           }}
           position={{ y: 0 }}
         />
