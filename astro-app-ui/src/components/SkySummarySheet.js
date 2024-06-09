@@ -5,11 +5,12 @@ import Tab from "@mui/joy/Tab";
 import TabPanel from "@mui/joy/TabPanel";
 import Typography from "@mui/joy/Typography";
 import SkyAltChart from "../charts/SkyAltitudesChart";
+import SkyPositionsChart from "../charts/SkyPositionsChart";
 import Skeleton from "@mui/joy/Skeleton";
 
-function SkySummaries({ objects, orbits }) {
+function SkySummaries({ objects, orbits, stale }) {
   return (
-    <Tabs>
+    <Tabs defaultValue={0}>
       <TabList
         sx={{
           justifyContent: { xs: "center", sm: "start" },
@@ -21,24 +22,28 @@ function SkySummaries({ objects, orbits }) {
           <Typography level="title-sm">Altitudes</Typography>
         </Tab>
         <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
-          <Typography level="title-sm">Orbits</Typography>
+          <Typography level="title-sm">Positions</Typography>
         </Tab>
       </TabList>
       <TabPanel value={0} sx={{ p: 0 }}>
         {objects && orbits ? (
-          <SkyAltChart objects={objects} orbits={orbits} />
+          <SkyAltChart objects={objects} orbits={orbits} stale={stale} />
         ) : (
           <Skeleton variant="overlay"></Skeleton>
         )}
       </TabPanel>
       <TabPanel value={1} sx={{ p: 0 }}>
-        B
+        {objects && orbits ? (
+          <SkyPositionsChart objects={objects} orbits={orbits} stale={stale} />
+        ) : (
+          <Skeleton variant="overlay"></Skeleton>
+        )}
       </TabPanel>
     </Tabs>
   );
 }
 
-export default function SkySummarySheet({ objects, orbits }) {
+export default function SkySummarySheet({ objects, orbits, stale }) {
   return (
     <Sheet
       variant="outlined"
@@ -51,7 +56,7 @@ export default function SkySummarySheet({ objects, orbits }) {
         height: "20rem",
       }}
     >
-      <SkySummaries objects={objects} orbits={orbits} />
+      <SkySummaries objects={objects} orbits={orbits} stale={stale} />
     </Sheet>
   );
 }

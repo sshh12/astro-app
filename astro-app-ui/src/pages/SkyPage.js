@@ -55,8 +55,9 @@ function ListSideBar({ lists }) {
               <Link
                 to={{ pathname: `/sky/list/${lst.id}` }}
                 style={{ textDecoration: "none" }}
+                key={lst.id}
               >
-                <ListItem key={lst.id}>
+                <ListItem>
                   <ListItemButton>
                     <ListItemDecorator>
                       <Box
@@ -134,6 +135,7 @@ function ListMobileTab({ lists }) {
             <Link
               to={{ pathname: `/sky/list/${lst.id}` }}
               style={{ textDecoration: "none" }}
+              key={lst.id}
             >
               <ListItem href="/sky/list">
                 <ListItemButton>
@@ -184,7 +186,7 @@ export default function SkyPage() {
     ? user.lists.find((lst) => lst.title === "Favorites").objects
     : null;
 
-  const { result: favOrbits } = useCachedPythonOutput(
+  const { result: favOrbits, stale: favOrbitsStale } = useCachedPythonOutput(
     "get_orbit_calculations",
     favoriteObjects &&
       location && {
@@ -227,7 +229,11 @@ export default function SkyPage() {
               gap: { xs: 0.5, sm: 2 },
             }}
           >
-            <SkySummarySheet objects={favoriteObjects} orbits={favOrbits} />
+            <SkySummarySheet
+              objects={favoriteObjects}
+              orbits={favOrbits}
+              stale={favOrbitsStale}
+            />
             <ListMobileTab lists={user?.lists} />
             <SkyObjectsList objects={favoriteObjects} orbits={favOrbits} />
             <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>

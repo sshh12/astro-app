@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from "react";
+import React, { useMemo } from "react";
 import Card from "@mui/joy/Card";
 import Typography from "@mui/joy/Typography";
 import List from "@mui/joy/List";
@@ -9,23 +9,23 @@ import Box from "@mui/joy/Box";
 import ListItemContent from "@mui/joy/ListItemContent";
 import { renderTime } from "../utils/date";
 import {
-  CartesianGrid,
-  Line,
-  LineChart as ReChartsLineChart,
   ResponsiveContainer,
   Tooltip,
-  XAxis,
-  YAxis,
+  RadarChart,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  Line,
 } from "recharts";
 
-function HoverCard({ ts, objects, tz }) {
+function HoverCard({ az, objects, tz }) {
   let objs = objects.filter((obj) => obj.alt > 0);
   objs.sort((a, b) => b.alt - a.alt);
   objs = objs.slice(0, 5);
   return (
     <Card>
       <div>
-        <Typography level="title-md">{renderTime(ts, tz)}</Typography>
+        <Typography level="title-md">{az}°</Typography>
         <List
           aria-labelledby="nav-list-tags"
           size="sm"
@@ -49,7 +49,7 @@ function HoverCard({ ts, objects, tz }) {
                 </ListItemDecorator>
                 <ListItemContent>{obj.name}</ListItemContent>
                 <Typography textColor="text.tertiary">
-                  {Math.round(obj.alt)}°
+                  {Math.round(obj.alt)}° ({renderTime(obj.ts, tz)})
                 </Typography>
               </ListItemButton>
             </ListItem>
@@ -60,57 +60,38 @@ function HoverCard({ ts, objects, tz }) {
   );
 }
 
-export default function SkyAltitudesChart({ objects, orbits, stale }) {
-  const data = useMemo(() => {
-    const rows = [];
-    for (let i in orbits.time) {
-      const row = {
-        time: orbits.time[i],
-      };
-      for (let obj of objects) {
-        const alt = orbits.objects[obj.id].alt[i];
-        row[obj.id] = alt > 0 ? alt : null;
-      }
-      rows.push(row);
+function buildRadialData(objects, orbits) {
+  const angleToRow = {};
+  for (let i = 0; i < 360; i += 5) {
+    angleToRow[i] = { az: i };
+  }
+  for (let obj of objects) {
+    const times = [...orbits.time];
+    const alts = orbits.objects[obj.id].alt;
+    const azs = orbits.objects[obj.id].az;
+    for (let i in times) {
+      const azRound = (Math.round(azs[i] / 5) * 5) % 360;
+      const row = angleToRow[azRound];
+      row[obj.id] = alts[i] > 0 ? 90 - alts[i] : null;
+      row[obj.id + "_ts"] = times[i];
     }
-    return rows;
+  }
+  return Object.values(angleToRow);
+}
+
+export default function SkyPositionsChart({ objects, orbits, stale }) {
+  const data = useMemo(() => {
+    return buildRadialData(objects, orbits);
   }, [objects, orbits]);
   return (
     <ResponsiveContainer style={{}}>
-      <ReChartsLineChart data={data}>
-        <CartesianGrid
-          strokeDasharray="1 5"
-          horizontal={true}
-          vertical={false}
-          verticalPoints={[30, 60]}
+      <RadarChart data={data} outerRadius={"100%"}>
+        <PolarGrid
+          polarRadius={[30, 60, 90]}
+          polarAngles={[0, 90, 180, 270]}
+          gridType="circle"
         />
-        <XAxis
-          hide={true}
-          dataKey={"time"}
-          interval={"equidistantPreserveStart"}
-          tick={{ transform: "translate(0, 6)" }}
-          fill=""
-          stroke=""
-          className={""}
-          tickLine={false}
-          axisLine={false}
-          minTickGap={5}
-        />
-        <YAxis
-          width={0}
-          hide={true}
-          axisLine={true}
-          tickLine={true}
-          type="number"
-          domain={[0, 90]}
-          tick={{ transform: "translate(-3, 0)" }}
-          ticks={[0, 30, 60, 90]}
-          fill="#fff000"
-          stroke="#fff"
-          className={""}
-          tickFormatter={(number) => `${number}°`}
-          allowDecimals={true}
-        />
+        <PolarRadiusAxis domain={[0, 90]} tick={false} />
         <Tooltip
           wrapperStyle={{ outline: "none" }}
           isAnimationActive={false}
@@ -118,31 +99,24 @@ export default function SkyAltitudesChart({ objects, orbits, stale }) {
           content={({ payload, label }) => {
             const objs = payload.map((p) => ({
               ...objects.find((o) => o.id === p.dataKey),
-              alt: p.value,
+              alt: 90 - p.payload[p.dataKey],
+              ts: p.payload[p.dataKey + "_ts"],
             }));
-            return <HoverCard ts={label} objects={objs} tz={orbits.timezone} />;
+            return <HoverCard az={label} objects={objs} tz={orbits.timezone} />;
           }}
           position={{ y: 0 }}
         />
         {objects.map((obj) => (
-          <Line
-            className=""
-            dot={({ index }) => {
-              return <Fragment key={index}></Fragment>;
-            }}
-            activeDot={{
-              strokeWidth: 0,
-              r: 4,
-              strokeDasharray: "",
-            }}
-            key={obj.id}
-            name={obj.id}
-            type={"monotone"}
+          <Radar
+            points={[]}
+            name={obj.name}
             dataKey={obj.id}
             stroke={stale ? "gray" : obj.color}
+            fill="none"
+            shape={<Line connectNulls={false} />}
           />
         ))}
-      </ReChartsLineChart>
+      </RadarChart>
     </ResponsiveContainer>
   );
 }
