@@ -10,11 +10,13 @@ import MenuItem from "@mui/joy/MenuItem";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SortIcon from "@mui/icons-material/Sort";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import ViewComfyIcon from "@mui/icons-material/ViewComfy";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardOverflow from "@mui/joy/CardOverflow";
 import Skeleton from "@mui/joy/Skeleton";
+import CardContent from "@mui/joy/CardContent";
 import ObjectImage from "./SkyObjectImage";
+import Chip from "@mui/joy/Chip";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 
@@ -63,7 +65,6 @@ export default function SkyObjectCard({ object }) {
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box sx={{ flex: 1 }}>
           <Typography level="title-md">{object.name}</Typography>
-          <Typography level="body-sm">Max 53°</Typography>
         </Box>
         <Dropdown>
           <MenuButton
@@ -98,10 +99,6 @@ export default function SkyObjectCard({ object }) {
               <SortIcon />
               Change sorting
             </MenuItem>
-            <MenuItem>
-              <ViewComfyIcon />
-              Change display
-            </MenuItem>
             <MenuItem sx={{ textColor: "danger.500" }}>
               <DeleteRoundedIcon color="danger" />
               Remove from list
@@ -124,6 +121,18 @@ export default function SkyObjectCard({ object }) {
           <ObjectImage object={object} />
         </AspectRatio>
       </CardOverflow>
+      <CardContent orientation="horizontal">
+        <div>
+          <Chip
+            size="md"
+            variant="soft"
+            color="success"
+            endDecorator={<ArrowOutwardIcon />}
+          >
+            53°
+          </Chip>
+        </div>
+      </CardContent>
     </Card>
   );
 }

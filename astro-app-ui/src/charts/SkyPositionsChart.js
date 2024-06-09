@@ -8,6 +8,8 @@ import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import Box from "@mui/joy/Box";
 import ListItemContent from "@mui/joy/ListItemContent";
 import { renderTime } from "../utils/date";
+import { renderAz } from "../utils/pos";
+import { colorToHex } from "../constants/colors";
 import {
   ResponsiveContainer,
   Tooltip,
@@ -25,7 +27,7 @@ function HoverCard({ az, objects, tz }) {
   return (
     <Card>
       <div>
-        <Typography level="title-md">{az}°</Typography>
+        <Typography level="title-md">{renderAz(az)}</Typography>
         <List
           aria-labelledby="nav-list-tags"
           size="sm"
@@ -43,7 +45,7 @@ function HoverCard({ az, objects, tz }) {
                       width: "10px",
                       height: "10px",
                       borderRadius: "99px",
-                      bgcolor: obj.color,
+                      bgcolor: colorToHex(obj.color),
                     }}
                   />
                 </ListItemDecorator>
@@ -60,17 +62,37 @@ function HoverCard({ az, objects, tz }) {
   );
 }
 
+function interpolate(ary, n) {
+  const result = [];
+  for (let i = 0; i < ary.length - 1; i++) {
+    const start = ary[i];
+    const end = ary[i + 1];
+    for (let j = 0; j < n; j++) {
+      const mid = start + (end - start) * (j / n);
+      const diffFromStart = Math.abs(mid - start);
+      if (diffFromStart > 20) {
+        result.push(start);
+      } else {
+        result.push(mid);
+      }
+    }
+  }
+  return result;
+}
+
 function buildRadialData(objects, orbits) {
+  const gap = 1;
+  const interp = 10;
   const angleToRow = {};
-  for (let i = 0; i < 360; i += 5) {
+  for (let i = 0; i < 360; i += gap) {
     angleToRow[i] = { az: i };
   }
   for (let obj of objects) {
-    const times = [...orbits.time];
-    const alts = orbits.objects[obj.id].alt;
-    const azs = orbits.objects[obj.id].az;
+    const times = interpolate([...orbits.time], interp);
+    const alts = interpolate(orbits.objects[obj.id].alt, interp);
+    const azs = interpolate(orbits.objects[obj.id].az, interp);
     for (let i in times) {
-      const azRound = (Math.round(azs[i] / 5) * 5) % 360;
+      const azRound = (Math.round(azs[i] / gap) * gap) % 360;
       const row = angleToRow[azRound];
       row[obj.id] = alts[i] > 0 ? 90 - alts[i] : null;
       row[obj.id + "_ts"] = times[i];
@@ -96,7 +118,7 @@ export default function SkyPositionsChart({ objects, orbits, stale }) {
           wrapperStyle={{ outline: "none" }}
           isAnimationActive={false}
           cursor={{ stroke: "#d1d5db", strokeWidth: 1 }}
-          content={({ payload, label }) => {
+          content={({ payload }) => {
             const objs = payload.map((p) => ({
               ...objects.find((o) => o.id === p.dataKey),
               alt: 90 - p.payload[p.dataKey],
@@ -118,7 +140,7 @@ export default function SkyPositionsChart({ objects, orbits, stale }) {
             points={[]}
             name={obj.name}
             dataKey={obj.id}
-            stroke={stale ? "gray" : obj.color}
+            stroke={stale ? "gray" : colorToHex(obj.color)}
             fill="none"
             shape={<Line connectNulls={false} />}
           />

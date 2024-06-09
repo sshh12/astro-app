@@ -24,6 +24,7 @@ import AvatarGroup from "@mui/joy/AvatarGroup";
 import Avatar from "@mui/joy/Avatar";
 import { Link } from "react-router-dom";
 import { renderTimeWithSeconds } from "../utils/date";
+import { colorToHex } from "../constants/colors";
 
 function ListSideBar({ lists }) {
   const lsts =
@@ -65,7 +66,7 @@ function ListSideBar({ lists }) {
                           width: "10px",
                           height: "10px",
                           borderRadius: "99px",
-                          bgcolor: lst.color,
+                          bgcolor: colorToHex(lst.color),
                         }}
                       />
                     </ListItemDecorator>
@@ -145,7 +146,7 @@ function ListMobileTab({ lists }) {
                         width: "10px",
                         height: "10px",
                         borderRadius: "99px",
-                        bgcolor: lst.color,
+                        bgcolor: colorToHex(lst.color),
                       }}
                     />
                   </ListItemDecorator>

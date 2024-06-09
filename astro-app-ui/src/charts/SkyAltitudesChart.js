@@ -8,6 +8,7 @@ import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import Box from "@mui/joy/Box";
 import ListItemContent from "@mui/joy/ListItemContent";
 import { renderTime } from "../utils/date";
+import { colorToHex } from "../constants/colors";
 import {
   CartesianGrid,
   Line,
@@ -43,7 +44,7 @@ function HoverCard({ ts, objects, tz }) {
                       width: "10px",
                       height: "10px",
                       borderRadius: "99px",
-                      bgcolor: obj.color,
+                      bgcolor: colorToHex(obj.color),
                     }}
                   />
                 </ListItemDecorator>
@@ -139,7 +140,7 @@ export default function SkyAltitudesChart({ objects, orbits, stale }) {
             name={obj.id}
             type={"monotone"}
             dataKey={obj.id}
-            stroke={stale ? "gray" : obj.color}
+            stroke={stale ? "gray" : colorToHex(obj.color)}
           />
         ))}
       </ReChartsLineChart>
