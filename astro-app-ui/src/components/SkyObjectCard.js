@@ -66,6 +66,38 @@ export default function SkyObjectCard({ object }) {
         <Box sx={{ flex: 1 }}>
           <Typography level="title-md">{object.name}</Typography>
         </Box>
+        <Chip
+          size="md"
+          variant="soft"
+          color="success"
+          endDecorator={<ArrowOutwardIcon />}
+        >
+          53°
+        </Chip>
+      </Box>
+      <CardOverflow
+        sx={{
+          borderBottom: "1px solid",
+          borderTop: "1px solid",
+          borderColor: "neutral.outlinedBorder",
+        }}
+      >
+        <AspectRatio
+          ratio={eqDetails.aspectRatio}
+          color="primary"
+          sx={{ borderRadius: 0 }}
+        >
+          <ObjectImage object={object} />
+        </AspectRatio>
+      </CardOverflow>
+      <CardContent
+        orientation="horizontal"
+        sx={{
+          display: "flex",
+          justifyItems: "end",
+          justifyContent: "end",
+        }}
+      >
         <Dropdown>
           <MenuButton
             variant="plain"
@@ -105,33 +137,6 @@ export default function SkyObjectCard({ object }) {
             </MenuItem>
           </Menu>
         </Dropdown>
-      </Box>
-      <CardOverflow
-        sx={{
-          borderBottom: "1px solid",
-          borderTop: "1px solid",
-          borderColor: "neutral.outlinedBorder",
-        }}
-      >
-        <AspectRatio
-          ratio={eqDetails.aspectRatio}
-          color="primary"
-          sx={{ borderRadius: 0 }}
-        >
-          <ObjectImage object={object} />
-        </AspectRatio>
-      </CardOverflow>
-      <CardContent orientation="horizontal">
-        <div>
-          <Chip
-            size="md"
-            variant="soft"
-            color="success"
-            endDecorator={<ArrowOutwardIcon />}
-          >
-            53°
-          </Chip>
-        </div>
       </CardContent>
     </Card>
   );
