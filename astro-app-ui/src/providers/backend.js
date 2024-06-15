@@ -12,6 +12,7 @@ const API_ENDPOINT =
 const BACKEND_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "apiKey";
 const SEEN_ONBOARDING_KEY = "seenOnboarding";
+const CACHE_USER_KEY = "user";
 
 function usePost() {
   const { settingsStore } = useStorage();
@@ -47,26 +48,37 @@ function usePost() {
 
 function useUser() {
   const { post } = usePost();
-  const { settingsStore } = useStorage();
+  const { settingsStore, cacheStore } = useStorage();
   const [user, setUser] = useState(null);
   useEffect(() => {
-    if (post && settingsStore) {
-      settingsStore.getItem(API_KEY_KEY).then((apiKey) => {
+    if (post && settingsStore && cacheStore) {
+      (async () => {
+        const apiKey = await settingsStore.getItem(API_KEY_KEY);
         if (apiKey) {
-          post("get_user")
-            .then((user) => setUser(user))
-            .catch(console.error);
+          const cacheUser = await cacheStore.getItem(CACHE_USER_KEY);
+          if (cacheUser) {
+            setUser(cacheUser);
+          }
+          try {
+            const user = await post("get_user");
+            cacheStore.setItem(CACHE_USER_KEY, user);
+            setUser(user);
+          } catch (e) {
+            console.error(e);
+          }
         } else {
-          post("create_user")
-            .then((user) => {
-              settingsStore.setItem(API_KEY_KEY, user.api_key);
-              setUser(user);
-            })
-            .catch(console.error);
+          try {
+            const user = await post("create_user");
+            settingsStore.setItem(API_KEY_KEY, user.api_key);
+            cacheStore.setItem(CACHE_USER_KEY, user);
+            setUser(user);
+          } catch (e) {
+            console.error(e);
+          }
         }
-      });
+      })();
     }
-  }, [post, settingsStore]);
+  }, [post, settingsStore, cacheStore]);
   return { user };
 }
 
