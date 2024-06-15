@@ -110,8 +110,8 @@ function ConfigureLocationMap({ editPos, setEditPos }) {
       const center = map.getCenter();
       setCenterMarkerPos([center.lat, center.lng]);
       setEditPos({
-        lat: center.lat,
-        lon: center.lng,
+        lat: center.lat.toFixed(6),
+        lon: center.lng.toFixed(6),
       });
     };
     if (map) {

@@ -11,6 +11,7 @@ const API_ENDPOINT =
 */
 const BACKEND_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "apiKey";
+const SEEN_ONBOARDING_KEY = "seenOnboarding";
 
 function usePost() {
   const { settingsStore } = useStorage();
@@ -25,7 +26,7 @@ function usePost() {
           body: JSON.stringify({
             func: func,
             args: args,
-            api_key: apiKey,
+            api_key: apiKey || "",
           }),
         })
           .then((response) => response.json())
@@ -55,11 +56,48 @@ function useUser() {
           post("get_user")
             .then((user) => setUser(user))
             .catch(console.error);
+        } else {
+          post("create_user")
+            .then((user) => {
+              settingsStore.setItem(API_KEY_KEY, user.api_key);
+              setUser(user);
+            })
+            .catch(console.error);
         }
       });
     }
   }, [post, settingsStore]);
   return { user };
+}
+
+export function useOnboardingState() {
+  const { settingsStore } = useStorage();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  useEffect(() => {
+    if (settingsStore) {
+      settingsStore.getItem(SEEN_ONBOARDING_KEY).then((val) => {
+        setShowOnboarding(!val);
+      });
+    }
+  }, [settingsStore]);
+  const closeOnboarding = useCallback(() => {
+    settingsStore.setItem(SEEN_ONBOARDING_KEY, true);
+    setShowOnboarding(false);
+  });
+  return { showOnboarding, closeOnboarding };
+}
+
+export function useBackend() {
+  const backend = useContext(BackendContext);
+  return backend;
+}
+
+export function useBackendControl() {
+  const { user } = useUser();
+  const { showOnboarding, closeOnboarding } = useOnboardingState();
+  const location = !!user ? user.location.find((v) => v.active) : null;
+  const equipment = !!user ? user.equipment.find((v) => v.active) : null;
+  return { user, location, equipment, showOnboarding, closeOnboarding };
 }
 
 export function useList(id) {
@@ -82,16 +120,4 @@ export function useList(id) {
     }
   }, [listStore, id, post]);
   return { list };
-}
-
-export function useBackend() {
-  const backend = useContext(BackendContext);
-  return backend;
-}
-
-export function useBackendControl() {
-  const { user } = useUser();
-  const location = !!user ? user.location.find((v) => v.active) : null;
-  const equipment = !!user ? user.equipment.find((v) => v.active) : null;
-  return { user, location, equipment };
 }

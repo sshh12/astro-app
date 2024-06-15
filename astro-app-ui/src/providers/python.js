@@ -38,15 +38,18 @@ export function usePythonControl() {
           });
         });
       };
-      if (!workers.current.length) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(submitJob());
-          }, 100);
-        });
-      } else {
-        return submitJob();
-      }
+      const submitOrDefer = () => {
+        if (!workers.current.length) {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(submitOrDefer());
+            }, 100);
+          });
+        } else {
+          return submitJob();
+        }
+      };
+      return submitOrDefer();
     },
     [numWorkers]
   );
@@ -99,7 +102,6 @@ export function usePythonControl() {
       const result = JSON.parse(val.results);
       if (val.error) {
         console.error(val.error);
-        // alert(val.error);
         result.error = val.error;
       }
       console.log("python:", method, "complete");

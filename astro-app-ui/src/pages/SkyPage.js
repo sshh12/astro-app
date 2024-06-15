@@ -30,6 +30,7 @@ import {
 } from "../utils/date";
 import { objectsToKey } from "../utils/object";
 import { colorToHex } from "../constants/colors";
+import { useNavigate } from "react-router-dom";
 
 function ListSideBar({ lists }) {
   const lsts =
@@ -174,8 +175,15 @@ function ListMobileTab({ lists }) {
 }
 
 export default function SkyPage() {
-  const { user, location } = useBackend();
+  const navigate = useNavigate();
+  const { user, location, showOnboarding } = useBackend();
   const { ts } = useTimestamp();
+
+  React.useEffect(() => {
+    if (showOnboarding) {
+      navigate("/onboarding");
+    }
+  }, [showOnboarding]);
 
   const favoriteObjects = user
     ? user.lists.find((lst) => lst.title === "Favorites").objects

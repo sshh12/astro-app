@@ -12,8 +12,10 @@ import { theme } from "../theme/theme";
 import ThemeToggle from "../components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import ConfigureLocationCard from "../components/ConfigureLocationCard";
+import { useBackend } from "../providers/backend";
 
 export default function OnboardingPage() {
+  const { closeOnboarding } = useBackend();
   const navigate = useNavigate();
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
@@ -70,7 +72,7 @@ export default function OnboardingPage() {
               >
                 <AutoAwesomeIcon sx={{ color: "#e9b307" }} />
               </IconButton>
-              <Typography level="title-lg">The Astro App</Typography>
+              <Typography level="title-lg">Astro App</Typography>
             </Box>
             <ThemeToggle />
           </Box>
@@ -114,7 +116,10 @@ export default function OnboardingPage() {
                 <Button
                   variant="outlined"
                   fullWidth
-                  onClick={() => navigate("/sky")}
+                  onClick={() => {
+                    closeOnboarding();
+                    navigate("/sky");
+                  }}
                 >
                   Skip Tutorial
                 </Button>
@@ -123,7 +128,7 @@ export default function OnboardingPage() {
           </Box>
           <Box component="footer" sx={{ py: 3 }}>
             <Typography level="body-xs" textAlign="center">
-              © The Astro App {new Date().getFullYear()} | Image: ESA/Hubble
+              © Astro App {new Date().getFullYear()} | Image: ESA/Hubble
             </Typography>
           </Box>
         </Box>
