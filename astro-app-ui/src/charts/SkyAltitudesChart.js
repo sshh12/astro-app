@@ -7,16 +7,18 @@ import ListItemButton from "@mui/joy/ListItemButton";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import Box from "@mui/joy/Box";
 import ListItemContent from "@mui/joy/ListItemContent";
-import { renderTime } from "../utils/date";
+import { renderTime, useTimestamp, minMaxIdx } from "../utils/date";
 import { colorToHex } from "../constants/colors";
 import {
   CartesianGrid,
   Line,
-  LineChart as ReChartsLineChart,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
+  ReferenceLine,
+  ReferenceArea,
 } from "recharts";
 
 function HoverCard({ ts, objects, tz }) {
@@ -76,14 +78,44 @@ export default function SkyAltitudesChart({ objects, orbits, stale }) {
     }
     return rows;
   }, [objects, orbits]);
+
+  const times = orbits.time;
+  const timeStates = orbits.time_state;
+
+  const { ts } = useTimestamp({ updateInterval: 1000 * 60 * 10 });
+  const resolution = times[1] - times[0];
+  const nowX = Math.min(
+    Math.max(Math.floor(ts / resolution) * resolution, times[0]),
+    times[times.length - 1]
+  );
+
   return (
     <ResponsiveContainer style={{}}>
-      <ReChartsLineChart data={data}>
+      <LineChart data={data}>
         <CartesianGrid
           strokeDasharray="1 5"
           horizontal={true}
           vertical={false}
           verticalPoints={[30, 60]}
+        />
+        <ReferenceLine x={nowX} stroke="#434c5e" label="" strokeWidth={3} />
+        <ReferenceArea
+          x1={times[minMaxIdx(timeStates, 0)[1]]}
+          x2={times[minMaxIdx(timeStates, 3)[0]]}
+          strokeOpacity={0}
+          fill="rgba(0, 0, 0, 0.5)"
+        />
+        <ReferenceArea
+          x1={times[minMaxIdx(timeStates, 3)[0]]}
+          x2={times[minMaxIdx(timeStates, 4)[1]]}
+          strokeOpacity={0}
+          fill="rgba(0, 0, 0, 0.7)"
+        />
+        <ReferenceArea
+          x1={times[minMaxIdx(timeStates, 4)[1]]}
+          x2={times[minMaxIdx(timeStates, 7)[0]]}
+          strokeOpacity={0}
+          fill="rgba(0, 0, 0, 0.5)"
         />
         <XAxis
           hide={true}
@@ -143,7 +175,7 @@ export default function SkyAltitudesChart({ objects, orbits, stale }) {
             stroke={stale ? "gray" : colorToHex(obj.color)}
           />
         ))}
-      </ReChartsLineChart>
+      </LineChart>
     </ResponsiveContainer>
   );
 }

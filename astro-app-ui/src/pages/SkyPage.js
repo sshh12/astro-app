@@ -23,7 +23,7 @@ import Typography from "@mui/joy/Typography";
 import AvatarGroup from "@mui/joy/AvatarGroup";
 import Avatar from "@mui/joy/Avatar";
 import { Link } from "react-router-dom";
-import { renderTimeWithSeconds } from "../utils/date";
+import { renderTimeWithSeconds, useTimestamp } from "../utils/date";
 import { colorToHex } from "../constants/colors";
 
 function ListSideBar({ lists }) {
@@ -166,17 +166,6 @@ function ListMobileTab({ lists }) {
       </List>
     </Sheet>
   );
-}
-
-export function useTimestamp() {
-  const [ts, setTs] = React.useState(+Date.now());
-  React.useEffect(() => {
-    const intervalId = setInterval(() => {
-      setTs(+Date.now());
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, []);
-  return { ts };
 }
 
 export default function SkyPage() {

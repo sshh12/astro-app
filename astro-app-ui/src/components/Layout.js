@@ -123,14 +123,11 @@ function SidePane(props) {
   );
 }
 
-function Main(props) {
+function Main({ children }) {
   return (
-    <Box
-      component="main"
-      className="Main"
-      {...props}
-      sx={[{ p: 2 }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]}
-    />
+    <Box component="main" className="Main" sx={{ p: { xs: 1, sm: 2 } }}>
+      {children}
+    </Box>
   );
 }
 
