@@ -81,9 +81,11 @@ export function useOnboardingState() {
     }
   }, [settingsStore]);
   const closeOnboarding = useCallback(() => {
-    settingsStore.setItem(SEEN_ONBOARDING_KEY, true);
+    if (settingsStore) {
+      settingsStore.setItem(SEEN_ONBOARDING_KEY, true);
+    }
     setShowOnboarding(false);
-  });
+  }, [settingsStore]);
   return { showOnboarding, closeOnboarding };
 }
 

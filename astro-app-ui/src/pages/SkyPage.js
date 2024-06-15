@@ -183,7 +183,7 @@ export default function SkyPage() {
     if (showOnboarding) {
       navigate("/onboarding");
     }
-  }, [showOnboarding]);
+  }, [navigate, showOnboarding]);
 
   const favoriteObjects = user
     ? user.lists.find((lst) => lst.title === "Favorites").objects
