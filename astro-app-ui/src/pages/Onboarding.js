@@ -4,19 +4,17 @@ import GlobalStyles from "@mui/joy/GlobalStyles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
-import Checkbox from "@mui/joy/Checkbox";
-import FormControl from "@mui/joy/FormControl";
-import FormLabel from "@mui/joy/FormLabel";
 import IconButton from "@mui/joy/IconButton";
-import Link from "@mui/joy/Link";
-import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { theme } from "../theme/theme";
 import ThemeToggle from "../components/ThemeToggle";
+import { useNavigate } from "react-router-dom";
+import ConfigureLocationCard from "../components/ConfigureLocationCard";
 
 export default function OnboardingPage() {
+  const navigate = useNavigate();
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
       <CssBaseline />
@@ -99,7 +97,7 @@ export default function OnboardingPage() {
               },
             }}
           >
-            <Stack gap={4} sx={{ mb: 2 }}>
+            <Stack gap={43} sx={{ mb: 1 }}>
               <Stack gap={1}>
                 <Typography component="h1" level="h3">
                   Welcome to the stars...
@@ -109,45 +107,18 @@ export default function OnboardingPage() {
                 </Typography>
               </Stack>
             </Stack>
-            <Stack gap={4} sx={{ mt: 2 }}>
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  const formElements = event.currentTarget.elements;
-                  const data = {
-                    email: formElements.email.value,
-                    password: formElements.password.value,
-                    persistent: formElements.persistent.checked,
-                  };
-                  alert(JSON.stringify(data, null, 2));
-                }}
-              >
-                <FormControl required>
-                  <FormLabel>Email</FormLabel>
-                  <Input type="email" name="email" />
-                </FormControl>
-                <FormControl required>
-                  <FormLabel>Password</FormLabel>
-                  <Input type="password" name="password" />
-                </FormControl>
-                <Stack gap={4} sx={{ mt: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Checkbox size="sm" label="Remember me" name="persistent" />
-                    <Link level="title-sm" href="#replace-with-a-link">
-                      Forgot your password?
-                    </Link>
-                  </Box>
-                  <Button type="submit" fullWidth>
-                    Sign in
-                  </Button>
-                </Stack>
-              </form>
+            <Stack gap={2} sx={{ mt: { xs: 0, sm: 2 } }}>
+              <ConfigureLocationCard />
+              <Stack gap={2} sx={{ mt: 2 }}>
+                <Button fullWidth>Play Tutorial</Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => navigate("/sky")}
+                >
+                  Skip Tutorial
+                </Button>
+              </Stack>
             </Stack>
           </Box>
           <Box component="footer" sx={{ py: 3 }}>

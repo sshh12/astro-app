@@ -19,3 +19,30 @@ export function renderAz(az) {
   }
   return `${az}° ${azStr}`;
 }
+
+export function getDeviceLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject({ error: "Geolocation not supported" });
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      },
+      (error) => {
+        let errorName = "";
+        if (error.code === error.PERMISSION_DENIED) {
+          errorName = "Permission Denied";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorName = "Position Unavailable";
+        } else if (error.code === error.TIMEOUT) {
+          errorName = "Timeout";
+        }
+        reject({ error: errorName });
+      }
+    );
+  });
+}
