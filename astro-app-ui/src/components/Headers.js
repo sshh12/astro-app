@@ -14,7 +14,7 @@ import { Typography } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { Link } from "react-router-dom";
 
-export function Header({ title, subtitle }) {
+export function Header({ title, subtitle, enableSearch }) {
   const location = useLocation();
   return (
     <Box
@@ -84,30 +84,34 @@ export function Header({ title, subtitle }) {
           marginLeft: "auto",
         }}
       >
-        <Input
-          size="sm"
-          variant="outlined"
-          placeholder="Search"
-          startDecorator={<SearchRoundedIcon color="primary" />}
-          sx={{
-            alignSelf: "center",
-            display: {
-              xs: "none",
-              sm: "flex",
-            },
-          }}
-        />
-        <IconButton
-          size="sm"
-          variant="outlined"
-          color="neutral"
-          sx={{
-            display: { xs: "inline-flex", sm: "none" },
-            alignSelf: "center",
-          }}
-        >
-          <SearchRoundedIcon />
-        </IconButton>
+        {enableSearch && (
+          <>
+            <Input
+              size="sm"
+              variant="outlined"
+              placeholder="Search"
+              startDecorator={<SearchRoundedIcon color="primary" />}
+              sx={{
+                alignSelf: "center",
+                display: {
+                  xs: "none",
+                  sm: "flex",
+                },
+              }}
+            />
+            <IconButton
+              size="sm"
+              variant="outlined"
+              color="neutral"
+              sx={{
+                display: { xs: "inline-flex", sm: "none" },
+                alignSelf: "center",
+              }}
+            >
+              <SearchRoundedIcon />
+            </IconButton>
+          </>
+        )}
         <Box sx={{ display: { xs: "none", sm: "flex" } }}>
           <ThemeToggle />
         </Box>

@@ -16,6 +16,6 @@ def get_timezones() -> List[Dict]:
 
 
 if __name__ == "__main__":
-    with open("../app/timezones.js", "w") as f:
+    with open("../astro-app-ui/src/constants/timezones.js", "w") as f:
         json_ = json.dumps(get_timezones(), indent=2)
         f.write("export const TIMEZONES = " + json_ + ";")

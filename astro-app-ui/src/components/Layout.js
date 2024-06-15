@@ -1,5 +1,5 @@
 import * as React from "react";
-import { yellow } from "@mui/material/colors";
+import { yellow, purple } from "@mui/material/colors";
 import Box from "@mui/joy/Box";
 import Sheet from "@mui/joy/Sheet";
 import AutoAwesome from "@mui/icons-material/AutoAwesome";
@@ -23,7 +23,7 @@ const Tabs = [
     label: "Profile",
     href: "/profile",
     icon: AccountBoxIcon,
-    color: yellow[500],
+    color: purple[500],
   },
 ];
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Typography,
   Stack,
@@ -13,8 +13,16 @@ import AccessTimeFilledRoundedIcon from "@mui/icons-material/AccessTimeFilledRou
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { getDeviceLocation } from "../utils/pos";
 import LandscapeIcon from "@mui/icons-material/Landscape";
+import { TIMEZONES } from "../constants/timezones";
+
+function getDefaultTimeZone() {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const tzExists = TIMEZONES.find((t) => t.name === tz);
+  return tzExists ? tz : "UTC";
+}
 
 function ConfigureLocationManually({ editPos, setEditPos }) {
+  const defaultTz = useMemo(() => getDefaultTimeZone(), []);
   return (
     <Stack spacing={2} sx={{ flexGrow: 1 }}>
       <Stack spacing={1}>
@@ -75,20 +83,18 @@ function ConfigureLocationManually({ editPos, setEditPos }) {
           <Select
             size="sm"
             startDecorator={<AccessTimeFilledRoundedIcon />}
-            defaultValue="1"
+            defaultValue={defaultTz}
+            value={editPos.timezone}
+            onChange={(e, val) => setEditPos({ ...editPos, timezone: val })}
           >
-            <Option value="1">
-              Indochina Time (Bangkok){" "}
-              <Typography textColor="text.tertiary" ml={0.5}>
-                — GMT+07:00
-              </Typography>
-            </Option>
-            <Option value="2">
-              Indochina Time (Ho Chi Minh City){" "}
-              <Typography textColor="text.tertiary" ml={0.5}>
-                — GMT+07:00
-              </Typography>
-            </Option>
+            {TIMEZONES.map((tzObj) => (
+              <Option value={tzObj.name} key={tzObj.name}>
+                {tzObj.name}{" "}
+                <Typography textColor="text.tertiary" ml={0.5}>
+                  (UTC{tzObj.offset})
+                </Typography>
+              </Option>
+            ))}
           </Select>
         </FormControl>
       </div>
@@ -149,17 +155,22 @@ export default function ConfigureLocationCard() {
   ];
 
   useEffect(() => {
-    getDeviceLocation().then((position) => {
-      setEditValues({
-        lat: position.lat,
-        lon: position.lon,
-      });
-    });
+    getDeviceLocation()
+      .then((position) => {
+        setEditValues({
+          lat: position.lat,
+          lon: position.lon,
+          timezone: getDefaultTimeZone(),
+        });
+      })
+      .catch((err) => console.error(err));
   }, []);
 
   const fixedEditValues = {
     lat: parseFloat(editValues?.lat),
     lon: parseFloat(editValues?.lon),
+    timezone: editValues?.timezone,
+    elevation: parseFloat(editValues?.elevation),
   };
 
   const submitEditValues = {
@@ -167,6 +178,9 @@ export default function ConfigureLocationCard() {
   };
   if (!submitEditValues.elevation) {
     submitEditValues.elevation = 0;
+  }
+  if (!submitEditValues.name) {
+    submitEditValues.name = "Current Location";
   }
 
   return (
