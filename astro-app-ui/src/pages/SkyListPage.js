@@ -18,6 +18,8 @@ import { useCachedPythonOutput } from "../providers/python";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { objectsToKey } from "../utils/object";
+import { useCurrentObservingWindow } from "../utils/date";
 
 function SideBar({ list }) {
   return (
@@ -53,22 +55,29 @@ function SideBar({ list }) {
 export default function SkyListPage() {
   const { id: listId } = useParams();
   const { list } = useList(listId);
-  const { location } = useBackend();
+  const { location, user } = useBackend();
 
   const listObjects = list ? list.objects : null;
-
+  const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
   const { result: listOrbits } = useCachedPythonOutput(
     "get_orbit_calculations",
     listObjects &&
       location && {
         objects: listObjects,
+        start_ts: startTs,
+        end_ts: endTs,
         timezone: location.timezone,
         lat: location.lat,
         lon: location.lon,
         elevation: location.elevation,
         resolution_mins: 10,
       },
-    { cacheKey: `listOrbits${listId}`, staleCacheKey: `listOrbits${listId}` }
+    {
+      cacheKey: `listOrbits_${listId}_${startTs}_${endTs}_${
+        location?.id
+      }_${objectsToKey(listObjects)}`,
+      staleCacheKey: `listOrbits_${listId}`,
+    }
   );
 
   return (

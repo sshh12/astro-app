@@ -1,4 +1,4 @@
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Any
 import datetime as dt
 import pandas as pd
 import pytz
@@ -98,3 +98,7 @@ def space_object_to_observables(ts, eph, object):
         except KeyError:
             return DUMMY_STAR
     return Star(ra=Angle(hours=object["ra"]), dec=Angle(degrees=object["dec"]))
+
+
+def ts_from_timestamp(ts: any, timestamp: int, zone: Any):
+    return ts.from_datetime(dt.datetime.fromtimestamp(timestamp / 1000, tz=zone))

@@ -23,7 +23,12 @@ import Typography from "@mui/joy/Typography";
 import AvatarGroup from "@mui/joy/AvatarGroup";
 import Avatar from "@mui/joy/Avatar";
 import { Link } from "react-router-dom";
-import { renderTimeWithSeconds, useTimestamp } from "../utils/date";
+import {
+  renderTimeWithSeconds,
+  useTimestamp,
+  useCurrentObservingWindow,
+} from "../utils/date";
+import { objectsToKey } from "../utils/object";
 import { colorToHex } from "../constants/colors";
 
 function ListSideBar({ lists }) {
@@ -176,18 +181,27 @@ export default function SkyPage() {
     ? user.lists.find((lst) => lst.title === "Favorites").objects
     : null;
 
+  const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
+
   const { result: favOrbits, stale: favOrbitsStale } = useCachedPythonOutput(
     "get_orbit_calculations",
     favoriteObjects &&
       location && {
         objects: favoriteObjects,
+        start_ts: startTs,
+        end_ts: endTs,
         timezone: location.timezone,
         lat: location.lat,
         lon: location.lon,
         elevation: location.elevation,
         resolution_mins: 10,
       },
-    { cacheKey: "favOrbits", staleCacheKey: "favOrbits" }
+    {
+      cacheKey: `favOrbits_${startTs}_${endTs}_${location?.id}_${objectsToKey(
+        favoriteObjects
+      )}`,
+      staleCacheKey: "favOrbits",
+    }
   );
 
   return (

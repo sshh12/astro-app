@@ -39,6 +39,8 @@ def get_commons() -> Tuple:
 @method_api()
 def get_orbit_calculations(
     objects: List,
+    start_ts: int,
+    end_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -47,11 +49,10 @@ def get_orbit_calculations(
     send_js: Callable,
 ) -> Dict:
     zone = pytz.timezone(timezone)
-    most_recent_noon, next_noon = space_util.get_todays_noons(timezone)
 
     ts, eph = get_commons()
-    t0 = ts.from_datetime(most_recent_noon)
-    t1 = ts.from_datetime(next_noon)
+    t0 = space_util.ts_from_timestamp(ts, start_ts, zone)
+    t1 = space_util.ts_from_timestamp(ts, end_ts, zone)
 
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     earth = eph["earth"]

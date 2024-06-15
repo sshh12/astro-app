@@ -1,4 +1,5 @@
 import React from "react";
+import { DateTime } from "luxon";
 
 export function renderTime(ts, tz) {
   const date = new Date(ts);
@@ -35,4 +36,21 @@ export function minMaxIdx(arr, value) {
   const first = arr.indexOf(value);
   const last = arr.lastIndexOf(value);
   return [first, last];
+}
+
+export function useCurrentObservingWindow(tz) {
+  const now = DateTime.now().setZone(tz);
+  const noon = now.set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
+
+  if (now.hour >= 12) {
+    const tomorrow = now
+      .plus({ days: 1 })
+      .set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
+    return [noon.toMillis(), tomorrow.toMillis()];
+  } else {
+    const yesterday = now
+      .minus({ days: 1 })
+      .set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
+    return [yesterday.toMillis(), noon.toMillis()];
+  }
 }

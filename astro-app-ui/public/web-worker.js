@@ -42,7 +42,7 @@ async function loadPyodideAndPackages() {
       "pandas",
       "/static/whl/sgp4-2.23-cp310-cp310-emscripten_3_1_27_wasm32.whl",
       "/static/whl/skyfield-1.48-py3-none-any.whl",
-      "/static/whl/astro_app-0.1234.5-py3-none-any.whl",
+      "/static/whl/astro_app-0.1234.6-py3-none-any.whl",
     ]),
     getNASAEph(),
     getComets(),

@@ -150,8 +150,10 @@ export function useCachedPythonOutput(func, args, cacheSettings) {
           const freshVal = await call(func, freshArgs);
           setResult(freshVal);
           setStale(false);
-          cacheStore.setItem(cacheKey, freshVal);
-          cacheStore.setItem(staleCacheKey, freshVal);
+          if (!freshVal.error) {
+            cacheStore.setItem(cacheKey, freshVal);
+            cacheStore.setItem(staleCacheKey, freshVal);
+          }
         }
       })();
     }
