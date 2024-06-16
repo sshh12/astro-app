@@ -9,16 +9,15 @@ import MenuButton from "@mui/joy/MenuButton";
 import MenuItem from "@mui/joy/MenuItem";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SortIcon from "@mui/icons-material/Sort";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardOverflow from "@mui/joy/CardOverflow";
 import Skeleton from "@mui/joy/Skeleton";
 import CardContent from "@mui/joy/CardContent";
 import ObjectImage from "./SkyObjectImage";
 import Chip from "@mui/joy/Chip";
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
+import { OBJECT_SORTS } from "../utils/object";
 
 function SkyObjectCardSkeleton({ eqDetails }) {
   return (
@@ -54,26 +53,30 @@ function SkyObjectCardSkeleton({ eqDetails }) {
   );
 }
 
-export default function SkyObjectCard({ object }) {
-  const { equipment } = useBackend();
+export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
+  const { equipment, objDisplay } = useBackend();
   const eqDetails = equipmentToDetails(equipment);
-  if (!object) {
+  if (!object || !objDisplay) {
     return <SkyObjectCardSkeleton eqDetails={eqDetails} />;
   }
+  const objSortParams = OBJECT_SORTS.find((s) => s.id === objDisplay.sortName);
+  const badge = objSortParams.badge({ obj: object, orbits: orbits });
   return (
     <Card variant="outlined" size="sm">
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box sx={{ flex: 1 }}>
           <Typography level="title-md">{object.name}</Typography>
         </Box>
-        <Chip
-          size="md"
-          variant="soft"
-          color="success"
-          endDecorator={<ArrowOutwardIcon />}
-        >
-          53°
-        </Chip>
+        {badge && (
+          <Chip
+            size="md"
+            variant="soft"
+            color={badge.color}
+            endDecorator={badge.icon && <badge.icon />}
+          >
+            {badge.text}
+          </Chip>
+        )}
       </Box>
       <CardOverflow
         sx={{
@@ -127,14 +130,14 @@ export default function SkyObjectCard({ object }) {
               "--ListItem-radius": "var(--joy-radius-sm)",
             }}
           >
-            <MenuItem>
+            <MenuItem onClick={() => setDisplayModalOpen(true)}>
               <SortIcon />
-              Change sorting
+              Change sorting & display
             </MenuItem>
-            <MenuItem sx={{ textColor: "danger.500" }}>
+            {/* <MenuItem sx={{ textColor: "danger.500" }}>
               <DeleteRoundedIcon color="danger" />
               Remove from list
-            </MenuItem>
+            </MenuItem> */}
           </Menu>
         </Dropdown>
       </CardContent>

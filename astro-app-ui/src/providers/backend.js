@@ -14,6 +14,7 @@ const BACKEND_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "apiKey";
 const SEEN_ONBOARDING_KEY = "seenOnboarding";
 const CACHE_USER_KEY = "user";
+const OBJECT_DISPLAY_KEY = "objectSort";
 
 export function usePost() {
   const { settingsStore } = useStorage();
@@ -129,6 +130,31 @@ export function useOnboardingState() {
   return { showOnboarding, closeOnboarding };
 }
 
+export function useObjectDisplay() {
+  const { settingsStore } = useStorage();
+  const [display, _setDisplay] = useState(null);
+  useEffect(() => {
+    if (settingsStore) {
+      settingsStore.getItem(OBJECT_DISPLAY_KEY).then((val) => {
+        const initVal = val || {};
+        initVal.sortName = initVal.sortName || "max-alt";
+        initVal.sortReverse = initVal.sortReverse || true;
+        _setDisplay(initVal);
+      });
+    }
+  }, [settingsStore]);
+  const setDisplay = useCallback(
+    (idx) => {
+      if (settingsStore) {
+        settingsStore.setItem(OBJECT_DISPLAY_KEY, idx);
+      }
+      _setDisplay(idx);
+    },
+    [settingsStore]
+  );
+  return { display, setDisplay };
+}
+
 export function useBackend() {
   const backend = useContext(BackendContext);
   return backend;
@@ -137,6 +163,7 @@ export function useBackend() {
 export function useBackendControl() {
   const { user, updateUser } = useUser();
   const { showOnboarding, closeOnboarding } = useOnboardingState();
+  const { display: objDisplay, setDisplay: setObjDisplay } = useObjectDisplay();
   const location = !!user ? user.location.find((v) => v.active) : null;
   const equipment = !!user ? user.equipment.find((v) => v.active) : null;
   return {
@@ -146,6 +173,8 @@ export function useBackendControl() {
     equipment,
     showOnboarding,
     closeOnboarding,
+    objDisplay,
+    setObjDisplay,
   };
 }
 
