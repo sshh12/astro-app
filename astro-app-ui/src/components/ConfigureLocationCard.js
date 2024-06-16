@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Typography,
   Stack,
@@ -11,18 +11,20 @@ import {
 import ConfigureTabsCard, { ConfigureTabPanel } from "./ConfigureTabsCard";
 import AccessTimeFilledRoundedIcon from "@mui/icons-material/AccessTimeFilledRounded";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
-import { getDeviceLocation } from "../utils/pos";
+import { getDeviceLocation, geocodeLocationToName } from "../utils/pos";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import { TIMEZONES } from "../constants/timezones";
+import { usePost } from "../providers/backend";
+import { getSystemTimeZone } from "../utils/date";
 
-function getDefaultTimeZone() {
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const tzExists = TIMEZONES.find((t) => t.name === tz);
-  return tzExists ? tz : "UTC";
+function parseFloatSafe(v, defaultValue) {
+  if (!v) {
+    return defaultValue;
+  }
+  return parseFloat(v);
 }
 
 function ConfigureLocationManually({ editPos, setEditPos }) {
-  const defaultTz = useMemo(() => getDefaultTimeZone(), []);
   return (
     <Stack spacing={2} sx={{ flexGrow: 1 }}>
       <Stack spacing={1}>
@@ -83,7 +85,6 @@ function ConfigureLocationManually({ editPos, setEditPos }) {
           <Select
             size="sm"
             startDecorator={<AccessTimeFilledRoundedIcon />}
-            defaultValue={defaultTz}
             value={editPos.timezone}
             onChange={(e, val) => setEditPos({ ...editPos, timezone: val })}
           >
@@ -107,17 +108,26 @@ function ConfigureLocationMap({ editPos, setEditPos }) {
   const [centerMarkerPos, setCenterMarkerPos] = useState([0, 0]);
   useEffect(() => {
     if (map && editPos.lat && editPos.lon) {
-      map.setView([editPos.lat, editPos.lon]);
-      setCenterMarkerPos([editPos.lat, editPos.lon]);
+      const lat = parseFloatSafe(editPos.lat, 0);
+      const lon = parseFloatSafe(editPos.lon, 0);
+      map.setView([lat, lon]);
+      setCenterMarkerPos([lat, lon]);
     }
   }, [map, editPos.lat, editPos.lon]);
   useEffect(() => {
     const onMove = (e) => {
       const center = map.getCenter();
       setCenterMarkerPos([center.lat, center.lng]);
-      setEditPos({
-        lat: center.lat.toFixed(6),
-        lon: center.lng.toFixed(6),
+      setEditPos((latestEditPos) => {
+        const isNearBy =
+          Math.abs(center.lat - parseFloatSafe(latestEditPos.lat)) < 1 &&
+          Math.abs(center.lng - parseFloatSafe(latestEditPos.lon)) < 1;
+        return {
+          ...latestEditPos,
+          lat: center.lat.toFixed(6),
+          lon: center.lng.toFixed(6),
+          timezone: isNearBy ? latestEditPos.timezone : "",
+        };
       });
     };
     if (map) {
@@ -147,8 +157,16 @@ function ConfigureLocationMap({ editPos, setEditPos }) {
   );
 }
 
-export default function ConfigureLocationCard() {
-  const [editValues, setEditValues] = useState({});
+export default function ConfigureLocationCard({ onSubmit }) {
+  const { post } = usePost();
+  const [loading, setLoading] = useState(false);
+  const [editValues, setEditValues] = useState({
+    name: "",
+    lat: 34.11833,
+    lon: -118.300333,
+    elevation: 0,
+    timezone: "America/Los_Angeles",
+  });
   const tabs = [
     { idx: 0, title: "Map" },
     { idx: 1, title: "Manual" },
@@ -160,44 +178,65 @@ export default function ConfigureLocationCard() {
         setEditValues({
           lat: position.lat,
           lon: position.lon,
-          timezone: getDefaultTimeZone(),
+          elevation: 0,
+          timezone: getSystemTimeZone(),
         });
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setEditValues({
+          lat: 34.11833,
+          lon: -118.300333,
+          elevation: 0,
+          timezone: "America/Los_Angeles",
+        });
+      });
   }, []);
 
-  const fixedEditValues = {
-    lat: parseFloat(editValues?.lat),
-    lon: parseFloat(editValues?.lon),
-    timezone: editValues?.timezone,
-    elevation: parseFloat(editValues?.elevation),
-  };
-
-  const submitEditValues = {
-    ...fixedEditValues,
-  };
-  if (!submitEditValues.elevation) {
-    submitEditValues.elevation = 0;
-  }
-  if (!submitEditValues.name) {
-    submitEditValues.name = "Current Location";
-  }
+  const submit = useCallback(() => {
+    (async () => {
+      setLoading(true);
+      const submitValues = { ...editValues };
+      if (!submitValues.elevation) {
+        submitValues.elevation = 0;
+      }
+      submitValues.lat = parseFloatSafe(submitValues.lat, 0);
+      submitValues.lon = parseFloatSafe(submitValues.lon, 0);
+      if (post && (!submitValues.timezone || !submitValues.name)) {
+        const geoData = await post("get_geocode", {
+          lat: submitValues.lat,
+          lon: submitValues.lon,
+        });
+        if (!submitValues.timezone) {
+          submitValues.timezone = geoData.timezone;
+        }
+        if (!submitValues.name) {
+          submitValues.name = geocodeLocationToName(geoData.location);
+        }
+      }
+      if (!submitValues.name) {
+        submitValues.name = "Current Location";
+      }
+      setLoading(false);
+      onSubmit(submitValues);
+    })();
+  }, [onSubmit, post, editValues]);
 
   return (
     <ConfigureTabsCard
       title="Location"
       subtitle="Your location is used to determine the location of objects in your sky."
       tabs={tabs}
+      buttonName={"Add Location"}
+      buttonLoading={loading || !post}
+      onButtonClick={() => submit({})}
     >
       <ConfigureTabPanel idx={0} p={0}>
-        <ConfigureLocationMap
-          editPos={fixedEditValues}
-          setEditPos={setEditValues}
-        />
+        <ConfigureLocationMap editPos={editValues} setEditPos={setEditValues} />
       </ConfigureTabPanel>
       <ConfigureTabPanel idx={1}>
         <ConfigureLocationManually
-          editPos={fixedEditValues}
+          editPos={editValues}
           setEditPos={setEditValues}
         />
       </ConfigureTabPanel>

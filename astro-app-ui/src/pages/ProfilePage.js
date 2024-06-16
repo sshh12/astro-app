@@ -36,7 +36,7 @@ function SideBar() {
 }
 
 export default function ProfilePage() {
-  const { user } = useBackend();
+  const { user, updateUser } = useBackend();
   const [openLocationDialog, setOpenLocationDialog] = useState(false);
 
   return (
@@ -83,7 +83,12 @@ export default function ProfilePage() {
       >
         <ModalDialog sx={{ p: 0 }}>
           <ModalClose />
-          <ConfigureLocationCard />
+          <ConfigureLocationCard
+            onSubmit={(v) => {
+              updateUser("add_location", { location_details: v });
+              setOpenLocationDialog(false);
+            }}
+          />
         </ModalDialog>
       </Modal>
     </CssVarsProvider>

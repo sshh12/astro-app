@@ -9,6 +9,8 @@ image_base = (
         "modal~=0.61.0",
         "pandas==2.2.1",
         "tqdm==4.66.2",
+        "tzfpy==0.15.5",
+        "geopy==2.4.1",
     )
     .apt_install("curl")
     .run_commands(

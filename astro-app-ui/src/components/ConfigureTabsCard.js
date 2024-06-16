@@ -1,5 +1,12 @@
 import React from "react";
-import { Card, Box, Typography } from "@mui/joy";
+import {
+  Card,
+  Box,
+  Typography,
+  CardActions,
+  Button,
+  CardOverflow,
+} from "@mui/joy";
 import Tabs from "@mui/joy/Tabs";
 import TabList from "@mui/joy/TabList";
 import Tab, { tabClasses } from "@mui/joy/Tab";
@@ -13,7 +20,15 @@ export function ConfigureTabPanel({ idx, children, p = 2 }) {
   );
 }
 
-export default function ConfigureTabsCard({ title, subtitle, tabs, children }) {
+export default function ConfigureTabsCard({
+  title,
+  subtitle,
+  tabs,
+  children,
+  buttonName = null,
+  buttonLoading = false,
+  onButtonClick = null,
+}) {
   return (
     <Card sx={{ p: 0 }}>
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
@@ -59,13 +74,24 @@ export default function ConfigureTabsCard({ title, subtitle, tabs, children }) {
         </TabList>
         {children}
       </Tabs>
-      {/* <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
-        <CardActions sx={{ alignSelf: "flex-end" }}>
-          <Button size="sm" variant="solid">
-            Update
-          </Button>
-        </CardActions>
-      </CardOverflow> */}
+      {buttonName && (
+        <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
+          <CardActions sx={{ alignSelf: "flex-end" }}>
+            {buttonName && (
+              <Button
+                size="sm"
+                variant="solid"
+                loading={buttonLoading}
+                onClick={() =>
+                  !buttonLoading && onButtonClick && onButtonClick()
+                }
+              >
+                {buttonName}
+              </Button>
+            )}
+          </CardActions>
+        </CardOverflow>
+      )}
     </Card>
   );
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import { DateTime } from "luxon";
+import { TIMEZONES } from "../constants/timezones";
 
 export function renderTime(ts, tz) {
   const date = new Date(ts);
@@ -53,4 +54,10 @@ export function useCurrentObservingWindow(tz) {
       .set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
     return [yesterday.toMillis(), noon.toMillis()];
   }
+}
+
+export function getSystemTimeZone() {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const tzExists = TIMEZONES.find((t) => t.name === tz);
+  return tzExists ? tz : "UTC";
 }

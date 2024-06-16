@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useStorage } from "./storage";
+import { POST_METHODS } from "../utils/crud";
 
 export const BackendContext = React.createContext({});
 
@@ -14,7 +15,7 @@ const API_KEY_KEY = "apiKey";
 const SEEN_ONBOARDING_KEY = "seenOnboarding";
 const CACHE_USER_KEY = "user";
 
-function usePost() {
+export function usePost() {
   const { settingsStore } = useStorage();
   const post = useCallback(
     (func, args = {}) => {
@@ -48,7 +49,7 @@ function usePost() {
 
 function useUser() {
   const { post } = usePost();
-  const { settingsStore, cacheStore } = useStorage();
+  const { settingsStore, cacheStore, objectStore, listStore } = useStorage();
   const [user, setUser] = useState(null);
   useEffect(() => {
     if (post && settingsStore && cacheStore) {
@@ -79,7 +80,36 @@ function useUser() {
       })();
     }
   }, [post, settingsStore, cacheStore]);
-  return { user };
+
+  const updateUser = useCallback(
+    (func, args) => {
+      if (user && objectStore && listStore && cacheStore && post) {
+        (async () => {
+          const newOfflineUser = await POST_METHODS[func]({
+            ...args,
+            objectStore,
+            listStore,
+            user,
+          });
+          setUser(newOfflineUser);
+          cacheStore.setItem(CACHE_USER_KEY, newOfflineUser);
+          post(func, args)
+            .then((remoteUser) => {
+              if (remoteUser.id) {
+                cacheStore.setItem("user", remoteUser);
+                setUser(remoteUser);
+              }
+            })
+            .catch((e) => console.error(e));
+        })();
+      } else {
+        console.error("updateUser called before user is loaded", func, args);
+      }
+    },
+    [user, objectStore, listStore, cacheStore, post]
+  );
+
+  return { user, updateUser };
 }
 
 export function useOnboardingState() {
@@ -107,11 +137,18 @@ export function useBackend() {
 }
 
 export function useBackendControl() {
-  const { user } = useUser();
+  const { user, updateUser } = useUser();
   const { showOnboarding, closeOnboarding } = useOnboardingState();
   const location = !!user ? user.location.find((v) => v.active) : null;
   const equipment = !!user ? user.equipment.find((v) => v.active) : null;
-  return { user, location, equipment, showOnboarding, closeOnboarding };
+  return {
+    user,
+    updateUser,
+    location,
+    equipment,
+    showOnboarding,
+    closeOnboarding,
+  };
 }
 
 export function useList(id) {

@@ -735,6 +735,17 @@ async def set_active_location(ctx: context.Context, id: str) -> Dict:
 
 
 @method_web(require_login=False)
+async def get_geocode(ctx: context.Context, lat: float, lon: float) -> Dict:
+    from tzfpy import get_tz
+    from geopy.geocoders import Nominatim
+
+    geolocator = Nominatim(user_agent=f"astro-app-{ctx.user.id if ctx.user else 'anon'}")
+    location = geolocator.reverse(f"{lat}, {lon}")
+
+    return {"timezone": get_tz(lon, lat), "location": dict(location.raw)}
+
+
+@method_web(require_login=False)
 async def get_de421(ctx: context.Context) -> Dict:
     from skyfield.api import Loader
 
