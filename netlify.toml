@@ -1,9 +1,4 @@
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
   from = "/service-worker.js"
   to = "/service-worker.js"
   status = 200
@@ -21,6 +16,11 @@
 [[redirects]]
   from = "/tables/celestrak-active.txt"
   to = "/tables/celestrak-active.txt"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
   status = 200
 
 [[headers]]
