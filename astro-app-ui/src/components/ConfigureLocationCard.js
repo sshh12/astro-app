@@ -206,15 +206,25 @@ export default function ConfigureLocationCard({
     submitValues.lat = parseFloatSafe(submitValues.lat, 0);
     submitValues.lon = parseFloatSafe(submitValues.lon, 0);
     if (post && (!submitValues.timezone || !submitValues.name)) {
-      const geoData = await post("get_geocode", {
-        lat: submitValues.lat,
-        lon: submitValues.lon,
-      });
-      if (!submitValues.timezone) {
-        submitValues.timezone = geoData.timezone;
-      }
-      if (!submitValues.name) {
-        submitValues.name = geocodeLocationToName(geoData.location);
+      try {
+        const geoData = await post("get_geocode", {
+          lat: submitValues.lat,
+          lon: submitValues.lon,
+        });
+        if (!submitValues.timezone) {
+          submitValues.timezone = geoData.timezone;
+        }
+        if (!submitValues.name) {
+          submitValues.name = geocodeLocationToName(geoData.location);
+        }
+      } catch (err) {
+        console.error(err);
+        if (!submitValues.timezone) {
+          submitValues.timezone = getSystemTimeZone();
+        }
+        if (!submitValues.name) {
+          submitValues.name = "Location";
+        }
       }
     }
     if (!submitValues.name) {
