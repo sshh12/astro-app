@@ -82,26 +82,24 @@ function useUser() {
   }, [post, settingsStore, cacheStore]);
 
   const updateUser = useCallback(
-    (func, args) => {
+    async (func, args) => {
       if (user && objectStore && listStore && cacheStore && post) {
-        (async () => {
-          const newOfflineUser = await POST_METHODS[func]({
-            ...args,
-            objectStore,
-            listStore,
-            user,
-          });
-          setUser(newOfflineUser);
-          cacheStore.setItem(CACHE_USER_KEY, newOfflineUser);
-          post(func, args)
-            .then((remoteUser) => {
-              if (remoteUser.id) {
-                cacheStore.setItem("user", remoteUser);
-                setUser(remoteUser);
-              }
-            })
-            .catch((e) => console.error(e));
-        })();
+        const newOfflineUser = await POST_METHODS[func]({
+          ...args,
+          objectStore,
+          listStore,
+          user,
+        });
+        setUser(newOfflineUser);
+        cacheStore.setItem(CACHE_USER_KEY, newOfflineUser);
+        post(func, args)
+          .then((remoteUser) => {
+            if (remoteUser.id) {
+              cacheStore.setItem("user", remoteUser);
+              setUser(remoteUser);
+            }
+          })
+          .catch((e) => console.error(e));
       } else {
         console.error("updateUser called before user is loaded", func, args);
       }

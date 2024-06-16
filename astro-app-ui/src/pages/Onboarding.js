@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import CssBaseline from "@mui/joy/CssBaseline";
@@ -15,7 +15,11 @@ import ConfigureLocationCard from "../components/ConfigureLocationCard";
 import { useBackend } from "../providers/backend";
 
 export default function OnboardingPage() {
+  const { updateUser } = useBackend();
   const { closeOnboarding } = useBackend();
+  const [loading, setLoading] = useState(false);
+  const [triggerLocationSubmitCallback, setTriggerLocationSubmit] =
+    useState(null);
   const navigate = useNavigate();
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
@@ -110,15 +114,43 @@ export default function OnboardingPage() {
               </Stack>
             </Stack>
             <Stack gap={2} sx={{ mt: { xs: 0, sm: 2 } }}>
-              <ConfigureLocationCard />
+              <ConfigureLocationCard
+                showButton={false}
+                triggerSubmitAndCallback={triggerLocationSubmitCallback}
+                onSubmit={(v) => {
+                  updateUser("add_location", { location_details: v });
+                }}
+              />
               <Stack gap={2} sx={{ mt: 2 }}>
-                <Button fullWidth>Play Tutorial</Button>
+                <Button
+                  loading={loading}
+                  fullWidth
+                  onClick={() => {
+                    setLoading(true);
+                    setTriggerLocationSubmit(() => {
+                      return () => {
+                        setLoading(false);
+                        closeOnboarding();
+                        navigate("/sky");
+                      };
+                    });
+                  }}
+                >
+                  Play Tutorial
+                </Button>
                 <Button
                   variant="outlined"
                   fullWidth
+                  loading={loading}
                   onClick={() => {
-                    closeOnboarding();
-                    navigate("/sky");
+                    setLoading(true);
+                    setTriggerLocationSubmit(() => {
+                      return () => {
+                        setLoading(false);
+                        closeOnboarding();
+                        navigate("/sky");
+                      };
+                    });
                   }}
                 >
                   Skip Tutorial

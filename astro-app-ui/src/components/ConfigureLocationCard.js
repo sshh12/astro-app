@@ -157,7 +157,11 @@ function ConfigureLocationMap({ editPos, setEditPos }) {
   );
 }
 
-export default function ConfigureLocationCard({ onSubmit }) {
+export default function ConfigureLocationCard({
+  onSubmit,
+  triggerSubmitAndCallback = null,
+  showButton = true,
+}) {
   const { post } = usePost();
   const [loading, setLoading] = useState(false);
   const [editValues, setEditValues] = useState({
@@ -193,43 +197,47 @@ export default function ConfigureLocationCard({ onSubmit }) {
       });
   }, []);
 
-  const submit = useCallback(() => {
-    (async () => {
-      setLoading(true);
-      const submitValues = { ...editValues };
-      if (!submitValues.elevation) {
-        submitValues.elevation = 0;
-      }
-      submitValues.lat = parseFloatSafe(submitValues.lat, 0);
-      submitValues.lon = parseFloatSafe(submitValues.lon, 0);
-      if (post && (!submitValues.timezone || !submitValues.name)) {
-        const geoData = await post("get_geocode", {
-          lat: submitValues.lat,
-          lon: submitValues.lon,
-        });
-        if (!submitValues.timezone) {
-          submitValues.timezone = geoData.timezone;
-        }
-        if (!submitValues.name) {
-          submitValues.name = geocodeLocationToName(geoData.location);
-        }
+  const submit = useCallback(async () => {
+    setLoading(true);
+    const submitValues = { ...editValues };
+    if (!submitValues.elevation) {
+      submitValues.elevation = 0;
+    }
+    submitValues.lat = parseFloatSafe(submitValues.lat, 0);
+    submitValues.lon = parseFloatSafe(submitValues.lon, 0);
+    if (post && (!submitValues.timezone || !submitValues.name)) {
+      const geoData = await post("get_geocode", {
+        lat: submitValues.lat,
+        lon: submitValues.lon,
+      });
+      if (!submitValues.timezone) {
+        submitValues.timezone = geoData.timezone;
       }
       if (!submitValues.name) {
-        submitValues.name = "Current Location";
+        submitValues.name = geocodeLocationToName(geoData.location);
       }
-      setLoading(false);
-      onSubmit(submitValues);
-    })();
+    }
+    if (!submitValues.name) {
+      submitValues.name = "Current Location";
+    }
+    setLoading(false);
+    onSubmit(submitValues);
   }, [onSubmit, post, editValues]);
+
+  useEffect(() => {
+    if (triggerSubmitAndCallback) {
+      submit().then(() => triggerSubmitAndCallback());
+    }
+  }, [triggerSubmitAndCallback, submit]);
 
   return (
     <ConfigureTabsCard
       title="Location"
       subtitle="Your location is used to determine the location of objects in your sky."
       tabs={tabs}
-      buttonName={"Add Location"}
+      buttonName={showButton && "Add Location"}
       buttonLoading={loading || !post}
-      onButtonClick={() => submit({})}
+      onButtonClick={() => submit()}
     >
       <ConfigureTabPanel idx={0} p={0}>
         <ConfigureLocationMap editPos={editValues} setEditPos={setEditValues} />
