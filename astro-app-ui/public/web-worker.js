@@ -1,5 +1,19 @@
 importScripts("/static/whl/pyodide.js");
 
+function post(func) {
+  return fetch("https://sshh12--astro-app-backend.modal.run/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      func: func,
+      args: {},
+      api_key: "",
+    }),
+  }).then((response) => response.json());
+}
+
 async function loadPyodideAndPackages() {
   self.pyodide = await loadPyodide();
   await self.pyodide.loadPackage("micropip");

@@ -1,7 +1,8 @@
 from typing import List, Dict
 from prisma import Prisma, models, errors
-from prisma.enums import SpaceObjectType, Color, ListType
+from prisma.enums import SpaceObjectType, Color
 from decimal import Decimal
+import base64
 import context
 import random
 import aiohttp
@@ -731,3 +732,14 @@ async def set_active_location(ctx: context.Context, id: str) -> Dict:
     )
     updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
     return {**_user_to_dict(updated_user)}
+
+
+@method_web(require_login=False)
+async def get_de421(ctx: context.Context) -> Dict:
+    from skyfield.api import Loader
+
+    load = Loader(".")
+    load("de421.bsp")
+    with open("./de421.bsp", "rb") as f:
+        de421_data = f.read()
+    return {"de421_b64": base64.b64encode(de421_data).decode()}

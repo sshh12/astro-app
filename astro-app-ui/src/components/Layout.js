@@ -197,9 +197,9 @@ function MobileTabs() {
             flexDirection: "column",
             flex: 1,
           }}
+          key={tab.label}
         >
           <Button
-            key={tab.label}
             variant="plain"
             color="neutral"
             size="sm"

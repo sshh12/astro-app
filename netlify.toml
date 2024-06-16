@@ -9,8 +9,18 @@
   status = 200
 
 [[redirects]]
+  from = "/tables/de421.bsp"
+  to = "/tables/de421.bsp"
+  status = 200
+
+[[redirects]]
   from = "/tables/CometEls.txt"
   to = "/tables/CometEls.txt"
+  status = 200
+
+[[redirects]]
+  from = "/tables/celestrak-active.txt"
+  to = "/tables/celestrak-active.txt"
   status = 200
 
 [[headers]]

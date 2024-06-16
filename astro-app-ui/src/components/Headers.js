@@ -37,9 +37,8 @@ function DesktopTabs() {
         <AutoAwesomeIcon sx={{ color: yellow[500] }} />
       </IconButton>
       {Layout.Tabs.map((tab) => (
-        <Link to={tab.href} style={{ textDecoration: "none" }}>
+        <Link to={tab.href} style={{ textDecoration: "none" }} key={tab.label}>
           <Button
-            key={tab.label}
             variant="plain"
             color="neutral"
             component="a"

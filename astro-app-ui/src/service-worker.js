@@ -10,7 +10,7 @@
 import { clientsClaim } from "workbox-core";
 import { precacheAndRoute, createHandlerBoundToURL } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
-import { CacheFirst, StaleWhileRevalidate } from "workbox-strategies";
+import { CacheFirst } from "workbox-strategies";
 
 clientsClaim();
 
@@ -44,11 +44,6 @@ registerRoute(
     url.href.startsWith("upload.wikimedia.org") ||
     url.href.includes("/static/"),
   new CacheFirst()
-);
-
-registerRoute(
-  ({ url }) => url.href.includes("/tables/"),
-  new StaleWhileRevalidate()
 );
 
 self.addEventListener("message", (event) => {
