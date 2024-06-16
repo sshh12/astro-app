@@ -1,114 +1,110 @@
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useStorage } from "./storage";
 
 export const PythonContext = React.createContext({});
 
+const NUM_WORKERS =
+  (navigator.hardwareConcurrency &&
+    Math.min(navigator.hardwareConcurrency, 5)) ||
+  4;
+
+function _submitJob(script, onSendJs) {
+  const runWorker =
+    window.workers.findIndex((_, i) => !window.workersActive[i]) ||
+    Math.floor(Math.random() * NUM_WORKERS);
+  const worker = window.workers[runWorker];
+  const id = Date.now() + Math.random();
+
+  return new Promise((resolve) => {
+    window.jsCallbacks[id] = resolve;
+    window.sendJsCallbacks[id] = onSendJs;
+    window.workersActive[runWorker] = true;
+    worker.postMessage({
+      python: script,
+      id,
+    });
+  });
+}
+
+function _initWorkers() {
+  window.pyinit = true;
+  window.workers = window.workers || [];
+  window.workersActive = window.workersActive || {};
+  window.jsCallbacks = window.jsCallbacks || {};
+  window.sendJsCallbacks = window.sendJsCallbacks || {};
+  console.log(`python: Creating ${NUM_WORKERS} web workers`);
+  for (let i = 0; i < NUM_WORKERS; i++) {
+    const worker = new Worker("/web-worker.js");
+    window.workersActive[i] = false;
+    window.workers.push(worker);
+    worker.onmessage = (event) => {
+      const { id, ...data } = event.data;
+      if (data.sendJsValue) {
+        window.sendJsCallbacks[id](JSON.parse(data.sendJsValue));
+      }
+      if (data.results) {
+        const onSuccess = window.jsCallbacks[id];
+        window.workersActive[i] = false;
+        delete window.jsCallbacks[id];
+        delete window.sendJsCallbacks[id];
+        onSuccess(data);
+      }
+    };
+  }
+  window.temp = window.workers;
+  window.pyReady = true;
+}
+
+function asyncRun(script, onSendJs) {
+  const submitOrDefer = (depth = 0) => {
+    if (!window.pyReady) {
+      console.warn("python: Waiting for python to be ready", depth);
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(submitOrDefer(depth + 1));
+        }, 100);
+      });
+    } else {
+      return _submitJob(script, onSendJs);
+    }
+  };
+  return submitOrDefer();
+}
+
 export function usePythonControl() {
-  const numWorkers =
-    (navigator.hardwareConcurrency &&
-      Math.min(navigator.hardwareConcurrency, 5)) ||
-    4;
-  const workers = useRef([]);
-  const workersActive = useRef({});
-  const callbacks = useRef({});
-  const sendJsCallbacks = useRef({});
-
-  const asyncRun = useCallback(
-    (script, onSendJs) => {
-      const submitJob = () => {
-        const runWorker =
-          workers.current.findIndex((_, i) => !workersActive.current[i]) ||
-          Math.floor(Math.random() * numWorkers);
-        const worker = workers.current[runWorker];
-        const id = Date.now() + Math.random();
-
-        return new Promise((resolve) => {
-          callbacks.current[id] = resolve;
-          sendJsCallbacks.current[id] = onSendJs;
-          workersActive.current[runWorker] = true;
-          worker.postMessage({
-            python: script,
-            id,
-          });
-        });
-      };
-      const submitOrDefer = () => {
-        if (!workers.current.length) {
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(submitOrDefer());
-            }, 100);
-          });
-        } else {
-          return submitJob();
-        }
-      };
-      return submitOrDefer();
-    },
-    [numWorkers]
-  );
-
   useEffect(() => {
     if (window.Worker && !window.pyinit) {
-      window.pyinit = true;
-      console.log(`python: Creating ${numWorkers} web workers`);
-      for (let i = 0; i < numWorkers; i++) {
-        const worker = new Worker("/web-worker.js");
-        workersActive.current[i] = false;
-        workers.current.push(worker);
-        worker.onmessage = (event) => {
-          const { id, ...data } = event.data;
-          if (data.sendJsValue) {
-            sendJsCallbacks.current[id](JSON.parse(data.sendJsValue));
-          }
-          if (data.results) {
-            const onSuccess = callbacks.current[id];
-            workersActive.current[i] = false;
-            delete callbacks.current[id];
-            delete sendJsCallbacks.current[id];
-            onSuccess(data);
-          }
-        };
-      }
+      _initWorkers();
     }
     return () => {};
-  }, [numWorkers]);
+  }, []);
 
-  const call = useCallback(
-    async (method, args = {}, onStream = null) => {
-      console.log("python:", method);
-      const val = await asyncRun(
-        `
+  const call = useCallback(async (method, args = {}, onStream = null) => {
+    console.log("python:", method);
+    const val = await asyncRun(
+      `
     from astro_app.api import call;
     call(send_js, "${method}", ${JSON.stringify(args)
-          .replaceAll("null", "None")
-          .replaceAll("true", "True")
-          .replaceAll("false", "Frue")})
+        .replaceAll("null", "None")
+        .replaceAll("true", "True")
+        .replaceAll("false", "Frue")})
     `,
-        (val) => {
-          console.log("python:", method);
-          if (onStream) {
-            onStream(val);
-          }
+      (val) => {
+        console.log("python:", method);
+        if (onStream) {
+          onStream(val);
         }
-      );
-
-      const result = JSON.parse(val.results);
-      if (val.error) {
-        console.error(val.error);
-        result.error = val.error;
       }
-      console.log("python:", method, "complete");
-      return result;
-    },
-    [asyncRun]
-  );
+    );
+
+    const result = JSON.parse(val.results);
+    if (val.error) {
+      console.error(val.error);
+      result.error = val.error;
+    }
+    console.log("python:", method, "complete");
+    return result;
+  }, []);
   return { call };
 }
 
