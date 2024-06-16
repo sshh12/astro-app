@@ -101,6 +101,7 @@ function ListMobileTab({ lists }) {
         overflow: "hidden",
         backgroundColor: "background.surface",
         gridColumn: "1/-1",
+        paddingBottom: 2,
       }}
     >
       <Typography

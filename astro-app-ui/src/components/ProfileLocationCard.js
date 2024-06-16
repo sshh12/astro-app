@@ -55,7 +55,7 @@ export default function ProfileLocationCard({ setOpen }) {
               <ListItemDecorator>
                 <LocationOn />
               </ListItemDecorator>
-              {loc.name}
+              <Typography level="body-sm">{loc.name}</Typography>
             </ListItem>
             {idx !== locations.length - 1 && <ListDivider />}
           </>

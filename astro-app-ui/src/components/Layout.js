@@ -1,5 +1,5 @@
 import * as React from "react";
-import { yellow, purple } from "@mui/material/colors";
+import { yellow } from "@mui/material/colors";
 import Box from "@mui/joy/Box";
 import Sheet from "@mui/joy/Sheet";
 import AutoAwesome from "@mui/icons-material/AutoAwesome";
@@ -8,7 +8,7 @@ import CameraIcon from "@mui/icons-material/Camera";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import Button from "@mui/joy/Button";
 import Stack from "@mui/joy/Stack";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 const Tabs = [
   { label: "Sky", href: "/sky", icon: AutoAwesome, color: "#e9b307" },
@@ -23,7 +23,7 @@ const Tabs = [
     label: "Profile",
     href: "/profile",
     icon: AccountBoxIcon,
-    color: purple[500],
+    color: yellow[500],
   },
 ];
 
@@ -180,42 +180,48 @@ function MobileTabs() {
         bottom: 0,
         position: "fixed",
         width: "100dvw",
-        py: 2,
+        paddingLeft: 1,
+        paddingRight: 1,
         backgroundColor: "background.body",
         borderTop: "1px solid",
         borderColor: "divider",
-        marginX: "calc(1 * var(--joy-spacing))",
         paddingBottom: "calc(1 * var(--joy-spacing))",
         paddingTop: "calc(1 * var(--joy-spacing))",
       }}
     >
       {Tabs.map((tab) => (
-        <Button
-          key={tab.label}
-          variant="plain"
-          color="neutral"
-          component="a"
-          href={tab.href}
-          size="sm"
-          startDecorator={
-            <tab.icon
-              sx={{
-                color:
-                  locationToTab(location).label === tab.label
-                    ? tab.color
-                    : undefined,
-              }}
-            />
-          }
-          aria-pressed={locationToTab(location).label === tab.label}
-          sx={{
+        <Link
+          to={tab.href}
+          style={{
+            textDecoration: "none",
             flexDirection: "column",
-            "--Button-gap": 0,
             flex: 1,
           }}
         >
-          {tab.label}
-        </Button>
+          <Button
+            key={tab.label}
+            variant="plain"
+            color="neutral"
+            size="sm"
+            sx={{
+              height: "3rem",
+              width: "100%",
+            }}
+            startDecorator={
+              <tab.icon
+                sx={{
+                  color:
+                    locationToTab(location).label === tab.label
+                      ? tab.color
+                      : undefined,
+                }}
+              />
+            }
+            aria-pressed={locationToTab(location).label === tab.label}
+          >
+            {tab.label}
+          </Button>
+        </Link>
       ))}
     </Stack>
   );

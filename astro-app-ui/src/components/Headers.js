@@ -14,39 +14,30 @@ import { Typography } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { Link } from "react-router-dom";
 
-export function Header({ title, subtitle, enableSearch }) {
+function DesktopTabs() {
   const location = useLocation();
   return (
-    <Box
-      sx={{
-        display: "flex",
-        p: 2,
-        flexGrow: 1,
-        justifyContent: "space-between",
-        bgcolor: { xs: "background.body", sm: "background.surface" },
-        height: "100%",
-      }}
+    <Stack
+      direction="row"
+      justifyContent="center"
+      alignItems="center"
+      spacing={1}
+      sx={{ display: { xs: "none", sm: "flex" } }}
     >
-      <Stack
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        spacing={1}
-        sx={{ display: { xs: "none", sm: "flex" } }}
+      <IconButton
+        size="md"
+        sx={{
+          display: { xs: "none", sm: "inline-flex" },
+          borderRadius: "50%",
+          border: "2px solid",
+          borderColor: "divider",
+          backgroundColor: "#111827",
+        }}
       >
-        <IconButton
-          size="md"
-          sx={{
-            display: { xs: "none", sm: "inline-flex" },
-            borderRadius: "50%",
-            border: "2px solid",
-            borderColor: "divider",
-            backgroundColor: "#111827",
-          }}
-        >
-          <AutoAwesomeIcon sx={{ color: yellow[500] }} />
-        </IconButton>
-        {Layout.Tabs.map((tab) => (
+        <AutoAwesomeIcon sx={{ color: yellow[500] }} />
+      </IconButton>
+      {Layout.Tabs.map((tab) => (
+        <Link to={tab.href} style={{ textDecoration: "none" }}>
           <Button
             key={tab.label}
             variant="plain"
@@ -59,8 +50,25 @@ export function Header({ title, subtitle, enableSearch }) {
           >
             {tab.label}
           </Button>
-        ))}
-      </Stack>
+        </Link>
+      ))}
+    </Stack>
+  );
+}
+
+export function Header({ title, subtitle, enableSearch }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        p: 2,
+        flexGrow: 1,
+        justifyContent: "space-between",
+        bgcolor: { xs: "background.body", sm: "background.surface" },
+        height: "100%",
+      }}
+    >
+      <DesktopTabs />
       <Stack
         direction="column"
         alignItems="start"
@@ -121,7 +129,6 @@ export function Header({ title, subtitle, enableSearch }) {
 }
 
 export function SubPageHeader({ title, backPath }) {
-  const location = useLocation();
   return (
     <Box
       sx={{
@@ -133,40 +140,7 @@ export function SubPageHeader({ title, backPath }) {
         height: "100%",
       }}
     >
-      <Stack
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        spacing={1}
-        sx={{ display: { xs: "none", sm: "flex" } }}
-      >
-        <IconButton
-          size="md"
-          sx={{
-            display: { xs: "none", sm: "inline-flex" },
-            borderRadius: "50%",
-            border: "2px solid",
-            borderColor: "divider",
-            backgroundColor: "#111827",
-          }}
-        >
-          <AutoAwesomeIcon sx={{ color: yellow[500] }} />
-        </IconButton>
-        {Layout.Tabs.map((tab) => (
-          <Button
-            key={tab.label}
-            variant="plain"
-            color="neutral"
-            component="a"
-            aria-pressed={Layout.locationToTab(location).label === tab.label}
-            href={tab.href}
-            size="sm"
-            sx={{ alignSelf: "center" }}
-          >
-            {tab.label}
-          </Button>
-        ))}
-      </Stack>
+      <DesktopTabs />
       <Stack
         direction="row"
         justifyContent="center"
