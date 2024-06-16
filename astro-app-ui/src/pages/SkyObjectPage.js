@@ -6,27 +6,26 @@ import Layout from "../components/Layout";
 import { SubPageHeader } from "../components/Headers";
 import { theme } from "../theme/theme";
 import SkySummarySheet from "../components/SkySummarySheet";
-import SkyObjectsList from "../components/SkyObjectsList";
-import { useBackend, useList } from "../providers/backend";
+import { useBackend, useObjects } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
 import { useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { objectsToKey } from "../utils/object";
 import { useCurrentObservingWindow } from "../utils/date";
 import { SideBarNav } from "../components/Sidebars";
 
-export default function SkyListPage() {
-  const { id: listId } = useParams();
-  const { list } = useList(listId);
+export default function SkyObjectPage() {
+  const { id: objectId } = useParams();
+  const { objects } = useObjects([objectId]);
   const { location, user } = useBackend();
+  const object = objects && objects[0];
+  console.log(objects, object);
 
-  const listObjects = list ? list.objects : null;
   const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
-  const { result: listOrbits } = useCachedPythonOutput(
+  const { result: orbits } = useCachedPythonOutput(
     "get_orbit_calculations",
-    listObjects &&
+    object &&
       location && {
-        objects: listObjects,
+        objects: [object],
         start_ts: startTs,
         end_ts: endTs,
         timezone: location.timezone,
@@ -36,10 +35,8 @@ export default function SkyListPage() {
         resolution_mins: 10,
       },
     {
-      cacheKey: `listOrbits_${listId}_${startTs}_${endTs}_${
-        location?.id
-      }_${objectsToKey(listObjects)}`,
-      staleCacheKey: `listOrbits_${listId}`,
+      cacheKey: `orbits_${startTs}_${endTs}_${location?.id}_${objectId}`,
+      staleCacheKey: `orbits_${objectId}`,
     }
   );
 
@@ -56,11 +53,11 @@ export default function SkyListPage() {
         }}
       >
         <Layout.Header>
-          <SubPageHeader title={list?.title || "List"} backPath={"/sky"} />
+          <SubPageHeader title={object?.name || "Object"} backPath={"/sky"} />
         </Layout.Header>
         <Layout.SideNav>
           <SideBarNav
-            title={list?.title || "List"}
+            title={object?.name || "Object"}
             items={[
               {
                 text: "Favorites",
@@ -78,8 +75,7 @@ export default function SkyListPage() {
               gap: { xs: 0.5, sm: 2 },
             }}
           >
-            <SkySummarySheet objects={listObjects} orbits={listOrbits} />
-            <SkyObjectsList objects={listObjects} orbits={listOrbits} />
+            <SkySummarySheet objects={objects} orbits={orbits} />
             <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
           </Box>
         </Layout.Main>

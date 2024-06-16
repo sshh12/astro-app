@@ -40,7 +40,7 @@ function ListSideBar({ lists }) {
     <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
       <ListItem nested>
         <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
-          Lists
+          Sky
         </ListSubheader>
         <List
           size="sm"

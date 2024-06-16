@@ -19,6 +19,7 @@ import Stack from "@mui/joy/Stack";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 import { OBJECT_FIELDS } from "../utils/object";
+import { Link } from "react-router-dom";
 
 function SkyObjectCardSkeleton({ eqDetails }) {
   return (
@@ -107,7 +108,12 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
           color="primary"
           sx={{ borderRadius: 0 }}
         >
-          <ObjectImage object={object} />
+          <Link
+            to={{ pathname: `/sky/object/${object.id}` }}
+            style={{ textDecoration: "none" }}
+          >
+            <ObjectImage object={object} />
+          </Link>
         </AspectRatio>
       </CardOverflow>
       <CardContent

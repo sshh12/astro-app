@@ -200,3 +200,30 @@ export function useList(id) {
   }, [listStore, id, post]);
   return { list };
 }
+
+export function useObjects(ids) {
+  const [objects, setObjects] = useState(null);
+  const { post } = usePost();
+  const { objectStore } = useStorage();
+  const idsStr = ids && ids.join(",");
+  useEffect(() => {
+    if (objectStore && post && idsStr) {
+      (async () => {
+        const objects = await Promise.all(
+          idsStr.split(",").map(async (id) => {
+            const cacheVal = await objectStore.getItem(id);
+            if (cacheVal) {
+              return cacheVal;
+            } else {
+              const freshVal = await post("get_space_object", { id: id });
+              objectStore.setItem(id, freshVal);
+              return freshVal;
+            }
+          })
+        );
+        setObjects(objects);
+      })();
+    }
+  }, [objectStore, idsStr, post]);
+  return { objects };
+}

@@ -7,6 +7,7 @@ import { PythonContext, usePythonControl } from "./providers/python";
 
 const SkyPage = lazy(() => import("./pages/SkyPage"));
 const SkyListPage = lazy(() => import("./pages/SkyListPage"));
+const SkyObjectPage = lazy(() => import("./pages/SkyObjectPage"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 
@@ -20,6 +21,7 @@ function App() {
         <Routes key={location.pathname} location={location}>
           <Route path="/sky" element={<SkyPage />} />
           <Route path="/sky/list/:id" element={<SkyListPage />} />
+          <Route path="/sky/object/:id" element={<SkyObjectPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path={`*`} element={<Navigate to="/sky" replace />} />

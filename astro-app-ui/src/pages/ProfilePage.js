@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
-import List from "@mui/joy/List";
-import ListItem from "@mui/joy/ListItem";
-import ListSubheader from "@mui/joy/ListSubheader";
 import Box from "@mui/joy/Box";
 import Layout from "../components/Layout";
 import { Header } from "../components/Headers";
@@ -15,25 +12,7 @@ import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import ModalClose from "@mui/joy/ModalClose";
 import ProfileLocationCard from "../components/ProfileLocationCard";
-
-function SideBar() {
-  return (
-    <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
-      <ListItem nested>
-        <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
-          Profile
-        </ListSubheader>
-        <List
-          size="sm"
-          sx={{
-            "--ListItemDecorator-size": "20px",
-            "& .JoyListItemButton-root": { p: "8px" },
-          }}
-        ></List>
-      </ListItem>
-    </List>
-  );
-}
+import { SideBarNav } from "../components/Sidebars";
 
 export default function ProfilePage() {
   const { user, updateUser } = useBackend();
@@ -58,7 +37,7 @@ export default function ProfilePage() {
           />
         </Layout.Header>
         <Layout.SideNav>
-          <SideBar />
+          <SideBarNav title="Profile" items={[]} />
         </Layout.SideNav>
         <Layout.Main>
           <Box sx={{ flex: 1, width: "100%", p: 0 }}>
