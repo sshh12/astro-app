@@ -44,7 +44,6 @@ function DesktopTabs() {
             color="neutral"
             component="a"
             aria-pressed={Layout.locationToTab(location).label === tab.label}
-            href={tab.href}
             size="sm"
             sx={{ alignSelf: "center" }}
           >
