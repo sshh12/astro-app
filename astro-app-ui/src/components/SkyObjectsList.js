@@ -1,18 +1,18 @@
 import React, { useMemo, useState } from "react";
 import SkyObjectCard from "./SkyObjectCard";
-import { OBJECT_SORTS } from "../utils/object";
+import { OBJECT_FIELDS } from "../utils/object";
 import { useBackend } from "../providers/backend";
 import SkyObjectDisplayModal from "./SkyObjectDisplayModal";
 
 export default function SkyObjectsList({ objects, orbits }) {
   const { objDisplay } = useBackend();
-  const [displayModalOpen, setDisplayModalOpen] = useState(true);
+  const [displayModalOpen, setDisplayModalOpen] = useState(false);
 
   const objs = useMemo(() => {
     const objs = [...(objects || [])];
     const sortParams = objDisplay
-      ? OBJECT_SORTS.find((s) => s.id === objDisplay.sortName)
-      : OBJECT_SORTS[0];
+      ? OBJECT_FIELDS.find((s) => s.id === objDisplay.sortName)
+      : OBJECT_FIELDS[0];
     const multi = objDisplay?.sortReverse ? -1 : 1;
     objs.sort((a, b) => multi * sortParams.sort({ a, b, orbits }));
     return objs;

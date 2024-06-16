@@ -14,7 +14,7 @@ const BACKEND_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "apiKey";
 const SEEN_ONBOARDING_KEY = "seenOnboarding";
 const CACHE_USER_KEY = "user";
-const OBJECT_DISPLAY_KEY = "objectSort";
+const OBJECT_DISPLAY_KEY = "objectDisplay";
 
 export function usePost() {
   const { settingsStore } = useStorage();
@@ -139,6 +139,7 @@ export function useObjectDisplay() {
         const initVal = val || {};
         initVal.sortName = initVal.sortName || "max-alt";
         initVal.sortReverse = initVal.sortReverse || true;
+        initVal.badges = initVal.badges || ["max-alt"];
         _setDisplay(initVal);
       });
     }

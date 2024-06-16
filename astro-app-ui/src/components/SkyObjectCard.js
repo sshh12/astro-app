@@ -15,9 +15,10 @@ import Skeleton from "@mui/joy/Skeleton";
 import CardContent from "@mui/joy/CardContent";
 import ObjectImage from "./SkyObjectImage";
 import Chip from "@mui/joy/Chip";
+import Stack from "@mui/joy/Stack";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
-import { OBJECT_SORTS } from "../utils/object";
+import { OBJECT_FIELDS } from "../utils/object";
 
 function SkyObjectCardSkeleton({ eqDetails }) {
   return (
@@ -59,25 +60,41 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
   if (!object || !objDisplay) {
     return <SkyObjectCardSkeleton eqDetails={eqDetails} />;
   }
-  const objSortParams = OBJECT_SORTS.find((s) => s.id === objDisplay.sortName);
-  const badge = objSortParams.badge({ obj: object, orbits: orbits });
+  const badges = objDisplay.badges.map((badgeId) =>
+    OBJECT_FIELDS.find((s) => s.id === badgeId).badge({
+      obj: object,
+      orbits: orbits,
+    })
+  );
   return (
     <Card variant="outlined" size="sm">
-      <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Stack
+        direction={badges && badges.length > 1 ? "column" : "row"}
+        spacing={1}
+        sx={{ display: "flex" }}
+      >
         <Box sx={{ flex: 1 }}>
           <Typography level="title-md">{object.name}</Typography>
         </Box>
-        {badge && (
-          <Chip
-            size="md"
-            variant="soft"
-            color={badge.color}
-            endDecorator={badge.icon && <badge.icon />}
-          >
-            {badge.text}
-          </Chip>
+        {badges && (
+          <Stack direction="row" gap={1} flexWrap="wrap">
+            {badges.map(
+              (badge) =>
+                badge && (
+                  <Chip
+                    size="md"
+                    key={badge.text}
+                    variant="soft"
+                    color={badge.color}
+                    endDecorator={badge.icon && <badge.icon />}
+                  >
+                    {badge.text}
+                  </Chip>
+                )
+            )}
+          </Stack>
         )}
-      </Box>
+      </Stack>
       <CardOverflow
         sx={{
           borderBottom: "1px solid",

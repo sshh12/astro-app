@@ -55,10 +55,10 @@ function objTypeToBadge(obj) {
   let color;
   if (obj.type === "SOLAR_SYSTEM_OBJECT") {
     label = "Solar System";
-    color = "primary";
+    color = "neutral";
   } else if (obj.type === "STAR_OBJECT") {
     label = "Deep Space";
-    color = "success";
+    color = "primary";
   }
   return (
     label && {
@@ -120,7 +120,7 @@ function objSizeToBadge(size) {
   return { text: size.toFixed(1), color: color, icon: icon };
 }
 
-export const OBJECT_SORTS = [
+export const OBJECT_FIELDS = [
   {
     id: "name",
     label: "name",
