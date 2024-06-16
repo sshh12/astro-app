@@ -8,6 +8,11 @@
   to = "/service-worker.js"
   status = 200
 
+[[redirects]]
+  from = "/tables/CometEls.txt"
+  to = "/tables/CometEls.txt"
+  status = 200
+
 [[headers]]
   for = "/service-worker.js"
   [headers.values]
