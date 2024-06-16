@@ -44,10 +44,6 @@ python-skyfield/
 astro_app.egg-info/
 env.bat
 __pycache__
-de421.bsp
 *.cache.json
-CometEls.txt
 python-astro-app/build/
 python-astro-app/dist/
-!public/tables/de421.bsp
-!public/tables/CometEls.txt

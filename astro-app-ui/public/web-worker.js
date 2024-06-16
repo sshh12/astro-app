@@ -19,7 +19,7 @@ async function loadPyodideAndPackages() {
   await self.pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   const getNASAEph = async () => {
-    await fetch("/tables/de421.bsp").then(async (resp) => {
+    await fetch("/static/tables/de421.bsp").then(async (resp) => {
       if (resp.ok) {
         const data = new Uint8Array(await resp.arrayBuffer());
         pyodide.FS.writeFile("/de421.bsp", data, { encoding: "binary" });
@@ -29,7 +29,7 @@ async function loadPyodideAndPackages() {
     });
   };
   const getComets = async () => {
-    await fetch("/tables/CometEls.txt").then(async (resp) => {
+    await fetch("/static/tables/CometEls.txt").then(async (resp) => {
       if (resp.ok) {
         const data = new Uint8Array(await resp.arrayBuffer());
         pyodide.FS.writeFile("/CometEls.txt", data, { encoding: "binary" });
@@ -39,7 +39,7 @@ async function loadPyodideAndPackages() {
     });
   };
   const getCelestrak = async () => {
-    await fetch("/tables/celestrak-active.txt").then(async (resp) => {
+    await fetch("/static/tables/celestrak-active.txt").then(async (resp) => {
       if (resp.ok) {
         const data = new Uint8Array(await resp.arrayBuffer());
         pyodide.FS.writeFile("/celestrak-active.txt", data, {
