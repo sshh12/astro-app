@@ -22,6 +22,12 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import Typography from "@mui/joy/Typography";
 import AvatarGroup from "@mui/joy/AvatarGroup";
 import Avatar from "@mui/joy/Avatar";
+import AccordionGroup from "@mui/joy/AccordionGroup";
+import Accordion from "@mui/joy/Accordion";
+import AccordionSummary from "@mui/joy/AccordionSummary";
+import AccordionDetails from "@mui/joy/AccordionDetails";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ListIcon from "@mui/icons-material/List";
 import { Link } from "react-router-dom";
 import {
   renderTimeWithSeconds,
@@ -29,8 +35,64 @@ import {
   useCurrentObservingWindow,
 } from "../utils/date";
 import { objectsToKey } from "../utils/object";
-import { colorToHex } from "../constants/colors";
+import { idxToColorHex } from "../constants/colors";
 import { useNavigate } from "react-router-dom";
+import { CURATED_LISTS } from "./../constants/lists";
+
+function Toggler({ defaultExpanded = false, renderToggle, children }) {
+  const [open, setOpen] = React.useState(defaultExpanded);
+  return (
+    <React.Fragment>
+      {renderToggle({ open, setOpen })}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateRows: open ? "1fr" : "0fr",
+          transition: "0.2s ease",
+          "& > *": {
+            overflow: "hidden",
+          },
+        }}
+      >
+        {children}
+      </Box>
+    </React.Fragment>
+  );
+}
+
+function RichListSideBarItem({ list, idx }) {
+  return list.fake ? (
+    <ListItem key={list.id}>
+      <ListItemButton>
+        <ListItemContent>
+          <Skeleton variant="text"></Skeleton>
+        </ListItemContent>
+      </ListItemButton>
+    </ListItem>
+  ) : (
+    <Link
+      to={{ pathname: `/sky/list/${list.id}` }}
+      style={{ textDecoration: "none" }}
+      key={list.id}
+    >
+      <ListItem>
+        <ListItemButton>
+          <ListItemDecorator>
+            <Box
+              sx={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "99px",
+                bgcolor: idxToColorHex(idx),
+              }}
+            />
+          </ListItemDecorator>
+          <ListItemContent>{list.title}</ListItemContent>
+        </ListItemButton>
+      </ListItem>
+    </Link>
+  );
+}
 
 function ListSideBar({ lists }) {
   const lsts =
@@ -49,42 +111,91 @@ function ListSideBar({ lists }) {
             "& .JoyListItemButton-root": { p: "8px" },
           }}
         >
-          {lsts.map((lst) =>
-            lst.fake ? (
-              <ListItem key={lst.id}>
-                <ListItemButton>
-                  <ListItemContent>
-                    <Skeleton variant="text"></Skeleton>
-                  </ListItemContent>
-                </ListItemButton>
-              </ListItem>
-            ) : (
-              <Link
-                to={{ pathname: `/sky/list/${lst.id}` }}
-                style={{ textDecoration: "none" }}
-                key={lst.id}
-              >
-                <ListItem>
-                  <ListItemButton>
-                    <ListItemDecorator>
-                      <Box
-                        sx={{
-                          width: "10px",
-                          height: "10px",
-                          borderRadius: "99px",
-                          bgcolor: colorToHex(lst.color),
-                        }}
-                      />
-                    </ListItemDecorator>
-                    <ListItemContent>{lst.title}</ListItemContent>
-                  </ListItemButton>
-                </ListItem>
-              </Link>
-            )
-          )}
+          {lsts.map((lst, idx) => (
+            <RichListSideBarItem list={lst} key={lst.id} idx={idx} />
+          ))}
         </List>
       </ListItem>
+      <ListItem nested>
+        <Toggler
+          renderToggle={({ open, setOpen }) => (
+            <ListItemButton onClick={() => setOpen(!open)}>
+              <ListIcon />
+              <ListItemContent>
+                <Typography level="title-sm">More Lists</Typography>
+              </ListItemContent>
+              <KeyboardArrowDownIcon
+                sx={{ transform: open ? "rotate(180deg)" : "none" }}
+              />
+            </ListItemButton>
+          )}
+        >
+          <List
+            size="sm"
+            sx={{
+              "--ListItemDecorator-size": "20px",
+              "& .JoyListItemButton-root": { p: "8px" },
+            }}
+          >
+            {CURATED_LISTS.map((lst, idx) => (
+              <RichListSideBarItem
+                list={lst}
+                key={lst.id}
+                idx={lsts.length + idx}
+              />
+            ))}
+          </List>
+        </Toggler>
+      </ListItem>
     </List>
+  );
+}
+
+function RichListListItem({ list, idx }) {
+  if (list.fake) {
+    return (
+      <ListItem key={list.id}>
+        <ListItemButton>
+          <ListItemContent>
+            <Skeleton variant="text"></Skeleton>
+          </ListItemContent>
+        </ListItemButton>
+      </ListItem>
+    );
+  }
+  const avatarsObjs = list.objects.slice(0, 3);
+  const extras = list.objects.length - avatarsObjs.length;
+  return (
+    <Link
+      to={{ pathname: `/sky/list/${list.id}` }}
+      style={{ textDecoration: "none" }}
+      key={list.id}
+    >
+      <ListItem>
+        <ListItemButton>
+          <ListItemDecorator>
+            <Box
+              sx={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "99px",
+                bgcolor: idxToColorHex(idx),
+              }}
+            />
+          </ListItemDecorator>
+          <ListItemContent>
+            <Typography fontSize={"0.9rem"}>{list.title}</Typography>
+          </ListItemContent>
+          <AvatarGroup>
+            {avatarsObjs.map((obj) => (
+              <Avatar key={obj.id} src={getImageURL(obj)} />
+            ))}
+            {!!extras && <Avatar>+{Math.min(extras, 99)}</Avatar>}
+          </AvatarGroup>
+          <KeyboardArrowRight />
+        </ListItemButton>
+      </ListItem>
+    </Link>
   );
 }
 
@@ -125,52 +236,35 @@ function ListMobileTab({ lists }) {
           pl: 1,
         }}
       >
-        {lsts.map((lst) => {
-          if (lst.fake) {
-            return (
-              <ListItem key={lst.id}>
-                <ListItemButton>
-                  <ListItemContent>
-                    <Skeleton variant="text"></Skeleton>
-                  </ListItemContent>
-                </ListItemButton>
-              </ListItem>
-            );
-          }
-          const avatarsObjs = lst.objects.slice(0, 3);
-          const extras = lst.objects.length - avatarsObjs.length;
-          return (
-            <Link
-              to={{ pathname: `/sky/list/${lst.id}` }}
-              style={{ textDecoration: "none" }}
-              key={lst.id}
-            >
-              <ListItem href="/sky/list">
-                <ListItemButton>
-                  <ListItemDecorator>
-                    <Box
-                      sx={{
-                        width: "10px",
-                        height: "10px",
-                        borderRadius: "99px",
-                        bgcolor: colorToHex(lst.color),
-                      }}
-                    />
-                  </ListItemDecorator>
-                  <ListItemContent>{lst.title}</ListItemContent>
-                  <AvatarGroup>
-                    {avatarsObjs.map((obj) => (
-                      <Avatar key={obj.id} src={getImageURL(obj)} />
-                    ))}
-                    {!!extras && <Avatar>+{extras}</Avatar>}
-                  </AvatarGroup>
-                  <KeyboardArrowRight />
-                </ListItemButton>
-              </ListItem>
-            </Link>
-          );
-        })}
+        {lsts.map((lst, idx) => (
+          <RichListListItem list={lst} key={lst.id} idx={idx} />
+        ))}
       </List>
+      <AccordionGroup>
+        <Accordion>
+          <AccordionSummary>
+            <Typography level="body-sm">More Lists</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <List
+              size="sm"
+              sx={{
+                "--ListItemDecorator-size": "20px",
+                "& .JoyListItemButton-root": { p: "8px" },
+                pl: 1,
+              }}
+            >
+              {CURATED_LISTS.map((lst, idx) => (
+                <RichListListItem
+                  list={lst}
+                  key={lst.id}
+                  idx={lsts.length + idx}
+                />
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      </AccordionGroup>
     </Sheet>
   );
 }
@@ -229,6 +323,7 @@ export default function SkyPage() {
           <Header
             title="Sky"
             subtitle={renderTimeWithSeconds(ts, user?.timezone)}
+            enableSearch={true}
           />
         </Layout.Header>
         <Layout.SideNav>

@@ -27,4 +27,11 @@ function colorToHex(color) {
   return COLORS[color.toLowerCase()] || color;
 }
 
-export { colorToHex };
+function idxToColorHex(idx) {
+  const colorOptions = Object.keys(COLORS).slice(5);
+  const colorIdx = idx % colorOptions.length;
+  const color = colorOptions[colorIdx];
+  return colorToHex(color);
+}
+
+export { colorToHex, idxToColorHex };

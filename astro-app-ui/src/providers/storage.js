@@ -1,11 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
 import localforage from "localforage";
+import { CURATED_LISTS } from "../constants/lists";
 
 export const StorageContext = React.createContext({});
 
 export function useStorage() {
   const storage = useContext(StorageContext);
   return storage;
+}
+
+function populateLists(listStore) {
+  CURATED_LISTS.forEach((list) => {
+    listStore.setItem(list.id, list);
+  });
+}
+
+function populateObjects(objectStore) {
+  CURATED_LISTS.forEach((list) => {
+    list.objects.forEach((object) => {
+      objectStore.setItem(object.id, object);
+    });
+  });
 }
 
 export function useStorageControl() {
@@ -26,10 +41,12 @@ export function useStorageControl() {
       name: "astro-app-objects",
     });
     setObjectStore(objectStore);
+    populateObjects(objectStore);
     const listStore = localforage.createInstance({
       name: "astro-app-lists",
     });
     setListStore(listStore);
+    populateLists(listStore);
   }, []);
   return { settingsStore, cacheStore, objectStore, listStore };
 }

@@ -18,7 +18,6 @@ export default function SkyObjectPage() {
   const { objects } = useObjects([objectId]);
   const { location, user } = useBackend();
   const object = objects && objects[0];
-  console.log(objects, object);
 
   const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
   const { result: orbits } = useCachedPythonOutput(
