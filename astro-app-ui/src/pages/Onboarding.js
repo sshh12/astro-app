@@ -15,7 +15,7 @@ import ConfigureLocationCard from "../components/ConfigureLocationCard";
 import { useBackend } from "../providers/backend";
 
 export default function OnboardingPage() {
-  const { updateUser } = useBackend();
+  const { user, updateUser } = useBackend();
   const { closeOnboarding } = useBackend();
   const [loading, setLoading] = useState(false);
   const [triggerLocationSubmitCallback, setTriggerLocationSubmit] =
@@ -123,7 +123,7 @@ export default function OnboardingPage() {
               />
               <Stack gap={2} sx={{ mt: 2 }}>
                 <Button
-                  loading={loading}
+                  loading={loading || !user}
                   fullWidth
                   onClick={() => {
                     setLoading(true);
@@ -141,7 +141,7 @@ export default function OnboardingPage() {
                 <Button
                   variant="outlined"
                   fullWidth
-                  loading={loading}
+                  loading={loading || !user}
                   onClick={() => {
                     setLoading(true);
                     setTriggerLocationSubmit(() => {
