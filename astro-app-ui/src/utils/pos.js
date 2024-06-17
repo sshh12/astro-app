@@ -50,6 +50,12 @@ export function getDeviceLocation() {
 export function geocodeLocationToName(geocodeLocation) {
   const address = geocodeLocation.address;
   const country = address.country;
-  const city = address.city || address.town || address.village || "Location";
+  const city =
+    address.city ||
+    address.town ||
+    address.village ||
+    address.county ||
+    address.state ||
+    "Location";
   return `${city}, ${country}`;
 }
