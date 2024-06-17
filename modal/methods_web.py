@@ -30,7 +30,7 @@ DEFAULT_LISTS = {
         "944241965995786241",
         "950079201617838082",
     ],
-    ("Popular Nebulas", Color.RED): [
+    ("Nebulas", Color.RED): [
         "944241955830530049",
         "944241958223970305",
         "944241962644766721",
@@ -48,7 +48,7 @@ DEFAULT_LISTS = {
         "944241995678580737",
         "944241998345437185",
     ],
-    ("Popular Galaxies", Color.BLUE): [
+    ("Galaxies", Color.BLUE): [
         "944242002229231617",
         "944242005918744577",
         "944242009715900417",
@@ -62,18 +62,6 @@ DEFAULT_LISTS = {
         "944242445538164737",
         "948083556061446145",
         "948752825148604417",
-    ],
-    ("Solar System", Color.YELLOW): [
-        "944241942959718401",
-        "944241943064412161",
-        "944241943171366913",
-        "944241943273340929",
-        "944241943363649537",
-        "944241943455465473",
-        "944241943558094849",
-        "944241943667408897",
-        "944241943765680129",
-        "944241943867162625",
     ],
 }
 
@@ -739,7 +727,9 @@ async def get_geocode(ctx: context.Context, lat: float, lon: float) -> Dict:
     from tzfpy import get_tz
     from geopy.geocoders import Nominatim
 
-    geolocator = Nominatim(user_agent=f"astro-app-{ctx.user.id if ctx.user else 'anon'}")
+    geolocator = Nominatim(
+        user_agent=f"astro-app-{ctx.user.id if ctx.user else 'anon'}"
+    )
     location = geolocator.reverse(f"{lat}, {lon}")
 
     return {"timezone": get_tz(lon, lat), "location": dict(location.raw)}
