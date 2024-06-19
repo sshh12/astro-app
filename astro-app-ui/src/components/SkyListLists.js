@@ -21,7 +21,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ListIcon from "@mui/icons-material/List";
 import { Link } from "react-router-dom";
 import { idxToColorHex } from "../constants/colors";
-import { CURATED_LISTS } from "../constants/lists";
+import { CURATED_LISTS, PUBLIC_LISTS } from "../constants/lists";
 import Toggler from "./Toggler";
 
 function RichListSideBarItem({ list, idx }) {
@@ -106,6 +106,37 @@ export function ListSideBar({ lists }) {
                 list={lst}
                 key={lst.id}
                 idx={lsts.length + idx}
+              />
+            ))}
+          </List>
+        </Toggler>
+      </ListItem>
+      <ListItem nested>
+        <Toggler
+          renderToggle={({ open, setOpen }) => (
+            <ListItemButton onClick={() => setOpen(!open)}>
+              <ListIcon />
+              <ListItemContent>
+                <Typography level="body-sm">Public Lists</Typography>
+              </ListItemContent>
+              <KeyboardArrowDownIcon
+                sx={{ transform: open ? "rotate(180deg)" : "none" }}
+              />
+            </ListItemButton>
+          )}
+        >
+          <List
+            size="sm"
+            sx={{
+              "--ListItemDecorator-size": "20px",
+              "& .JoyListItemButton-root": { p: "8px" },
+            }}
+          >
+            {PUBLIC_LISTS.map((lst, idx) => (
+              <RichListSideBarItem
+                list={lst}
+                key={lst.id}
+                idx={lsts.length + CURATED_LISTS.length + idx}
               />
             ))}
           </List>
@@ -249,6 +280,29 @@ export function ListMobileTab({ lists }) {
                   list={lst}
                   key={lst.id}
                   idx={lsts.length + idx}
+                />
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary>
+            <Typography level="body-sm">Public Lists</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <List
+              size="sm"
+              sx={{
+                "--ListItemDecorator-size": "20px",
+                "& .JoyListItemButton-root": { p: "8px" },
+                pl: 1,
+              }}
+            >
+              {PUBLIC_LISTS.map((lst, idx) => (
+                <RichListListItem
+                  list={lst}
+                  key={lst.id}
+                  idx={lsts.length + CURATED_LISTS.length + idx}
                 />
               ))}
             </List>

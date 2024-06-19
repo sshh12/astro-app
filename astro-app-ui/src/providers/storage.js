@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import localforage from "localforage";
-import { CURATED_LISTS } from "../constants/lists";
+import { CURATED_LISTS, PUBLIC_LISTS } from "../constants/lists";
 
 export const StorageContext = React.createContext({});
 
@@ -10,13 +10,13 @@ export function useStorage() {
 }
 
 function populateLists(listStore) {
-  CURATED_LISTS.forEach((list) => {
+  CURATED_LISTS.concat(PUBLIC_LISTS).forEach((list) => {
     listStore.setItem(list.id, list);
   });
 }
 
 function populateObjects(objectStore) {
-  CURATED_LISTS.forEach((list) => {
+  CURATED_LISTS.concat(PUBLIC_LISTS).forEach((list) => {
     list.objects.forEach((object) => {
       objectStore.setItem(object.id, object);
     });

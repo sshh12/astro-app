@@ -62,6 +62,7 @@ enum EquipmentType {
 enum ListType {
   PERSONAL_COLLECTION
   CURATED_LIST
+  PUBLIC_LIST
   CONSTELLATION_GROUP
 }
 
