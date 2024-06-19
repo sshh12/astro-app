@@ -2,7 +2,7 @@ export function equipmentToDetails(equipment) {
   const baseWidth = 1000;
   if (equipment && equipment.type === "CAMERA") {
     const effectiveFocalLength = equipment.teleFocalLength * equipment.barlow;
-    const aspectRatio = equipment.camHeight / equipment.camWidth;
+    const aspectRatio = equipment.camWidth / equipment.camHeight;
     const height = Math.round(aspectRatio * baseWidth);
     const sensorWidthMM = equipment.camWidth * (equipment.camPixelWidth / 1000);
     const sensorHeightMM =

@@ -131,6 +131,32 @@ function ListSideBar({ lists }) {
   );
 }
 
+function ObjectAvatar({ object }) {
+  return (
+    <Avatar
+      key={object.id}
+      src={getImageURL(object)}
+      slots={{
+        img: () => (
+          <img
+            src={getImageURL(object)}
+            alt={object.name}
+            style={{
+              objectFit: "contain",
+              color: "transparent",
+              textIndent: "10000px",
+              width: "100%",
+              height: "100%",
+              textAlign: "center",
+            }}
+            className="MuiAvatar-img"
+          />
+        ),
+      }}
+    />
+  );
+}
+
 function RichListListItem({ list, idx }) {
   if (list.fake) {
     return (
@@ -168,7 +194,7 @@ function RichListListItem({ list, idx }) {
           </ListItemContent>
           <AvatarGroup>
             {avatarsObjs.map((obj) => (
-              <Avatar key={obj.id} src={getImageURL(obj)} />
+              <ObjectAvatar object={obj} key={obj.id} />
             ))}
             {!!extras && <Avatar>+{Math.min(extras, 99)}</Avatar>}
           </AvatarGroup>
