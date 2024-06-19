@@ -124,7 +124,7 @@ def extract_binos(html: str) -> List[Dict]:
 
 if __name__ == "__main__":
     html = requests.get("https://astronomy.tools/calculators/field_of_view/").text
-    with open("../app/equipment.js", "w") as f:
+    with open("../astro-app-ui/src/constants/equipment.js", "w") as f:
         f.write(
             "export const BARLOWS = "
             + json.dumps(extract_barlows(html), indent=2)

@@ -7,16 +7,19 @@ import { Header } from "../components/Headers";
 import { theme } from "../theme/theme";
 import { useBackend } from "../providers/backend";
 import ConfigureLocationCard from "./../components/ConfigureLocationCard";
+import ConfigureEquipmentCard from "../components/ConfigureEquipmentCard";
 import Stack from "@mui/joy/Stack";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import ModalClose from "@mui/joy/ModalClose";
 import ProfileLocationCard from "../components/ProfileLocationCard";
+import ProfileEquipmentCard from "../components/ProfileEquipmentCard";
 import { SideBarNav } from "../components/Sidebars";
 
 export default function ProfilePage() {
   const { user, updateUser } = useBackend();
   const [openLocationDialog, setOpenLocationDialog] = useState(false);
+  const [openEquipmentDialog, setOpenEquipmentDialog] = useState(false);
 
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
@@ -42,7 +45,7 @@ export default function ProfilePage() {
         <Layout.Main>
           <Box sx={{ flex: 1, width: "100%", p: 0 }}>
             <Stack
-              spacing={4}
+              spacing={{ xs: 1, md: 3 }}
               sx={{
                 display: "flex",
                 maxWidth: "800px",
@@ -52,6 +55,7 @@ export default function ProfilePage() {
               }}
             >
               <ProfileLocationCard setOpen={setOpenLocationDialog} />
+              <ProfileEquipmentCard setOpen={setOpenEquipmentDialog} />
             </Stack>
           </Box>
         </Layout.Main>
@@ -66,6 +70,20 @@ export default function ProfilePage() {
             onSubmit={(v) => {
               updateUser("add_location", { location_details: v });
               setOpenLocationDialog(false);
+            }}
+          />
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={openEquipmentDialog}
+        onClose={() => setOpenEquipmentDialog(false)}
+      >
+        <ModalDialog sx={{ p: 0 }}>
+          <ModalClose />
+          <ConfigureEquipmentCard
+            onSubmit={(v) => {
+              updateUser("add_equipment", { equipment_details: v });
+              setOpenEquipmentDialog(false);
             }}
           />
         </ModalDialog>

@@ -21,6 +21,11 @@ export function equipmentToDetails(equipment) {
       height: renderHeight,
       aspectRatio: aspectRatio,
       fov: Math.max(fovWidthDegrees, fovHeightDegrees),
+      titleRows: [
+        `${equipment.teleName} (${equipment.teleFocalLength}mm)`,
+        equipment.camName,
+        `${equipment.barlow}x`,
+      ],
       title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.camName} (${equipment.camHeight}x${equipment.camWidth}) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
       details: [
         {
@@ -119,6 +124,11 @@ export function equipmentToDetails(equipment) {
       height: 1000,
       aspectRatio: 1,
       fov: tfov,
+      titleRows: [
+        `${equipment.teleName} (${equipment.teleFocalLength}mm)`,
+        `${equipment.eyeName} (${equipment.eyeFocalLength}mm)`,
+        `${equipment.barlow}x`,
+      ],
       title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.eyeName} (${equipment.eyeFocalLength}mm) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
       details: [
         {
@@ -169,6 +179,7 @@ export function equipmentToDetails(equipment) {
       height: 1000,
       aspectRatio: 1,
       fov: equipment.binoActualFOV,
+      titleRows: [equipment.binoName],
       title: `${equipment.binoName} (${equipment.binoMagnification}x)`,
       details: [
         {
@@ -194,3 +205,43 @@ export function equipmentToDetails(equipment) {
     };
   }
 }
+
+export const EQUIP_MODES = [
+  {
+    mode: "VISUAL",
+    label: "Visual",
+    fields: [
+      "barlow",
+      "teleName",
+      "teleFocalLength",
+      "teleAperture",
+      "eyeName",
+      "eyeFocalLength",
+      "eyeFOV",
+    ],
+    desc: "Fill in the fields below to add visual observing equipment. This is for people with a telescope and an eye piece.",
+  },
+  {
+    mode: "CAMERA",
+    label: "Camera",
+    fields: [
+      "barlow",
+      "binning",
+      "teleName",
+      "teleFocalLength",
+      "teleAperture",
+      "camName",
+      "camWidth",
+      "camHeight",
+      "camPixelWidth",
+      "camPixelHeight",
+    ],
+    desc: "Fill in the fields below to add astrophotography equipment. This is for people with a telescope and a camera.",
+  },
+  {
+    mode: "BINOCULARS",
+    label: "Binoculars",
+    fields: ["binoName", "binoAperture", "binoMagnification", "binoActualFOV"],
+    desc: "Fill in the fields below to add binocular-based observing equipment.",
+  },
+];

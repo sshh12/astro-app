@@ -25,8 +25,10 @@ export default function ConfigureTabsCard({
   subtitle,
   tabs,
   children,
+  onTabChange = null,
   buttonName = null,
   buttonLoading = false,
+  buttonDisabled = false,
   onButtonClick = null,
 }) {
   return (
@@ -43,6 +45,7 @@ export default function ConfigureTabsCard({
           boxShadow: "0",
           overflow: "auto",
         }}
+        onChange={(e, idx) => onTabChange && onTabChange(idx)}
       >
         <TabList
           disableUnderline
@@ -85,6 +88,7 @@ export default function ConfigureTabsCard({
                 onClick={() =>
                   !buttonLoading && onButtonClick && onButtonClick()
                 }
+                disabled={buttonDisabled}
               >
                 {buttonName}
               </Button>

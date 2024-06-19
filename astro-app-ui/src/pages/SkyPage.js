@@ -38,27 +38,7 @@ import { objectsToKey } from "../utils/object";
 import { idxToColorHex } from "../constants/colors";
 import { useNavigate } from "react-router-dom";
 import { CURATED_LISTS } from "./../constants/lists";
-
-function Toggler({ defaultExpanded = false, renderToggle, children }) {
-  const [open, setOpen] = React.useState(defaultExpanded);
-  return (
-    <React.Fragment>
-      {renderToggle({ open, setOpen })}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateRows: open ? "1fr" : "0fr",
-          transition: "0.2s ease",
-          "& > *": {
-            overflow: "hidden",
-          },
-        }}
-      >
-        {children}
-      </Box>
-    </React.Fragment>
-  );
-}
+import Toggler from "../components/Toggler";
 
 function RichListSideBarItem({ list, idx }) {
   return list.fake ? (
@@ -122,7 +102,7 @@ function ListSideBar({ lists }) {
             <ListItemButton onClick={() => setOpen(!open)}>
               <ListIcon />
               <ListItemContent>
-                <Typography level="title-sm">More Lists</Typography>
+                <Typography level="body-sm">Curated Lists</Typography>
               </ListItemContent>
               <KeyboardArrowDownIcon
                 sx={{ transform: open ? "rotate(180deg)" : "none" }}
@@ -243,7 +223,7 @@ function ListMobileTab({ lists }) {
       <AccordionGroup>
         <Accordion>
           <AccordionSummary>
-            <Typography level="body-sm">More Lists</Typography>
+            <Typography level="body-sm">Curated Lists</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <List
