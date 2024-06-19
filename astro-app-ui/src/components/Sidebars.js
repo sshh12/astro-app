@@ -27,11 +27,13 @@ export function SideBarNav({ title, items }) {
               style={{ textDecoration: "none" }}
             >
               <ListItem>
-                <ListItemButton>
+                <ListItemButton
+                  sx={{ bgcolor: item.selected && "background.body" }}
+                >
                   <ListItemDecorator>
                     <item.icon />
                   </ListItemDecorator>
-                  <ListItemContent>{item.text}</ListItemContent>
+                  <ListItemContent sx={{ ml: 1 }}>{item.text}</ListItemContent>
                 </ListItemButton>
               </ListItem>
             </Link>

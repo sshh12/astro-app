@@ -1,5 +1,5 @@
 import * as React from "react";
-import { yellow } from "@mui/material/colors";
+import { grey } from "@mui/material/colors";
 import Box from "@mui/joy/Box";
 import Sheet from "@mui/joy/Sheet";
 import AutoAwesome from "@mui/icons-material/AutoAwesome";
@@ -11,24 +11,31 @@ import Stack from "@mui/joy/Stack";
 import { useLocation, Link } from "react-router-dom";
 
 const Tabs = [
-  { label: "Sky", href: "/sky", icon: AutoAwesome, color: "#e9b307" },
-  { label: "Image", href: "/image", icon: CameraIcon, color: yellow[500] },
+  { label: "Sky", href: "/sky", icon: AutoAwesome, color: grey[200] },
+  {
+    label: "Image",
+    href: "/image/capture",
+    icon: CameraIcon,
+    color: grey[200],
+  },
   {
     label: "Location",
-    href: "/location",
+    href: "/location/weather",
     icon: LocationOnIcon,
-    color: yellow[500],
+    color: grey[200],
   },
   {
     label: "Profile",
     href: "/profile",
     icon: AccountBoxIcon,
-    color: yellow[500],
+    color: grey[200],
   },
 ];
 
 function locationToTab(location) {
-  return Tabs.find((tab) => location.pathname.startsWith(tab.href));
+  return Tabs.find((tab) =>
+    location.pathname.startsWith("/" + tab.href.split("/")[1])
+  );
 }
 
 function Root(props) {

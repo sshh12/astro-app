@@ -4,6 +4,9 @@ import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
+import Tabs from "@mui/joy/Tabs";
+import TabList from "@mui/joy/TabList";
+import Tab, { tabClasses } from "@mui/joy/Tab";
 import { yellow } from "@mui/material/colors";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -194,6 +197,83 @@ export function SubPageHeader({ title, backPath }) {
           }}
         />
 
+        <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+          <ThemeToggle />
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+export function TabHeader({ tabs, tabIdx }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        p: 2,
+        flexGrow: 1,
+        justifyContent: "space-between",
+        bgcolor: { xs: "background.body", sm: "background.surface" },
+        height: "100%",
+      }}
+    >
+      <DesktopTabs />
+      <Stack
+        direction="column"
+        alignItems="center"
+        sx={{
+          display: { xs: "flex", sm: "none", width: "100%" },
+          marginTop: "-0.3rem",
+        }}
+      >
+        <Tabs
+          aria-label="tabs"
+          defaultValue={tabIdx}
+          sx={{ borderRadius: "md", width: "100%" }}
+        >
+          <TabList
+            disableUnderline
+            sx={{
+              p: 0.5,
+              gap: 0.5,
+              borderRadius: "md",
+              justifyContent: "space-around",
+              justifyItems: "stretch",
+              bgcolor: "background.level1",
+              [`& .${tabClasses.root}[aria-selected="true"]`]: {
+                boxShadow: "sm",
+                bgcolor: "background.surface",
+              },
+            }}
+          >
+            {tabs.map((t) => (
+              <Link
+                to={t.pathname}
+                key={t.label}
+                style={{ textDecoration: "none", width: "100%", padding: 0 }}
+              >
+                <Tab
+                  key={t.label}
+                  sx={{ width: "100%", px: 0 }}
+                  disableIndicator
+                >
+                  {t.label}
+                </Tab>
+              </Link>
+            ))}
+          </TabList>
+        </Tabs>
+      </Stack>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: 1.5,
+          alignItems: "center",
+          justifyItems: "end",
+          marginLeft: "auto",
+        }}
+      >
         <Box sx={{ display: { xs: "none", sm: "flex" } }}>
           <ThemeToggle />
         </Box>
