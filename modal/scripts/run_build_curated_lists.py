@@ -527,23 +527,6 @@ async def main(args):
                 },
             )
 
-    lists = await prisma.list.find_many(
-        where={"publicTemplate": True},
-        include={
-            "objects": {
-                "include": {
-                    "SpaceObject": True,
-                }
-            },
-        },
-    )
-    with open("../app/data/lists.js", "w") as f:
-        f.write(
-            "export const LISTS = "
-            + json.dumps([methods_web._list_to_dict(list) for list in lists], indent=2)
-            + ";\n\n"
-        )
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
