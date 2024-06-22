@@ -14,8 +14,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 export default function SkyObjectDisplayModal({ open, setOpen }) {
-  const { objDisplay, setObjDisplay } = useBackend();
-  if (!objDisplay) return <></>;
+  const { displaySettings, setDisplaySettings } = useBackend();
+  if (!displaySettings) return <></>;
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <ModalDialog>
@@ -25,9 +25,9 @@ export default function SkyObjectDisplayModal({ open, setOpen }) {
         <FormControl>
           <Select
             placeholder="Sort by..."
-            value={objDisplay.sortName}
+            value={displaySettings.sortName}
             onChange={(_, val) =>
-              setObjDisplay({ ...objDisplay, sortName: val })
+              setDisplaySettings({ ...displaySettings, sortName: val })
             }
           >
             {OBJECT_FIELDS.map((sort) => (
@@ -42,14 +42,18 @@ export default function SkyObjectDisplayModal({ open, setOpen }) {
           sx={{ width: "100%", justifyContent: "center" }}
         >
           <IconButton
-            variant={objDisplay.sortReverse ? "solid" : "outlined"}
-            onClick={() => setObjDisplay({ ...objDisplay, sortReverse: true })}
+            variant={displaySettings.sortReverse ? "solid" : "outlined"}
+            onClick={() =>
+              setDisplaySettings({ ...displaySettings, sortReverse: true })
+            }
           >
             <ArrowDownwardIcon />
           </IconButton>
           <IconButton
-            variant={!objDisplay.sortReverse ? "solid" : "outlined"}
-            onClick={() => setObjDisplay({ ...objDisplay, sortReverse: false })}
+            variant={!displaySettings.sortReverse ? "solid" : "outlined"}
+            onClick={() =>
+              setDisplaySettings({ ...displaySettings, sortReverse: false })
+            }
           >
             <ArrowUpwardIcon />
           </IconButton>
@@ -59,8 +63,10 @@ export default function SkyObjectDisplayModal({ open, setOpen }) {
           <Select
             multiple
             placeholder="Sort by..."
-            value={objDisplay.badges}
-            onChange={(_, val) => setObjDisplay({ ...objDisplay, badges: val })}
+            value={displaySettings.badges}
+            onChange={(_, val) =>
+              setDisplaySettings({ ...displaySettings, badges: val })
+            }
           >
             {OBJECT_FIELDS.map((field) => (
               <Option key={field.id} value={field.id}>

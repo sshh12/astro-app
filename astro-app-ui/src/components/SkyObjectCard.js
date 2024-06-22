@@ -112,12 +112,12 @@ function BadgesGroup({ badges }) {
 }
 
 export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
-  const { equipment, objDisplay } = useBackend();
+  const { equipment, displaySettings } = useBackend();
   const eqDetails = equipmentToDetails(equipment);
-  if (!object || !objDisplay) {
+  if (!object || !displaySettings) {
     return <SkyObjectCardSkeleton eqDetails={eqDetails} />;
   }
-  const badges = objDisplay.badges.map((badgeId) =>
+  const badges = displaySettings.badges.map((badgeId) =>
     OBJECT_FIELDS.find((s) => s.id === badgeId).badge({
       obj: object,
       orbits: orbits,

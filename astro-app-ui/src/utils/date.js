@@ -39,6 +39,15 @@ export function minMaxIdx(arr, value) {
   return [first, last];
 }
 
+export function idxContains(arr, value) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] <= value && value < arr[i + 1]) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 export function useCurrentObservingWindow(tz) {
   const now = DateTime.now().setZone(tz);
   const noon = now.set({ hour: 12, minute: 0, second: 0, millisecond: 0 });

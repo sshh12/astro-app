@@ -5,18 +5,18 @@ import { useBackend } from "../providers/backend";
 import SkyObjectDisplayModal from "./SkyObjectDisplayModal";
 
 export default function SkyObjectsList({ objects, orbits }) {
-  const { objDisplay } = useBackend();
+  const { displaySettings } = useBackend();
   const [displayModalOpen, setDisplayModalOpen] = useState(false);
 
   const objs = useMemo(() => {
     const objs = [...(objects || [])];
-    const sortParams = objDisplay
-      ? OBJECT_FIELDS.find((s) => s.id === objDisplay.sortName)
+    const sortParams = displaySettings
+      ? OBJECT_FIELDS.find((s) => s.id === displaySettings.sortName)
       : OBJECT_FIELDS[0];
-    const multi = objDisplay?.sortReverse ? -1 : 1;
+    const multi = displaySettings?.sortReverse ? -1 : 1;
     objs.sort((a, b) => multi * sortParams.sort({ a, b, orbits }));
     return objs;
-  }, [objects, objDisplay, orbits]);
+  }, [objects, displaySettings, orbits]);
 
   return (
     <>

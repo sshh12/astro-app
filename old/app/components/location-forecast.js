@@ -27,7 +27,7 @@ function twilightToColor(value) {
   }
 }
 
-function cloudCoverToColor(cloudCover) {
+function cloudCoverToBadge(cloudCover) {
   if (cloudCover < 20) {
     return "green";
   } else if (cloudCover < 80) {
@@ -37,7 +37,7 @@ function cloudCoverToColor(cloudCover) {
   }
 }
 
-function precipitationToColor(precipitation) {
+function precipitationToBadge(precipitation) {
   if (precipitation < 20) {
     return "green";
   } else if (precipitation < 50) {
@@ -47,10 +47,10 @@ function precipitationToColor(precipitation) {
   }
 }
 
-function visabilityToColor(visability) {
-  if (visability < 4000) {
+function visibilityToBadge(visibility) {
+  if (visibility < 4000) {
     return "red";
-  } else if (visability < 10000) {
+  } else if (visibility < 10000) {
     return "yellow";
   } else {
     return "green";
@@ -97,7 +97,7 @@ function WeatherCard({ dateInfo, timezone }) {
       }
       cloudData.push({
         tooltip: `${dateInfo.cloud_cover[i]}% at ${timeAtIndex(i)}`,
-        color: cloudCoverToColor(dateInfo.cloud_cover[i]),
+        color: cloudCoverToBadge(dateInfo.cloud_cover[i]),
       });
     }
   }
@@ -111,19 +111,19 @@ function WeatherCard({ dateInfo, timezone }) {
         tooltip: `${dateInfo.precipitation_probability[i]}% at ${timeAtIndex(
           i
         )}`,
-        color: precipitationToColor(dateInfo.precipitation_probability[i]),
+        color: precipitationToBadge(dateInfo.precipitation_probability[i]),
       });
     }
   }
-  const visabilityData = [];
+  const visibilityData = [];
   if (dateInfo.visibility) {
     for (let i in dateInfo.time) {
       if (i < nowIndex - 1) {
         continue;
       }
-      visabilityData.push({
+      visibilityData.push({
         tooltip: `${dateInfo.visibility[i]} km at ${timeAtIndex(i)}`,
-        color: visabilityToColor(dateInfo.visibility[i]),
+        color: visibilityToBadge(dateInfo.visibility[i]),
       });
     }
   }
@@ -158,7 +158,7 @@ function WeatherCard({ dateInfo, timezone }) {
       </div>
       <div>
         <Text color="slate-400">Visability</Text>
-        <Tracker data={visabilityData} className="mt-2" />
+        <Tracker data={visibilityData} className="mt-2" />
       </div>
     </Card>
   );

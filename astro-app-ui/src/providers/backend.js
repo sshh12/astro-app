@@ -14,7 +14,7 @@ const BACKEND_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "apiKey";
 const SEEN_ONBOARDING_KEY = "seenOnboarding";
 const CACHE_USER_KEY = "user";
-const OBJECT_DISPLAY_KEY = "objectDisplay";
+const DISPLAY_SETTINGS_KEY = "displaySettings";
 
 export function usePost() {
   const { settingsStore } = useStorage();
@@ -130,16 +130,17 @@ export function useOnboardingState() {
   return { showOnboarding, closeOnboarding };
 }
 
-export function useObjectDisplay() {
+export function useDisplaySettings() {
   const { settingsStore } = useStorage();
   const [display, _setDisplay] = useState(null);
   useEffect(() => {
     if (settingsStore) {
-      settingsStore.getItem(OBJECT_DISPLAY_KEY).then((val) => {
+      settingsStore.getItem(DISPLAY_SETTINGS_KEY).then((val) => {
         const initVal = val || {};
         initVal.sortName = initVal.sortName || "max-alt";
         initVal.sortReverse = initVal.sortReverse || true;
         initVal.badges = initVal.badges || ["max-alt"];
+        initVal.forecastExpanded = !!initVal.forecastExpanded;
         _setDisplay(initVal);
       });
     }
@@ -147,7 +148,7 @@ export function useObjectDisplay() {
   const setDisplay = useCallback(
     (idx) => {
       if (settingsStore) {
-        settingsStore.setItem(OBJECT_DISPLAY_KEY, idx);
+        settingsStore.setItem(DISPLAY_SETTINGS_KEY, idx);
       }
       _setDisplay(idx);
     },
@@ -164,7 +165,8 @@ export function useBackend() {
 export function useBackendControl() {
   const { user, updateUser } = useUser();
   const { showOnboarding, closeOnboarding } = useOnboardingState();
-  const { display: objDisplay, setDisplay: setObjDisplay } = useObjectDisplay();
+  const { display: displaySettings, setDisplay: setDisplaySettings } =
+    useDisplaySettings();
   const location = !!user ? user.location.find((v) => v.active) : null;
   const equipment = !!user ? user.equipment.find((v) => v.active) : null;
   return {
@@ -174,8 +176,8 @@ export function useBackendControl() {
     equipment,
     showOnboarding,
     closeOnboarding,
-    objDisplay,
-    setObjDisplay,
+    displaySettings,
+    setDisplaySettings,
   };
 }
 

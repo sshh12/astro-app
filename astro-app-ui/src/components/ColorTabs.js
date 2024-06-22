@@ -1,7 +1,8 @@
 import React from "react";
 import { Box, Stack, Tooltip } from "@mui/joy";
+import { grey } from "@mui/material/colors";
 
-export function ColorTabs({ tabs }) {
+export function ColorTabs({ tabs, outlineIdx }) {
   const renderTabs = tabs.map((t, i) => {
     let borderRadius = null;
     if (i === 0) {
@@ -9,14 +10,19 @@ export function ColorTabs({ tabs }) {
     } else if (i === tabs.length - 1) {
       borderRadius = "0 0.3rem 0.3rem 0";
     }
+    let outline = null;
+    if (i === outlineIdx) {
+      outline = `2px solid ${grey[500]}`;
+    }
     return (
-      <Tooltip title={t.tooltip}>
+      <Tooltip title={t.tooltip} arrow enterTouchDelay={1} enterDelay={1}>
         <Box
           sx={{
             bgcolor: t.color,
             height: "100%",
             flexGrow: 1,
             borderRadius: borderRadius,
+            outline: outline,
           }}
         ></Box>
       </Tooltip>
