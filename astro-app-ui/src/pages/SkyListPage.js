@@ -22,7 +22,7 @@ export default function SkyListPage() {
 
   const listObjects = list ? list.objects : null;
   const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
-  const { result: listOrbits } = useCachedPythonOutput(
+  const { result: listOrbits, stale: listOrbitsStale } = useCachedPythonOutput(
     "get_orbit_calculations",
     listObjects &&
       location && {
@@ -78,7 +78,11 @@ export default function SkyListPage() {
               gap: { xs: 0.5, sm: 2 },
             }}
           >
-            <SkySummarySheet objects={listObjects} orbits={listOrbits} />
+            <SkySummarySheet
+              objects={listObjects}
+              orbits={listOrbits}
+              stale={listOrbitsStale}
+            />
             <SkyObjectsList objects={listObjects} orbits={listOrbits} />
             <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
           </Box>

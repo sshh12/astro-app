@@ -12,7 +12,6 @@ import SortIcon from "@mui/icons-material/Sort";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardOverflow from "@mui/joy/CardOverflow";
 import Skeleton from "@mui/joy/Skeleton";
-import CardContent from "@mui/joy/CardContent";
 import ObjectImage from "./SkyObjectImage";
 import Chip from "@mui/joy/Chip";
 import Stack from "@mui/joy/Stack";
@@ -55,6 +54,63 @@ function SkyObjectCardSkeleton({ eqDetails }) {
   );
 }
 
+function SkyObjectCardOptions({ setDisplayModalOpen }) {
+  return (
+    <Dropdown>
+      <MenuButton
+        variant="plain"
+        size="sm"
+        sx={{
+          maxWidth: "32px",
+          maxHeight: "32px",
+          borderRadius: "9999999px",
+        }}
+      >
+        <IconButton component="span" variant="plain" color="neutral" size="sm">
+          <MoreVertRoundedIcon />
+        </IconButton>
+      </MenuButton>
+      <Menu
+        placement="bottom-end"
+        size="sm"
+        sx={{
+          zIndex: "99999",
+          p: 1,
+          gap: 1,
+          "--ListItem-radius": "var(--joy-radius-sm)",
+        }}
+      >
+        <MenuItem onClick={() => setDisplayModalOpen(true)}>
+          <SortIcon />
+          Change sorting & display
+        </MenuItem>
+      </Menu>
+    </Dropdown>
+  );
+}
+
+function BadgesGroup({ badges }) {
+  if (!badges) return <></>;
+  return (
+    <Stack direction="row" gap={1} flexWrap="wrap">
+      {badges.map(
+        (badge) =>
+          badge && (
+            <Chip
+              size="md"
+              key={badge.text}
+              variant="soft"
+              color={badge.color}
+              endDecorator={badge.icon && <badge.icon />}
+            >
+              {badge.text}
+            </Chip>
+          )
+      )}
+    </Stack>
+  );
+}
+
 export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
   const { equipment, objDisplay } = useBackend();
   const eqDetails = equipmentToDetails(equipment);
@@ -67,34 +123,18 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
       orbits: orbits,
     })
   );
+  const singleBadge = !badges || badges.length === 1;
   return (
     <Card variant="outlined" size="sm">
-      <Stack
-        direction={badges && badges.length > 1 ? "column" : "row"}
-        spacing={1}
-        sx={{ display: "flex" }}
-      >
-        <Box sx={{ flex: 1 }}>
-          <Typography level="title-md">{object.name}</Typography>
-        </Box>
-        {badges && (
-          <Stack direction="row" gap={1} flexWrap="wrap">
-            {badges.map(
-              (badge) =>
-                badge && (
-                  <Chip
-                    size="md"
-                    key={badge.text}
-                    variant="soft"
-                    color={badge.color}
-                    endDecorator={badge.icon && <badge.icon />}
-                  >
-                    {badge.text}
-                  </Chip>
-                )
-            )}
-          </Stack>
-        )}
+      <Stack>
+        <Stack direction={"row"} spacing={1} sx={{ display: "flex" }}>
+          <Box sx={{ flex: 1, alignContent: "center" }}>
+            <Typography level="title-md">{object.name}</Typography>
+          </Box>
+          {singleBadge && <BadgesGroup badges={badges} />}
+          <SkyObjectCardOptions setDisplayModalOpen={setDisplayModalOpen} />
+        </Stack>
+        {!singleBadge && <BadgesGroup badges={badges} />}
       </Stack>
       <CardOverflow
         sx={{
@@ -116,54 +156,6 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
           </Link>
         </AspectRatio>
       </CardOverflow>
-      <CardContent
-        orientation="horizontal"
-        sx={{
-          display: "flex",
-          justifyItems: "end",
-          justifyContent: "end",
-        }}
-      >
-        <Dropdown>
-          <MenuButton
-            variant="plain"
-            size="sm"
-            sx={{
-              maxWidth: "32px",
-              maxHeight: "32px",
-              borderRadius: "9999999px",
-            }}
-          >
-            <IconButton
-              component="span"
-              variant="plain"
-              color="neutral"
-              size="sm"
-            >
-              <MoreVertRoundedIcon />
-            </IconButton>
-          </MenuButton>
-          <Menu
-            placement="bottom-end"
-            size="sm"
-            sx={{
-              zIndex: "99999",
-              p: 1,
-              gap: 1,
-              "--ListItem-radius": "var(--joy-radius-sm)",
-            }}
-          >
-            <MenuItem onClick={() => setDisplayModalOpen(true)}>
-              <SortIcon />
-              Change sorting & display
-            </MenuItem>
-            {/* <MenuItem sx={{ textColor: "danger.500" }}>
-              <DeleteRoundedIcon color="danger" />
-              Remove from list
-            </MenuItem> */}
-          </Menu>
-        </Dropdown>
-      </CardContent>
     </Card>
   );
 }

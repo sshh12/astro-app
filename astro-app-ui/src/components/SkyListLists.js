@@ -114,7 +114,10 @@ export function ListSideBar({ lists }) {
       <ListItem nested>
         <Toggler
           renderToggle={({ open, setOpen }) => (
-            <ListItemButton onClick={() => setOpen(!open)}>
+            <ListItemButton
+              onClick={() => setOpen(!open)}
+              sx={{ marginTop: 0 }}
+            >
               <ListIcon />
               <ListItemContent>
                 <Typography level="body-sm">Public Lists</Typography>
@@ -156,6 +159,7 @@ function ObjectAvatar({ object }) {
           <img
             src={getImageURL(object)}
             alt={object.name}
+            crossorigin="anonymous"
             style={{
               objectFit: "contain",
               color: "transparent",
