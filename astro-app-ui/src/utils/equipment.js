@@ -1,3 +1,7 @@
+import { PhotoCamera } from "@mui/icons-material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import SearchIcon from "@mui/icons-material/Search";
+
 function cameraTitle({
   teleName,
   teleFocalLength,
@@ -52,7 +56,7 @@ function visualTitle({
 }
 
 function binoTitle({ binoName, binoMagnification }) {
-  return `${binoName} (${binoMagnification}x)`;
+  return `${binoName} / ${binoMagnification}x`;
 }
 
 export function equipmentToDetails(equipment) {
@@ -78,12 +82,8 @@ export function equipmentToDetails(equipment) {
       height: renderHeight,
       aspectRatio: aspectRatio,
       fov: Math.max(fovWidthDegrees, fovHeightDegrees),
-      titleRows: [
-        `${equipment.teleName} (${equipment.teleFocalLength}mm)`,
-        equipment.camName,
-        `${equipment.barlow}x`,
-      ],
       title: cameraTitle(equipment),
+      icon: PhotoCamera,
       details: [
         {
           name: "Aperture",
@@ -181,12 +181,8 @@ export function equipmentToDetails(equipment) {
       height: 1000,
       aspectRatio: 1,
       fov: tfov,
-      titleRows: [
-        `${equipment.teleName} (${equipment.teleFocalLength}mm)`,
-        `${equipment.eyeName} (${equipment.eyeFocalLength}mm)`,
-        `${equipment.barlow}x`,
-      ],
       title: visualTitle(equipment),
+      icon: VisibilityIcon,
       details: [
         {
           name: "Aperture",
@@ -236,8 +232,8 @@ export function equipmentToDetails(equipment) {
       height: 1000,
       aspectRatio: 1,
       fov: equipment.binoActualFOV,
-      titleRows: [equipment.binoName],
       title: binoTitle(equipment),
+      icon: SearchIcon,
       details: [
         {
           name: "Field of View",
@@ -253,6 +249,7 @@ export function equipmentToDetails(equipment) {
     };
   } else {
     return {
+      icon: SearchIcon,
       width: 1000,
       height: 1000,
       aspectRatio: 1,

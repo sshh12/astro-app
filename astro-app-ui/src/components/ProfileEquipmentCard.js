@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@mui/joy";
 import { useBackend } from "../providers/backend";
-import { Delete, PlayArrow, PhotoCamera } from "@mui/icons-material";
+import { Delete, PlayArrow } from "@mui/icons-material";
 import { equipmentToDetails } from "../utils/equipment";
 
 export default function ProfileEquipmentCard({ setOpen }) {
@@ -38,53 +38,58 @@ export default function ProfileEquipmentCard({ setOpen }) {
           borderRadius: "sm",
         }}
       >
-        {equipment.map((eq, idx) => (
-          <>
-            <ListItem
-              sx={{ alignItems: "center" }}
-              endAction={
-                <Stack spacing={1} direction="row">
-                  {!eq.active && (
-                    <Tooltip title="Set as active equipment">
-                      <IconButton
-                        size="sm"
-                        color="primary"
-                        onClick={() => {
-                          updateUser("set_active_equipment", { id: eq.id });
-                        }}
-                      >
-                        <PlayArrow />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  {equipment.length > 1 && (
-                    <Tooltip title="Delete this equipment">
-                      <IconButton
-                        size="sm"
-                        color="danger"
-                        onClick={() => {
-                          updateUser("delete_equipment", { id: eq.id });
-                        }}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+        {equipment.map((eq, idx) => {
+          const details = equipmentToDetails(eq);
+          return (
+            <>
+              <ListItem
+                sx={{ alignItems: "center" }}
+                endAction={
+                  <Stack spacing={1} direction="row">
+                    {!eq.active && (
+                      <Tooltip title="Set as active equipment">
+                        <IconButton
+                          size="sm"
+                          color="primary"
+                          onClick={() => {
+                            updateUser("set_active_equipment", { id: eq.id });
+                          }}
+                        >
+                          <PlayArrow />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {equipment.length > 1 && (
+                      <Tooltip title="Delete this equipment">
+                        <IconButton
+                          size="sm"
+                          color="danger"
+                          onClick={() => {
+                            updateUser("delete_equipment", { id: eq.id });
+                          }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Stack>
+                }
+              >
+                <ListItemDecorator>
+                  <details.icon />
+                </ListItemDecorator>
+                <Stack sx={{ width: "100%" }}>
+                  {details.title.split(" / ").map((row) => (
+                    <Typography noWrap key={row} level="body-sm">
+                      {row}
+                    </Typography>
+                  ))}
                 </Stack>
-              }
-            >
-              <ListItemDecorator>
-                <PhotoCamera />
-              </ListItemDecorator>
-              <Stack>
-                {equipmentToDetails(eq).titleRows.map((row) => (
-                  <Typography level="body-sm">{row}</Typography>
-                ))}
-              </Stack>
-            </ListItem>
-            {idx !== equipment.length - 1 && <ListDivider />}
-          </>
-        ))}
+              </ListItem>
+              {idx !== equipment.length - 1 && <ListDivider />}
+            </>
+          );
+        })}
       </List>
       <Divider />
       <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
