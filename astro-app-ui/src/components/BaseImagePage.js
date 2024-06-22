@@ -63,6 +63,7 @@ export default function BaseImagePage({ tabIdx, children }) {
               {children}
             </Stack>
           </Box>
+          <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
         </Layout.Main>
       </Layout.Root>
     </CssVarsProvider>

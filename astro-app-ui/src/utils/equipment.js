@@ -1,3 +1,60 @@
+function cameraTitle({
+  teleName,
+  teleFocalLength,
+  camName,
+  camWidth,
+  camHeight,
+  barlow,
+  binning,
+}) {
+  const titleParts = [];
+  if (teleName !== "Custom") {
+    titleParts.push(`${teleName}`);
+  } else {
+    titleParts.push(`${teleFocalLength}mm`);
+  }
+  if (camName !== "Custom") {
+    titleParts.push(`${camName}`);
+  } else {
+    titleParts.push(`${camWidth}x${camHeight}`);
+  }
+  if (barlow !== 1) {
+    titleParts.push(`${barlow}x`);
+  }
+  if (binning !== 1) {
+    titleParts.push(`${binning}x${binning}`);
+  }
+  return titleParts.join(" / ");
+}
+
+function visualTitle({
+  teleName,
+  teleFocalLength,
+  eyeName,
+  eyeFocalLength,
+  barlow,
+}) {
+  const titleParts = [];
+  if (teleName !== "Custom") {
+    titleParts.push(`${teleName}`);
+  } else {
+    titleParts.push(`${teleFocalLength}mm`);
+  }
+  if (eyeName !== "Custom") {
+    titleParts.push(`${eyeName}`);
+  } else {
+    titleParts.push(`${eyeFocalLength}mm`);
+  }
+  if (barlow !== 1) {
+    titleParts.push(`${barlow}x`);
+  }
+  return titleParts.join(" / ");
+}
+
+function binoTitle({ binoName, binoMagnification }) {
+  return `${binoName} (${binoMagnification}x)`;
+}
+
 export function equipmentToDetails(equipment) {
   const baseWidth = 1000;
   if (equipment && equipment.type === "CAMERA") {
@@ -26,7 +83,7 @@ export function equipmentToDetails(equipment) {
         equipment.camName,
         `${equipment.barlow}x`,
       ],
-      title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.camName} (${equipment.camHeight}x${equipment.camWidth}) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
+      title: cameraTitle(equipment),
       details: [
         {
           name: "Aperture",
@@ -129,7 +186,7 @@ export function equipmentToDetails(equipment) {
         `${equipment.eyeName} (${equipment.eyeFocalLength}mm)`,
         `${equipment.barlow}x`,
       ],
-      title: `${equipment.teleName} (${equipment.teleFocalLength}mm) / ${equipment.eyeName} (${equipment.eyeFocalLength}mm) / ${equipment.barlow}x / ${equipment.binning}x${equipment.binning}`,
+      title: visualTitle(equipment),
       details: [
         {
           name: "Aperture",
@@ -180,7 +237,7 @@ export function equipmentToDetails(equipment) {
       aspectRatio: 1,
       fov: equipment.binoActualFOV,
       titleRows: [equipment.binoName],
-      title: `${equipment.binoName} (${equipment.binoMagnification}x)`,
+      title: binoTitle(equipment),
       details: [
         {
           name: "Field of View",
