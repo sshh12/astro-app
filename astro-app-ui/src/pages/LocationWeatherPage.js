@@ -38,14 +38,19 @@ import {
 } from "./../utils/date";
 import { Link } from "react-router-dom";
 import { useTimestamp } from "./../utils/date";
+import { useStorage } from "../providers/storage";
 
 function useWeather(location) {
   const [meteoData, setMeteoData] = useState(null);
+  const { ts } = useTimestamp();
+  const tsNowRoundedToHour = Math.floor(ts / 3600000) * 3600000;
+  const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
+
   useEffect(() => {
     if (location) {
       (async () => {
         const meteoResp = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${location.timezone}`
+          `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=precipitation_probability,cloud_cover,visibility&daily=weather_code&timezone=${location.timezone}#${tsNowRoundedToHour}`
         );
         const meteoData = await meteoResp.json();
         if (!meteoData.error) {
@@ -55,11 +60,7 @@ function useWeather(location) {
         }
       })();
     }
-  }, [location]);
-
-  const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
-  const { ts } = useTimestamp();
-  const tsNowRoundedToHour = Math.floor(ts / 3600000) * 3600000;
+  }, [location, tsNowRoundedToHour]);
 
   const { result: weather, stale } = useCachedPythonOutput(
     "get_week_info_with_weather_data",
@@ -80,6 +81,39 @@ function useWeather(location) {
   );
 
   return { weather, stale };
+}
+
+function useWFO(location) {
+  const { cacheStore } = useStorage();
+  const [wfo, setWFO] = useState(null);
+  const cacheKey = location ? `wfo_${location.lat}_${location.lon}` : null;
+  useEffect(() => {
+    if (location && cacheKey && cacheStore) {
+      (async () => {
+        const cachedWFO = await cacheStore.getItem(cacheKey);
+        if (cachedWFO === "NONE") {
+          return;
+        }
+        if (!cachedWFO) {
+          const response = await fetch(
+            `https://api.weather.gov/points/${location.lat},${location.lon}`
+          );
+          const data = await response.json();
+          try {
+            const wfo = data.properties.cwa;
+            setWFO(wfo);
+            cacheStore.setItem(cacheKey, wfo);
+          } catch (e) {
+            console.error("WFO", e);
+            cacheStore.setItem(cacheKey, "NONE");
+          }
+        } else {
+          setWFO(cachedWFO);
+        }
+      })();
+    }
+  }, [location, cacheKey, cacheStore]);
+  return { wfo };
 }
 
 function ForecastDay({ dateInfo }) {
@@ -314,10 +348,92 @@ function WeekForecastCard({ location }) {
   );
 }
 
+function GOESImage({ wfo }) {
+  const [urlKey, setUrlKey] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [viewStatic, setViewStatis] = useState(false);
+  const [supportsStatic, setSupportsStatic] = useState(true);
+  const [supportsGOES18, setSupportsGOES18] = useState(true);
+  const [supportsGOES16, setSupportsGOES16] = useState(true);
+  const imgStyle = {
+    width: "100%",
+    height: "auto",
+    display: loading ? "none" : "inherit",
+    borderRadius: "0.1rem",
+  };
+  useEffect(() => {
+    const refresh = setInterval(() => {
+      setUrlKey((key) => key + 1);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(refresh);
+  }, [wfo]);
+  return (
+    <div>
+      {wfo && supportsStatic && viewStatic && (
+        <div onClick={() => setViewStatis(false)}>
+          <img
+            style={imgStyle}
+            onError={() => setSupportsStatic(false)}
+            onLoad={() => setLoading(false)}
+            alt={"clouds"}
+            crossorigin="anonymous"
+            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
+          />
+        </div>
+      )}
+      {wfo && supportsGOES18 && !viewStatic && (
+        <div onClick={() => setViewStatis(true)}>
+          <img
+            style={imgStyle}
+            onError={() => setSupportsGOES18(false)}
+            onLoad={() => setLoading(false)}
+            alt={"clouds"}
+            crossorigin="anonymous"
+            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
+          />
+        </div>
+      )}
+      {wfo && supportsGOES16 && !viewStatic && (
+        <div onClick={() => setViewStatis(true)}>
+          <img
+            style={imgStyle}
+            onError={() => setSupportsGOES16(false)}
+            onLoad={() => setLoading(false)}
+            alt={"clouds"}
+            crossorigin="anonymous"
+            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LiveWeatherCard({ location, wfo }) {
+  return (
+    <Card sx={{ p: 0, gap: 0 }}>
+      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography level="title-md">Live Weather</Typography>
+        </Stack>
+        <Typography level="body-sm">
+          The latest cloud imagery from GOES.
+        </Typography>
+      </Box>
+      <Divider sx={{ mb: 0 }} />
+      <Box>
+        <GOESImage wfo={wfo} />
+      </Box>
+    </Card>
+  );
+}
+
 export default function LocationWeatherPage() {
   const { location } = useBackend();
+  const { wfo } = useWFO(location);
   return (
     <BaseLocationPage tabIdx={0}>
+      {wfo && <LiveWeatherCard location={location} wfo={wfo} />}
       <WeekForecastCard location={location} />
     </BaseLocationPage>
   );
