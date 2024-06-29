@@ -351,7 +351,7 @@ function WeekForecastCard({ location }) {
 function GOESImage({ wfo }) {
   const [urlKey, setUrlKey] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [viewStatic, setViewStatis] = useState(false);
+  const [viewStatic, setViewStatis] = useState(true);
   const [supportsStatic, setSupportsStatic] = useState(true);
   const [supportsGOES18, setSupportsGOES18] = useState(true);
   const [supportsGOES16, setSupportsGOES16] = useState(true);

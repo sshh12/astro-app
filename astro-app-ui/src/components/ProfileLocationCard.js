@@ -23,7 +23,7 @@ export default function ProfileLocationCard({ setOpen }) {
   const locations = user?.location || [];
   locations.sort((a, b) => (a.active ? -1 : b.active ? 1 : 0));
   return (
-    <Card sx={{ p: 0 }}>
+    <Card sx={{ p: 0, gap: 0 }}>
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Typography level="title-md">Location</Typography>
         <Typography level="body-sm">
@@ -83,7 +83,9 @@ export default function ProfileLocationCard({ setOpen }) {
         ))}
       </List>
       <Divider />
-      <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
+      <CardOverflow
+        sx={{ paddingRight: 2, paddingBottom: 2, marginTop: "1rem" }}
+      >
         <CardActions sx={{ alignSelf: "flex-end" }}>
           <Button size="sm" variant="solid" onClick={() => setOpen(true)}>
             Add Location
