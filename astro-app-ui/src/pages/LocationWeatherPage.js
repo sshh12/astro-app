@@ -12,6 +12,10 @@ import {
   IconButton,
   MenuItem,
   Menu,
+  Button,
+  CardOverflow,
+  CardActions,
+  Skeleton,
 } from "@mui/joy";
 import { useBackend } from "../providers/backend";
 import BaseLocationPage from "../components/BaseLocationPage";
@@ -27,7 +31,11 @@ import {
   moonPctToIcon,
   summaryToBadge,
 } from "../utils/weather";
-import { renderTime, idxContains } from "./../utils/date";
+import {
+  renderTime,
+  idxContains,
+  useCurrentObservingWindow,
+} from "./../utils/date";
 import { Link } from "react-router-dom";
 import { useTimestamp } from "./../utils/date";
 
@@ -49,17 +57,26 @@ function useWeather(location) {
     }
   }, [location]);
 
+  const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
+  const { ts } = useTimestamp();
+  const tsNowRoundedToHour = Math.floor(ts / 3600000) * 3600000;
+
   const { result: weather, stale } = useCachedPythonOutput(
     "get_week_info_with_weather_data",
     meteoData &&
       location && {
         weather_data: meteoData,
+        start_ts: startTs,
+        end_ts: endTs,
         lat: location?.lat,
         lon: location?.lon,
         timezone: location?.timezone,
         elevation: location?.elevation,
       },
-    { cacheKey: `${location?.id}_weather`, staleCacheKey: `weather` }
+    {
+      cacheKey: `weather_${location?.id}_${tsNowRoundedToHour}`,
+      staleCacheKey: `weather_${startTs}`,
+    }
   );
 
   return { weather, stale };
@@ -69,6 +86,15 @@ function ForecastDay({ dateInfo }) {
   const { ts } = useTimestamp();
   const { displaySettings } = useBackend();
   const { skyTabs, cloudTabs, precTabs, visTabs, sumTabs } = useMemo(() => {
+    if (!dateInfo) {
+      return {
+        skyTabs: [],
+        cloudTabs: [],
+        precTabs: [],
+        visTabs: [],
+        sumTabs: [],
+      };
+    }
     const idxs = [...Array(dateInfo.time.length).keys()];
     const skyTabs = idxs.map((i) => ({
       tooltip: `${getTwlightName(dateInfo.twilight_state[i])} at ${renderTime(
@@ -105,7 +131,18 @@ function ForecastDay({ dateInfo }) {
     );
     return { skyTabs, cloudTabs, precTabs, visTabs, sumTabs };
   }, [dateInfo]);
-  const idxNow = idxContains(dateInfo.time, ts);
+
+  if (!dateInfo) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Skeleton variant="text"></Skeleton>
+        </Stack>
+      </Box>
+    );
+  }
+
+  const idxNow = idxContains(dateInfo.time || [], ts);
   const MoonIcon = moonPctToIcon(dateInfo.moon_illumination);
   return (
     <Box sx={{ p: 2 }}>
@@ -122,7 +159,7 @@ function ForecastDay({ dateInfo }) {
           </Chip>
         </Link>
       </Stack>
-      {displaySettings.forecastExpanded && (
+      {displaySettings && displaySettings.forecastExpanded && (
         <Stack spacing={2}>
           <Box>
             <Typography level="body-sm" sx={{ mb: 0.5 }}>
@@ -150,11 +187,11 @@ function ForecastDay({ dateInfo }) {
           </Box>
         </Stack>
       )}
-      {!displaySettings.forecastExpanded && (
+      {displaySettings && !displaySettings.forecastExpanded && (
         <Stack spacing={2}>
           <Box>
             <Typography level="body-sm" sx={{ mb: 0.5 }}>
-              Hourly Observing
+              Observing Conditions
             </Typography>
             <ColorTabs tabs={sumTabs} outlineIdx={idxNow} />
           </Box>
@@ -191,7 +228,7 @@ function ForecastOptions() {
           "--ListItem-radius": "var(--joy-radius-sm)",
         }}
       >
-        {displaySettings.forecastExpanded && (
+        {displaySettings && displaySettings.forecastExpanded && (
           <MenuItem
             onClick={() =>
               setDisplaySettings({
@@ -203,7 +240,7 @@ function ForecastOptions() {
             Switch to minimal view
           </MenuItem>
         )}
-        {!displaySettings.forecastExpanded && (
+        {displaySettings && !displaySettings.forecastExpanded && (
           <MenuItem
             onClick={() =>
               setDisplaySettings({
@@ -226,7 +263,7 @@ function WeekForecastCard({ location }) {
     <Card sx={{ p: 0 }}>
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Stack direction="row" justifyContent="space-between">
-          <Typography level="title-md">Week Forecast</Typography>
+          <Typography level="title-md">Forecast</Typography>
           <ForecastOptions />
         </Stack>
         <Typography level="body-sm">When to expect clear skies.</Typography>
@@ -239,6 +276,40 @@ function WeekForecastCard({ location }) {
             {idx < weather.length - 1 && <ListDivider />}
           </>
         ))}
+      {!weather &&
+        [0, 1, 2, 3, 4, 5, 6].map((_, idx) => (
+          <>
+            <ForecastDay />
+            {idx < 7 - 1 && <ListDivider />}
+          </>
+        ))}
+      <Divider />
+      <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
+        <CardActions sx={{ alignSelf: "flex-end", gap: 2 }}>
+          <Button
+            size="sm"
+            variant="outlined"
+            onClick={() =>
+              window.open(
+                `https://www.astrospheric.com/?Latitude=${location.lat}&Longitude=${location.lon}&Loc=Forecast`
+              )
+            }
+          >
+            Astrospheric
+          </Button>
+          <Button
+            size="sm"
+            variant="outlined"
+            onClick={() =>
+              window.open(
+                `https://clearoutside.com/forecast/${location.lat}/${location.lon}`
+              )
+            }
+          >
+            Clear Outside
+          </Button>
+        </CardActions>
+      </CardOverflow>
     </Card>
   );
 }

@@ -100,5 +100,9 @@ def space_object_to_observables(ts, eph, object):
     return Star(ra=Angle(hours=object["ra"]), dec=Angle(degrees=object["dec"]))
 
 
-def ts_from_timestamp(ts: any, timestamp: int, zone: Any):
-    return ts.from_datetime(dt.datetime.fromtimestamp(timestamp / 1000, tz=zone))
+def ts_from_timestamp(ts: Any, timestamp: int, zone: Any):
+    return ts.from_datetime(dt_from_timestamp(timestamp, zone))
+
+
+def dt_from_timestamp(timestamp: int, zone: Any):
+    return dt.datetime.fromtimestamp(timestamp / 1000, tz=zone)

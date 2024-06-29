@@ -33,7 +33,7 @@ export default function SkyPage() {
     ? user.lists.find((lst) => lst.title === "Favorites").objects
     : null;
 
-  const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
+  const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
 
   const { result: favOrbits, stale: favOrbitsStale } = useCachedPythonOutput(
     "get_orbit_calculations",

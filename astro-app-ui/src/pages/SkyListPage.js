@@ -18,10 +18,10 @@ import { SideBarNav } from "../components/Sidebars";
 export default function SkyListPage() {
   const { id: listId } = useParams();
   const { list } = useList(listId);
-  const { location, user } = useBackend();
+  const { location } = useBackend();
 
   const listObjects = list ? list.objects : null;
-  const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
+  const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
   const { result: listOrbits, stale: listOrbitsStale } = useCachedPythonOutput(
     "get_orbit_calculations",
     listObjects &&

@@ -303,6 +303,8 @@ def get_current_orbit_calculations(
 @method_api()
 def get_week_info_with_weather_data(
     weather_data: Dict,
+    start_ts: int,
+    end_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -329,7 +331,8 @@ def get_week_info_with_weather_data(
 
     resp = []
 
-    start_noon, start_next_noon = space_util.get_todays_noons(timezone)
+    start_noon = space_util.dt_from_timestamp(start_ts, zone)
+    start_next_noon = space_util.dt_from_timestamp(end_ts, zone)
     for i in range(0, 7):
         most_recent_noon = space_util.round_datetime_to_hour(
             start_noon + dt.timedelta(days=i)

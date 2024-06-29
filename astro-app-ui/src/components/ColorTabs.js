@@ -15,7 +15,13 @@ export function ColorTabs({ tabs, outlineIdx }) {
       outline = `2px solid ${grey[500]}`;
     }
     return (
-      <Tooltip title={t.tooltip} arrow enterTouchDelay={1} enterDelay={1}>
+      <Tooltip
+        title={t.tooltip}
+        arrow
+        enterTouchDelay={1}
+        enterDelay={1}
+        key={i}
+      >
         <Box
           sx={{
             bgcolor: t.color,

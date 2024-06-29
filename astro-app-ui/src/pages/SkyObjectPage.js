@@ -16,10 +16,10 @@ import { SideBarNav } from "../components/Sidebars";
 export default function SkyObjectPage() {
   const { id: objectId } = useParams();
   const { objects } = useObjects([objectId]);
-  const { location, user } = useBackend();
+  const { location } = useBackend();
   const object = objects && objects[0];
 
-  const [startTs, endTs] = useCurrentObservingWindow(user?.timezone);
+  const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
   const { result: orbits, stale: orbitsStale } = useCachedPythonOutput(
     "get_orbit_calculations",
     object &&
