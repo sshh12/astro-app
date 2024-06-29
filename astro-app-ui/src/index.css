@@ -2,3 +2,8 @@ html,
 body {
   background-color: #1e293b;
 }
+
+.leaflet-div-icon {
+  background-color: transparent !important;
+  border: none !important;
+}

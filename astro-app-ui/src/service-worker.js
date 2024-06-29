@@ -14,7 +14,14 @@ import { CacheFirst } from "workbox-strategies";
 
 clientsClaim();
 
-precacheAndRoute(self.__WB_MANIFEST);
+function shouldExclude(fileUrl) {
+  return fileUrl.includes("lp/tiles");
+}
+precacheAndRoute(
+  self.__WB_MANIFEST.filter((entry) => {
+    return !shouldExclude(entry.url);
+  })
+);
 
 const fileExtensionRegexp = new RegExp("/[^/?]+\\.[^/]+$");
 registerRoute(

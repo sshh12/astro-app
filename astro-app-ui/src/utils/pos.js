@@ -1,4 +1,5 @@
 import pako from "pako";
+import L from "leaflet";
 
 export function renderAz(az) {
   let azStr = "";
@@ -194,3 +195,10 @@ export function getLPDetails({ skyBrightness }) {
     lpDetails.nelm[0] + pRange * (lpDetails.nelm[1] - lpDetails.nelm[0]);
   return lpDetails;
 }
+
+export let CURRENT_ICON = new L.Icon({
+  iconUrl: "/static/map/current.svg",
+  iconRetinaUrl: "/static/map/current.svg",
+  iconSize: new L.Point(30, 30),
+  className: "leaflet-div-icon",
+});
