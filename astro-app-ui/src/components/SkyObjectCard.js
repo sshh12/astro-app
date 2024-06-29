@@ -92,7 +92,7 @@ function SkyObjectCardOptions({ setDisplayModalOpen }) {
 function BadgesGroup({ badges }) {
   if (!badges) return <></>;
   return (
-    <Stack direction="row" gap={1} flexWrap="wrap">
+    <Stack direction="row" gap={1} flexWrap="wrap" alignItems={"center"}>
       {badges.map(
         (badge) =>
           badge && (
@@ -102,6 +102,7 @@ function BadgesGroup({ badges }) {
               variant="soft"
               color={badge.color}
               endDecorator={badge.icon && <badge.icon />}
+              sx={{ maxHeight: "1rem" }}
             >
               {badge.text}
             </Chip>

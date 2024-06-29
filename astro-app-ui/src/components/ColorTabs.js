@@ -18,8 +18,8 @@ export function ColorTabs({ tabs, outlineIdx }) {
       <Tooltip
         title={t.tooltip}
         arrow
-        enterTouchDelay={1}
-        enterDelay={1}
+        enterTouchDelay={100}
+        enterDelay={100}
         key={i}
       >
         <Box
