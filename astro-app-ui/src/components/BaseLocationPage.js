@@ -9,7 +9,7 @@ import Stack from "@mui/joy/Stack";
 import { SideBarNav } from "../components/Sidebars";
 import NightsStayIcon from "@mui/icons-material/NightsStay";
 import LocationCityIcon from "@mui/icons-material/LocationCity";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+// import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 const LOCATION_TABS = [
   { label: "Weather", pathname: "/location/weather", icon: NightsStayIcon },
@@ -18,7 +18,7 @@ const LOCATION_TABS = [
     pathname: "/location/pollution",
     icon: LocationCityIcon,
   },
-  { label: "Events", pathname: "/location/events", icon: CalendarMonthIcon },
+  // { label: "Events", pathname: "/location/events", icon: CalendarMonthIcon },
 ];
 
 export default function BaseImagePage({ tabIdx, children }) {
