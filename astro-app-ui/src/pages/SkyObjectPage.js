@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
@@ -11,6 +11,9 @@ import ListItem from "@mui/joy/ListItem";
 import ListItemContent from "@mui/joy/ListItemContent";
 import Layout from "../components/Layout";
 import Skeleton from "@mui/joy/Skeleton";
+import Select from "@mui/joy/Select";
+import Grid from "@mui/joy/Grid";
+import Option from "@mui/joy/Option";
 import ListDivider from "@mui/joy/ListDivider";
 import { SubPageHeader } from "../components/Headers";
 import { theme } from "../theme/theme";
@@ -22,7 +25,9 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useCurrentObservingWindow, useTimestamp } from "../utils/date";
 import { SideBarNav } from "../components/Sidebars";
 import { renderAz, renderLatLon } from "../utils/pos";
+import { equipmentToDetails } from "../utils/equipment";
 import SkyLongTermAltChart from "../charts/SkyLongTermAltChart";
+import ObjectImage from "../components/SkyObjectImage";
 
 function LiveLocationCard({ object, location }) {
   const { ts } = useTimestamp();
@@ -134,10 +139,79 @@ function LongTermPositionsCard({
           />
         </Box>
       ) : (
-        <Box sx={{ height: "10rem" }}>
-          <Skeleton variant="overlay" />
+        <Box>
+          <Skeleton variant="text" />
         </Box>
       )}
+    </Card>
+  );
+}
+
+function SkySurveysCard({ object }) {
+  const { user } = useBackend();
+  const [selectedId, setSelectedId] = useState(null);
+  useEffect(() => {
+    if (user && user.equipment.length > 0) {
+      const active = user.equipment.find((eq) => eq.active);
+      if (active) {
+        setSelectedId(active.id);
+      }
+    }
+  }, [user]);
+  const equipment = user?.equipment || [];
+  equipment.sort((a, b) => (a.active ? -1 : b.active ? 1 : 0));
+  const eqSelected = equipment.find((eq) => eq.id === selectedId);
+  const skySurveys = [
+    { name: "DSS2", hips: "CDS/P/DSS2/color" },
+    { name: "SDSS9", hips: "CDS/P/SDSS9/color" },
+    { name: "allWISE", hips: "CDS/P/allWISE/color" },
+    { name: "2MASS", hips: "CDS/P/2MASS/color" },
+  ];
+  return (
+    <Card sx={{ p: 0 }}>
+      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+        <Typography level="title-md">Sky Surveys</Typography>
+        <Typography level="body-sm">Sky renders for your equipment.</Typography>
+      </Box>
+      <Divider />
+      <Box
+        sx={{
+          px: 1,
+          py: 0.5,
+          maxWidth: "90vw",
+          justifyContent: "center",
+          margin: "auto",
+        }}
+      >
+        <Select
+          value={selectedId}
+          onChange={(e, v) => setSelectedId(v)}
+          size="sm"
+          sx={{ flexGrow: 1 }}
+        >
+          {equipment.map((eq) => (
+            <Option key={eq.id} value={eq.id}>
+              {equipmentToDetails(eq).title}
+            </Option>
+          ))}
+        </Select>
+      </Box>
+      <Box sx={{ p: 1 }}>
+        {object && (
+          <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+            {skySurveys.map((ss) => (
+              <Grid xs={6} sx={{ border: "3px solid", borderColor: "divider" }}>
+                <ObjectImage
+                  key={eqSelected?.id}
+                  object={object}
+                  equipment={eqSelected}
+                  source={ss.hips}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Box>
     </Card>
   );
 }
@@ -255,6 +329,7 @@ export default function SkyObjectPage() {
                 longOrbitsStreaming={longOrbitsStreaming}
                 location={location}
               />
+              <SkySurveysCard object={object} />
             </Stack>
           </Box>
           <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>

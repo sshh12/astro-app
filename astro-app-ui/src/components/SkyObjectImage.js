@@ -129,13 +129,16 @@ function ImageWithBackgound({ src, width, height, alt, fill, scale, style }) {
   return <img src={resizedImageDataUrl} alt={alt} style={style} />;
 }
 
-export default function ObjectImage({ object, equipment = null }) {
+export default function ObjectImage({
+  object,
+  equipment = null,
+  source = "CDS/P/DSS2/color",
+}) {
   const { equipment: existingEquipment } = useBackend();
   const { width, height, fov } = equipmentToDetails(
     equipment || existingEquipment
   );
   const override = OVERRIDES.find((o) => o.id === object.id);
-  const source = "CDS/P/DSS2/color";
   const imgStyle = {
     width: "100%",
   };
