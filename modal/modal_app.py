@@ -4,7 +4,7 @@ import json
 import modal
 from pydantic import BaseModel
 from fastapi import Response
-from modal_base import image_base, stub
+from modal_base import image_base, app
 
 
 class BackendArgs(BaseModel):
@@ -13,8 +13,7 @@ class BackendArgs(BaseModel):
     args: Dict
 
 
-@stub.cls(
-    secrets=[modal.Secret.from_name("astro-app-secret")],
+@app.cls(
     image=image_base,
     mounts=[modal.Mount.from_local_python_packages("context", "methods_web")],
     container_idle_timeout=500,

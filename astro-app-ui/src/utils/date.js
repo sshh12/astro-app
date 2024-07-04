@@ -11,6 +11,17 @@ export function renderTime(ts, tz) {
   });
 }
 
+export function renderDate(ts, tz) {
+  const date = new Date(ts);
+  // render with year
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: tz,
+  });
+}
+
 export function renderTimeWithSeconds(ts, tz) {
   const date = new Date(ts);
   return date.toLocaleTimeString("en-US", {

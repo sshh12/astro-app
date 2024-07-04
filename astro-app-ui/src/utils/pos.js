@@ -23,6 +23,12 @@ export function renderAz(az) {
   return `${az}° ${azStr}`;
 }
 
+export function renderLatLon(lat, lon) {
+  const latStr = lat >= 0 ? `${lat.toFixed(2)}° N` : `${-lat.toFixed(2)}° S`;
+  const lonStr = lon >= 0 ? `${lon.toFixed(2)}° E` : `${-lon.toFixed(2)}° W`;
+  return `${latStr} / ${lonStr}`;
+}
+
 export function getDeviceLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {

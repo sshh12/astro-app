@@ -421,7 +421,13 @@ function LiveWeatherCard({ location, wfo }) {
         </Typography>
       </Box>
       <Divider sx={{ mb: 0 }} />
-      <Box>
+      <Box
+        sx={{
+          border: "3px solid",
+          borderColor: "divider",
+          borderRadius: "0.1rem",
+        }}
+      >
         <GOESImage wfo={wfo} />
       </Box>
     </Card>

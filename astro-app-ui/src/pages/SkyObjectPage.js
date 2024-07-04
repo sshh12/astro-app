@@ -2,7 +2,16 @@ import * as React from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
+import Card from "@mui/joy/Card";
+import Stack from "@mui/joy/Stack";
+import Typography from "@mui/joy/Typography";
+import Divider from "@mui/joy/Divider";
+import List from "@mui/joy/List";
+import ListItem from "@mui/joy/ListItem";
+import ListItemContent from "@mui/joy/ListItemContent";
 import Layout from "../components/Layout";
+import Skeleton from "@mui/joy/Skeleton";
+import ListDivider from "@mui/joy/ListDivider";
 import { SubPageHeader } from "../components/Headers";
 import { theme } from "../theme/theme";
 import SkySummarySheet from "../components/SkySummarySheet";
@@ -10,8 +19,128 @@ import { useBackend, useObjects } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
 import { useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useCurrentObservingWindow } from "../utils/date";
+import { useCurrentObservingWindow, useTimestamp } from "../utils/date";
 import { SideBarNav } from "../components/Sidebars";
+import { renderAz, renderLatLon } from "../utils/pos";
+import SkyLongTermAltChart from "../charts/SkyLongTermAltChart";
+
+function LiveLocationCard({ object, location }) {
+  const { ts } = useTimestamp();
+  const tsRoundedTo30s = Math.floor(ts / 30000) * 30000;
+  const { result: orbitNow } = useCachedPythonOutput(
+    "get_position_at_time",
+    object &&
+      location && {
+        objects: [object],
+        start_ts: tsRoundedTo30s,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+      },
+    {
+      cacheKey: `obj_pos_${tsRoundedTo30s}_${location?.id}_${object?.id}`,
+      staleCacheKey: `obj_pos_${object?.id}`,
+    }
+  );
+  const objPos = orbitNow && orbitNow[object?.id];
+  const details = objPos
+    ? [
+        {
+          name: "RA / DEC",
+          value: `${objPos.ra.toFixed(2)} / ${objPos.dec.toFixed(2)}`,
+        },
+        {
+          name: "ALT / AZ",
+          value: `${Math.round(objPos.alt)}° / ${renderAz(
+            Math.round(objPos.az)
+          )}`,
+        },
+        {
+          name: "LAT / LON",
+          value: renderLatLon(objPos.lat, objPos.lon),
+        },
+      ]
+    : [
+        { name: "", value: undefined },
+        { name: "", value: undefined },
+        { name: "", value: undefined },
+      ];
+  return (
+    <Card sx={{ p: 0, gap: 0 }}>
+      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography level="title-md">Position</Typography>
+        </Stack>
+        <Typography level="body-sm">
+          The live location of this object.
+        </Typography>
+      </Box>
+      <Divider sx={{ mb: 0 }} />
+      <List sx={{ p: 1 }}>
+        {details.map((d, idx) => (
+          <>
+            <ListItem>
+              {d.value !== undefined && (
+                <ListItemContent>
+                  <Typography level="body-sm" fontWeight="lg">
+                    {d.name}
+                  </Typography>
+                </ListItemContent>
+              )}
+              {d.value !== undefined && (
+                <Typography level="body-sm">{d.value}</Typography>
+              )}
+              {d.value === undefined && <Skeleton variant="text"></Skeleton>}
+            </ListItem>
+            {idx < details.length - 1 && <ListDivider />}
+          </>
+        ))}
+      </List>
+    </Card>
+  );
+}
+
+function LongTermPositionsCard({
+  location,
+  object,
+  longOrbit,
+  longOrbitStale,
+  longOrbitsStreaming,
+}) {
+  return (
+    <Card sx={{ p: 0, gap: 0 }}>
+      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography level="title-md">Annual Position</Typography>
+        </Stack>
+        {!longOrbitsStreaming && (
+          <Typography level="body-sm">
+            The location of this object throughout the year.
+          </Typography>
+        )}
+        {longOrbitsStreaming && (
+          <Typography level="body-sm">Generating...</Typography>
+        )}
+      </Box>
+      <Divider sx={{ mb: 0 }} />
+      {location && object && longOrbit ? (
+        <Box sx={{ height: "16rem" }}>
+          <SkyLongTermAltChart
+            object={object}
+            longOrbit={longOrbit}
+            stale={longOrbitStale}
+            timezone={location.timezone}
+          />
+        </Box>
+      ) : (
+        <Box sx={{ height: "10rem" }}>
+          <Skeleton variant="overlay" />
+        </Box>
+      )}
+    </Card>
+  );
+}
 
 export default function SkyObjectPage() {
   const { id: objectId } = useParams();
@@ -36,6 +165,33 @@ export default function SkyObjectPage() {
     {
       cacheKey: `orbits_${startTs}_${endTs}_${location?.id}_${objectId}`,
       staleCacheKey: `orbits_${objectId}`,
+    }
+  );
+
+  const { ts } = useTimestamp();
+  const tsRoundedToOneMonth =
+    Math.floor(ts / 1000 / 60 / 60 / 24 / 30) * 1000 * 60 * 60 * 24 * 30;
+  const {
+    result: longOrbit,
+    stale: longOrbitStale,
+    streaming: longOrbitsStreaming,
+  } = useCachedPythonOutput(
+    "get_longterm_orbit_calculations",
+    object &&
+      location && {
+        object: object,
+        first_period_start_ts: startTs,
+        first_period_end_ts: endTs,
+        timezone: location.timezone,
+        lat: location.lat,
+        lon: location.lon,
+        elevation: location.elevation,
+        start_days: 0,
+        offset_days: 365,
+      },
+    {
+      cacheKey: `obj_long_${tsRoundedToOneMonth}_${location?.id}_${object?.id}`,
+      staleCacheKey: `obj_long_${object?.id}`,
     }
   );
 
@@ -79,8 +235,29 @@ export default function SkyObjectPage() {
               orbits={orbits}
               stale={orbitsStale}
             />
-            <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
           </Box>
+          <Box sx={{ flex: 1, width: "100%", p: 0, mt: 1 }}>
+            <Stack
+              spacing={{ xs: 1, md: 3 }}
+              sx={{
+                display: "flex",
+                maxWidth: "800px",
+                mx: "auto",
+                px: { xs: 0, md: 6 },
+                py: { xs: 0, md: 3 },
+              }}
+            >
+              <LiveLocationCard object={object} location={location} />
+              <LongTermPositionsCard
+                object={object}
+                longOrbit={longOrbit}
+                longOrbitStale={longOrbitStale}
+                longOrbitsStreaming={longOrbitsStreaming}
+                location={location}
+              />
+            </Stack>
+          </Box>
+          <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
         </Layout.Main>
       </Layout.Root>
     </CssVarsProvider>

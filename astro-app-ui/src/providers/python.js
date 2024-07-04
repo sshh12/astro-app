@@ -119,6 +119,7 @@ export function useCachedPythonOutput(func, args, cacheSettings) {
   const [stale, setStale] = useState(true);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [streaming, setStreaming] = useState(false);
   const { call } = usePythonControl();
   const argsJSON = args && JSON.stringify(args);
   useEffect(() => {
@@ -146,18 +147,24 @@ export function useCachedPythonOutput(func, args, cacheSettings) {
           setStale(false);
         } else {
           const freshArgs = JSON.parse(argsJSON);
-          const freshVal = await call(func, freshArgs);
+          const freshVal = await call(func, freshArgs, (streamVal) => {
+            setResult(streamVal);
+            setStale(false);
+            setStreaming(true);
+          });
           setStale(false);
           if (!freshVal.error) {
             setResult(freshVal);
             cacheStore.setItem(cacheKey, freshVal);
             cacheStore.setItem(staleCacheKey, freshVal);
+            setStreaming(false);
           } else {
             setError(freshVal.error);
+            setStreaming(false);
           }
         }
       })();
     }
   }, [func, argsJSON, cacheKey, staleCacheKey, cacheStore, call]);
-  return { result, stale, error };
+  return { result, stale, streaming, error };
 }

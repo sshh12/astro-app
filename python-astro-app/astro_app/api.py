@@ -117,6 +117,8 @@ def get_orbit_calculations(
 @method_api()
 def get_longterm_orbit_calculations(
     object: List,
+    first_period_start_ts: int,
+    first_period_end_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -142,9 +144,13 @@ def get_longterm_orbit_calculations(
 
     alt_at.step_days = 0.1
 
-    resp = []
-
-    start_noon, start_next_noon = space_util.get_todays_noons(timezone)
+    start_noon = space_util.dt_from_timestamp(
+        first_period_start_ts, pytz.timezone(timezone)
+    )
+    start_next_noon = space_util.dt_from_timestamp(
+        first_period_end_ts, pytz.timezone(timezone)
+    )
+    periods = []
     for i in range(start_days, start_days + offset_days):
         most_recent_noon = space_util.round_datetime_to_hour(
             start_noon + dt.timedelta(days=i)
@@ -152,7 +158,10 @@ def get_longterm_orbit_calculations(
         next_noon = space_util.round_datetime_to_hour(
             start_next_noon + dt.timedelta(days=i), round_up=True
         )
+        periods.append((i, most_recent_noon, next_noon))
 
+    resp = []
+    for i, most_recent_noon, next_noon in periods:
         day_info = {
             "i": i,
             "start": int(most_recent_noon.timestamp() * 1000),
@@ -189,44 +198,44 @@ def get_longterm_orbit_calculations(
         day_info["ts_at_min_alt"] = int(min_alt_ts.utc_datetime().timestamp() * 1000)
         day_info["satellite_passes"] = []
 
-        if object["type"] == "EARTH_SATELLITE":
-            pass_t, pass_events = obj.satellite.find_events(
-                loc, n0, n1, altitude_degrees=10.0
-            )
-            pass_sunlit = obj.satellite.at(pass_t).is_sunlit(eph)
-            cur_start = None
-            cur_culm = None
-            for pass_ti, event, sunlit_flag in zip(pass_t, pass_events, pass_sunlit):
-                if event == 0:
-                    cur_start = (pass_ti, sunlit_flag == 1)
-                elif event == 1 and cur_start is not None:
-                    cur_culm = (pass_ti, sunlit_flag == 1)
-                elif event == 2 and cur_culm is not None and cur_start is not None:
-                    day_info["satellite_passes"].append(
-                        {
-                            "ts_start": int(
-                                cur_start[0].utc_datetime().timestamp() * 1000
-                            ),
-                            "ts_culminate": int(
-                                cur_culm[0].utc_datetime().timestamp() * 1000
-                            ),
-                            "ts_end": int(pass_ti.utc_datetime().timestamp() * 1000),
-                            "alt_start": round(alt_at(cur_start[0]), 2),
-                            "alt_culminate": round(alt_at(cur_culm[0]), 2),
-                            "alt_end": round(alt_at(pass_ti), 2),
-                            "az_start": round(az_at(cur_start[0]), 2),
-                            "az_culminate": round(az_at(cur_culm[0]), 2),
-                            "az_end": round(az_at(pass_ti), 2),
-                            "sunlit": any(
-                                [cur_start[1], cur_culm[1], sunlit_flag == 1]
-                            ),
-                        }
-                    )
-                    cur_start = None
-                    cur_culm = None
-
+        # if object["type"] == "EARTH_SATELLITE":
+        #     pass_t, pass_events = obj.satellite.find_events(
+        #         loc, n0, n1, altitude_degrees=10.0
+        #     )
+        #     pass_sunlit = obj.satellite.at(pass_t).is_sunlit(eph)
+        #     cur_start = None
+        #     cur_culm = None
+        #     for pass_ti, event, sunlit_flag in zip(pass_t, pass_events, pass_sunlit):
+        #         if event == 0:
+        #             cur_start = (pass_ti, sunlit_flag == 1)
+        #         elif event == 1 and cur_start is not None:
+        #             cur_culm = (pass_ti, sunlit_flag == 1)
+        #         elif event == 2 and cur_culm is not None and cur_start is not None:
+        #             day_info["satellite_passes"].append(
+        #                 {
+        #                     "ts_start": int(
+        #                         cur_start[0].utc_datetime().timestamp() * 1000
+        #                     ),
+        #                     "ts_culminate": int(
+        #                         cur_culm[0].utc_datetime().timestamp() * 1000
+        #                     ),
+        #                     "ts_end": int(pass_ti.utc_datetime().timestamp() * 1000),
+        #                     "alt_start": round(alt_at(cur_start[0]), 2),
+        #                     "alt_culminate": round(alt_at(cur_culm[0]), 2),
+        #                     "alt_end": round(alt_at(pass_ti), 2),
+        #                     "az_start": round(az_at(cur_start[0]), 2),
+        #                     "az_culminate": round(az_at(cur_culm[0]), 2),
+        #                     "az_end": round(az_at(pass_ti), 2),
+        #                     "sunlit": any(
+        #                         [cur_start[1], cur_culm[1], sunlit_flag == 1]
+        #                     ),
+        #                 }
+        #             )
+        #             cur_start = None
+        #             cur_culm = None
         resp.append(day_info)
-        if i % 10 == 0:
+        resp.sort(key=lambda x: x["i"])
+        if len(resp) % 10 == 0:
             send_js(resp)
 
     return resp
@@ -262,8 +271,9 @@ def get_current_positions(
 
 
 @method_api()
-def get_current_orbit_calculations(
-    object: Dict,
+def get_position_at_time(
+    objects: List[Dict],
+    start_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -276,28 +286,29 @@ def get_current_orbit_calculations(
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     loc_place = earth + loc
 
-    t_now = ts.now()
+    t_now = space_util.ts_from_timestamp(ts, start_ts, pytz.timezone(timezone))
 
-    obj = space_util.space_object_to_observables(ts, eph, object)
+    obj_id_to_pos = {}
 
-    apparent_pos = loc_place.at(t_now).observe(obj).apparent()
+    for object in objects:
+        obj = space_util.space_object_to_observables(ts, eph, object)
+        apparent_pos = loc_place.at(t_now).observe(obj).apparent()
+        ra, dec, _ = apparent_pos.radec()
+        alt_az = apparent_pos.altaz()
+        pos_radec = position_of_radec(ra.hours, dec.degrees, t=t_now, center=399)
+        subpoint = wgs84.subpoint(pos_radec)
+        pos = {
+            "time": int(t_now.utc_datetime().timestamp() * 1000),
+            "alt": round(alt_az[0].degrees, 2),
+            "az": round(alt_az[1].degrees, 2),
+            "ra": ra.hours,
+            "dec": dec.degrees,
+            "lat": subpoint.latitude.degrees,
+            "lon": subpoint.longitude.degrees,
+        }
+        obj_id_to_pos[object["id"]] = pos
 
-    ra, dec, _ = apparent_pos.radec()
-
-    alt_az = apparent_pos.altaz()
-
-    pos_radec = position_of_radec(ra.hours, dec.degrees, t=t_now, center=399)
-    subpoint = wgs84.subpoint(pos_radec)
-
-    return {
-        "time": int(t_now.utc_datetime().timestamp() * 1000),
-        "alt": round(alt_az[0].degrees, 2),
-        "az": round(alt_az[1].degrees, 2),
-        "ra": ra.hours,
-        "dec": dec.degrees,
-        "lat": subpoint.latitude.degrees,
-        "lon": subpoint.longitude.degrees,
-    }
+    return obj_id_to_pos
 
 
 @method_api()
