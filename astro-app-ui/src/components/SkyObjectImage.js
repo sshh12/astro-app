@@ -135,9 +135,12 @@ export default function ObjectImage({
   source = "CDS/P/DSS2/color",
 }) {
   const { equipment: existingEquipment } = useBackend();
-  const { width, height, fov } = equipmentToDetails(
+  let { width, height, fov } = equipmentToDetails(
     equipment || existingEquipment
   );
+  if (height > width) {
+    [width, height] = [height, width];
+  }
   const override = OVERRIDES.find((o) => o.id === object.id);
   const imgStyle = {
     width: "100%",
