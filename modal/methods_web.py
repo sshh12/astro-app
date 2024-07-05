@@ -1,13 +1,19 @@
 from typing import List, Dict
 from prisma import Prisma, models, errors
-from prisma.enums import SpaceObjectType, Color
+from prisma.enums import SpaceObjectType, Color, AstrometryStatus
 from decimal import Decimal
+from PIL import Image
 import base64
 import context
 import random
 import aiohttp
 import asyncio
+import aioboto3
+import json
+import uuid
 import re
+import os
+import io
 
 from skyfield.api import Angle
 
@@ -19,6 +25,8 @@ DEFAULT_TZ = "America/Los_Angeles"
 DEFAULT_LAT = 34.118330
 DEFAULT_LON = -118.300333
 DEFAULT_ELEVATION = 0.0
+ASTRO_APP_BUCKET = "astro-app-io"
+ASTRO_APP_BUCKET_PATH = "https://astro-app-io.s3.amazonaws.com/"
 
 DEFAULT_LISTS = {
     (FAVORITES, Color.RED): [
@@ -204,6 +212,17 @@ def _location_to_dict(location: models.Location) -> dict:
     }
 
 
+def _image_to_dict(user: models.User, image: models.Image) -> dict:
+    return {
+        "id": str(image.id),
+        "title": image.title,
+        "mainImageId": image.mainImageId,
+        "mainImageUrl": f"{ASTRO_APP_BUCKET_PATH}user_images/{user.id}/{image.mainImageId}.jpg",
+        "astrometrySid": image.astrometrySid,
+        "astrometryStatus": image.astrometryStatus,
+    }
+
+
 def _user_to_dict(user: models.User) -> dict:
     return {
         "id": str(user.id),
@@ -211,6 +230,7 @@ def _user_to_dict(user: models.User) -> dict:
         "lists": [_list_to_dict(list.List) for list in user.lists],
         "equipment": [_equipment_to_dict(equip) for equip in user.equipment],
         "location": [_location_to_dict(loc) for loc in user.location],
+        "images": [_image_to_dict(user, image) for image in user.images],
     }
 
 
@@ -744,3 +764,144 @@ async def get_de421(ctx: context.Context) -> Dict:
     with open("./de421.bsp", "rb") as f:
         de421_data = f.read()
     return {"de421_b64": base64.b64encode(de421_data).decode()}
+
+
+@method_web()
+async def get_signed_image_upload(ctx: context.Context, type: str):
+    session = aioboto3.Session()
+    if type == "image/png":
+        ext = "png"
+    elif type == "image/jpeg":
+        ext = "jpg"
+    else:
+        return {"error": "Invalid type"}
+    tmp_path = f"temp_image_uploads/{uuid.uuid4()}.{ext}"
+    async with session.client("s3") as s3_client:
+        response = await s3_client.generate_presigned_url(
+            "put_object",
+            Params={"Bucket": ASTRO_APP_BUCKET, "Key": tmp_path, "ContentType": type},
+            ExpiresIn=3600,
+        )
+    return {"signedUrl": response, "url": ASTRO_APP_BUCKET_PATH + tmp_path}
+
+
+async def _get_astrometry_session_key() -> str:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "http://nova.astrometry.net/api/login",
+            data={
+                "request-json": json.dumps({"apikey": os.environ["ASTROMETRY_API_KEY"]})
+            },
+        ) as response:
+            output = json.loads(await response.text())
+    return output["session"]
+
+
+async def _upload_to_astrometry(image_url: str) -> Dict:
+    session_key = await _get_astrometry_session_key()
+    args = {
+        "session": session_key,
+        "url": image_url,
+        "allow_commercial_use": "n",
+        "publicly_visible": "n",
+        "allow_modifications": "n",
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"http://nova.astrometry.net/api/url_upload",
+            data={"request-json": json.dumps(args)},
+        ) as response:
+            output = json.loads(await response.text())
+    return output
+
+
+async def _get_astrometry_results(subid: int) -> Dict:
+    session_key = await _get_astrometry_session_key()
+    args = {
+        "session": session_key,
+        "subid": subid,
+    }
+    output = {}
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"http://nova.astrometry.net/api/jobs/{subid}",
+            data={"request-json": json.dumps(args)},
+        ) as response:
+            output.update(json.loads(await response.text()))
+        async with session.post(
+            f"http://nova.astrometry.net/api/jobs/{subid}/calibration",
+            data={"request-json": json.dumps(args)},
+        ) as response:
+            output.update(json.loads(await response.text()))
+    return output
+
+
+@method_web()
+async def add_image(ctx: context.Context, url: str):
+    if not url.startswith(ASTRO_APP_BUCKET_PATH):
+        return {"error": "Invalid URL"}
+    astrometry_resp = await _upload_to_astrometry(url)
+    new_image_args = {
+        "userId": ctx.user.id,
+        "title": "Untitled Image",
+    }
+    if astrometry_resp["status"] == "success":
+        new_image_args["astrometrySid"] = astrometry_resp["subid"]
+        new_image_args["astrometryStatus"] = AstrometryStatus.PENDING
+    else:
+        new_image_args["astrometrySid"] = 0
+        new_image_args["astrometryStatus"] = AstrometryStatus.ERROR
+
+    main_image_id = str(uuid.uuid4())
+    s3_key = f"user_images/{ctx.user.id}/{main_image_id}.jpg"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            image_data = await response.read()
+    s3_session = aioboto3.Session()
+    async with s3_session.client("s3") as s3_client:
+        img = Image.open(io.BytesIO(image_data))
+        del image_data
+        img_jpg_bytes = io.BytesIO()
+        img.save(img_jpg_bytes, format="JPEG")
+        await s3_client.put_object(
+            Bucket=ASTRO_APP_BUCKET,
+            Key=s3_key,
+            Body=img_jpg_bytes.getvalue(),
+            ContentType="image/jpeg",
+        )
+
+    new_image_args["mainImageId"] = main_image_id
+    await ctx.prisma.image.create(data=new_image_args)
+    return new_image_args
+
+
+@method_web()
+async def refresh_images(ctx: context.Context):
+    images = await ctx.prisma.image.find_many(
+        where={"userId": ctx.user.id, "astrometryStatus": AstrometryStatus.PENDING}
+    )
+    for image in images:
+        results = await _get_astrometry_results(image.astrometrySid)
+        if results["status"] == "success":
+            await ctx.prisma.image.update(
+                where={"id": image.id},
+                data={
+                    "astrometryStatus": AstrometryStatus.DONE,
+                    "ra": results["ra"],
+                    "dec": results["dec"],
+                    "widthArcSec": results["width_arcsec"],
+                    "heightArcSec": results["height_arcsec"],
+                    "radius": results["radius"],
+                    "pixelScale": results["pixscale"],
+                    "orientation": results["orientation"],
+                    "parity": results["parity"],
+                },
+            )
+        elif results["status"] == "failure":
+            await ctx.prisma.image.update(
+                where={"id": image.id},
+                data={
+                    "astrometryStatus": AstrometryStatus.ERROR,
+                },
+            )
+    return {}

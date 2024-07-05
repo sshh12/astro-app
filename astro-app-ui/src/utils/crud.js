@@ -106,6 +106,20 @@ const POST_METHODS = {
   delete_list: async ({ user, id }) => {
     return { ...user, lists: user.lists.filter((list) => list.id !== id) };
   },
+  add_image: async ({ user, url }) => {
+    const newImages = user.equipment.concat([
+      {
+        url: url,
+        id: Math.random().toString(36),
+        title: "Untitled Image",
+        astrometryStatus: "PENDING",
+      },
+    ]);
+    return { ...user, images: newImages };
+  },
+  refresh_images: async ({ user }) => {
+    return { ...user };
+  },
 };
 
 export { POST_METHODS };

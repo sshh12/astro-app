@@ -48,7 +48,9 @@ registerRoute(
 registerRoute(
   ({ url }) =>
     url.href.includes("hips-image-services") ||
-    url.href.startsWith("upload.wikimedia.org") ||
+    url.href.includes("upload.wikimedia.org") ||
+    url.href.includes("astro-app-io.s3") ||
+    url.href.includes("nova.astrometry.net") ||
     url.href.includes("/static/"),
   new CacheFirst()
 );

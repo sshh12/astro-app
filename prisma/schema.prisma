@@ -19,6 +19,7 @@ model User {
   objects   SpaceObjectsOnUsers[]
   equipment Equipment[]
   location  Location[]
+  images    Image[]
 }
 
 enum SpaceObjectType {
@@ -180,4 +181,32 @@ model SpaceObjectsOnUsers {
   color         Color       @default(SLATE)
 
   @@id([userId, spaceObjectId])
+}
+
+enum AstrometryStatus {
+  PENDING
+  DONE
+  ERROR
+}
+
+model Image {
+  id BigInt @id @default(autoincrement())
+
+  astrometrySid    BigInt
+  astrometryStatus AstrometryStatus
+  ra               Decimal?
+  dec              Decimal?
+  widthArcSec      Decimal?
+  heightArcSec     Decimal?
+  radius           Decimal?
+  pixelScale       Decimal?
+  orientation      Decimal?
+  parity           Decimal?
+
+  title       String
+  mainImageId String
+
+  createdAt DateTime @default(now())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    BigInt?
 }

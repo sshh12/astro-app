@@ -4,13 +4,10 @@ import { POST_METHODS } from "../utils/crud";
 
 export const BackendContext = React.createContext({});
 
-/*
-const API_ENDPOINT =
+const BACKEND_ENDPOINT =
   typeof window !== "undefined" && window.location.host.startsWith("localhost")
     ? "http://localhost:9000/"
     : "https://sshh12--astro-app-backend.modal.run/";
-*/
-const BACKEND_ENDPOINT = "https://sshh12--astro-app-backend.modal.run/";
 const API_KEY_KEY = "apiKey";
 const SEEN_ONBOARDING_KEY = "seenOnboarding";
 const CACHE_USER_KEY = "user";
@@ -83,7 +80,7 @@ function useUser() {
   }, [post, settingsStore, cacheStore]);
 
   const updateUser = useCallback(
-    async (func, args) => {
+    async (func, args, postCallback = null) => {
       if (user && objectStore && listStore && cacheStore && post) {
         const newOfflineUser = await POST_METHODS[func]({
           ...args,
@@ -98,6 +95,9 @@ function useUser() {
             if (remoteUser.id) {
               cacheStore.setItem("user", remoteUser);
               setUser(remoteUser);
+              if (postCallback) {
+                postCallback();
+              }
             }
           })
           .catch((e) => console.error(e));

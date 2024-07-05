@@ -12,6 +12,8 @@ image_base = (
         "tqdm==4.66.2",
         "tzfpy==0.15.5",
         "geopy==2.4.1",
+        "aioboto3==13.1.0",
+        "pillow==10.4.0",
     )
     .run_commands(
         "prisma generate --schema /root/prisma/schema.prisma",
@@ -19,5 +21,8 @@ image_base = (
 )
 app = modal.App(
     "astro-app",
-    secrets=[modal.Secret.from_name("astro-app-secret")],
+    secrets=[
+        modal.Secret.from_name("astro-app-secret"),
+        modal.Secret.from_name("default-aws-secret"),
+    ],
 )
