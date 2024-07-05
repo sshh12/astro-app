@@ -225,6 +225,8 @@ def _image_to_dict(user: models.User, image: models.Image) -> dict:
             "orientation": float(image.orientation),
             "parity": float(image.parity),
         }
+    if image.objsInField:
+        solve_dict["objsInField"] = image.objsInField.split("|")
     return {
         "id": str(image.id),
         "title": image.title,
@@ -232,6 +234,7 @@ def _image_to_dict(user: models.User, image: models.Image) -> dict:
         "mainImageUrl": f"{ASTRO_APP_BUCKET_PATH}user_images/{user.id}/{image.mainImageId}.jpg",
         "astrometrySid": image.astrometrySid,
         "astrometryStatus": image.astrometryStatus,
+        "astrometryJobId": image.astrometryJobId,
         **solve_dict,
     }
 
@@ -828,17 +831,21 @@ async def _upload_to_astrometry(image_url: str) -> Dict:
     return output
 
 
-async def _get_astrometry_results(subid: int) -> Dict:
-    output = {}
+async def _get_astrometry_submission(subid: int) -> Dict:
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"http://nova.astrometry.net/api/jobs/{subid}",
+            f"http://nova.astrometry.net/api/submissions/{subid}",
         ) as response:
-            output["status"] = json.loads(await response.text())
-        async with session.post(
-            f"http://nova.astrometry.net/api/jobs/{subid}/calibration",
+            output = json.loads(await response.text())
+    return output
+
+
+async def _get_astrometry_results(job_id: int) -> Dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"http://nova.astrometry.net/api/jobs/{job_id}/info",
         ) as response:
-            output["calibration"] = json.loads(await response.text())
+            output = json.loads(await response.text())
     return output
 
 
@@ -850,6 +857,7 @@ async def add_image(ctx: context.Context, url: str):
     new_image_args = {
         "userId": ctx.user.id,
         "title": "Untitled Image",
+        "astrometryObjectsInField": [],
     }
     if astrometry_resp["status"] == "success":
         new_image_args["astrometrySid"] = astrometry_resp["subid"]
@@ -878,7 +886,9 @@ async def add_image(ctx: context.Context, url: str):
 
     new_image_args["mainImageId"] = main_image_id
     await ctx.prisma.image.create(data=new_image_args)
-    return new_image_args
+
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}
 
 
 @method_web()
@@ -887,28 +897,35 @@ async def refresh_images(ctx: context.Context):
         where={"userId": ctx.user.id, "astrometryStatus": AstrometryStatus.PENDING}
     )
     for image in images:
-        results = await _get_astrometry_results(image.astrometrySid)
-        if results["status"]["status"] == "success":
-            calibration = results["calibration"]
+        submission = await _get_astrometry_submission(image.astrometrySid)
+        if len(submission["jobs"]) == 0:
+            continue
+        job_id = submission["jobs"][-1]
+        job_results = await _get_astrometry_results(job_id)
+        if job_results["status"] == "success":
+            calibration = job_results["calibration"]
             await ctx.prisma.image.update(
                 where={"id": image.id},
                 data={
                     "astrometryStatus": AstrometryStatus.DONE,
+                    "astrometryJobId": job_id,
+                    "objsInField": "|".join(job_results["objects_in_field"]),
                     "ra": calibration["ra"],
                     "dec": calibration["dec"],
-                    "widthArcSec": calibration["width_arcsec"],
-                    "heightArcSec": calibration["height_arcsec"],
+                    "widthArcSec": 0,
+                    "heightArcSec": 0,
                     "radius": calibration["radius"],
                     "pixelScale": calibration["pixscale"],
                     "orientation": calibration["orientation"],
                     "parity": calibration["parity"],
                 },
             )
-        elif results["status"]["status"] == "failure":
+        elif job_results["status"] == "failure":
             await ctx.prisma.image.update(
                 where={"id": image.id},
                 data={
                     "astrometryStatus": AstrometryStatus.ERROR,
                 },
             )
-    return {}
+    updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
+    return {**_user_to_dict(updated_user)}

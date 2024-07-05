@@ -193,6 +193,7 @@ model Image {
   id BigInt @id @default(autoincrement())
 
   astrometrySid    BigInt
+  astrometryJobId  BigInt?
   astrometryStatus AstrometryStatus
   ra               Decimal?
   dec              Decimal?
@@ -202,6 +203,7 @@ model Image {
   pixelScale       Decimal?
   orientation      Decimal?
   parity           Decimal?
+  objsInField      String?
 
   title       String
   mainImageId String

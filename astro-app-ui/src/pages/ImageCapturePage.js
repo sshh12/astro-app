@@ -17,6 +17,10 @@ function ImageCard({ image }) {
         </Typography>
       </Box>
       <img src={image.mainImageUrl} alt={image.id} />
+      <img
+        src={`https://nova.astrometry.net/annotated_display/${image.astrometryJobId}`}
+        alt="annotated"
+      />
     </Card>
   );
 }
