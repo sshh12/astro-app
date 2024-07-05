@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import Card from "@mui/joy/Card";
 import Box from "@mui/joy/Box";
+import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
 import ImageUploadCard from "../components/ImageUploadCard";
 import BaseImagePage from "../components/BaseImagePage";
@@ -20,17 +21,13 @@ function ImageCard({ image }) {
 
 export default function ImageCapturePage() {
   const { user, updateUser } = useBackend();
-
-  useEffect(() => {
-    if (updateUser) {
-      updateUser("refresh_images", {});
-    }
-  }, [updateUser]);
-
   const images = user?.images || [];
   return (
     <BaseImagePage tabIdx={0}>
       <ImageUploadCard />
+      <Button onClick={() => updateUser("refreshImages", {})}>
+        Refresh Images
+      </Button>
       {images.map((image) => (
         <ImageCard key={image.id} image={image} />
       ))}
