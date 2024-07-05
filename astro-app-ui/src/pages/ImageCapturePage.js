@@ -13,7 +13,7 @@ function ImageCard({ image }) {
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Typography level="title-md">{image.title}</Typography>
         <Typography level="body-sm">
-          {image.astrometryStatus} {image.ra} {image.dec}
+          {image.astrometryStatus} {image.ra} {image.dec} {image.objsInField}
         </Typography>
       </Box>
       <img src={image.mainImageUrl} alt={image.id} />
