@@ -12,7 +12,9 @@ function ImageCard({ image }) {
     <Card sx={{ p: 0 }}>
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Typography level="title-md">{image.title}</Typography>
-        <Typography level="body-sm">Image</Typography>
+        <Typography level="body-sm">
+          {image.astrometryStatus} {image.ra} {image.dec}
+        </Typography>
       </Box>
       <img src={image.mainImageUrl} alt={image.id} />
     </Card>
@@ -25,7 +27,7 @@ export default function ImageCapturePage() {
   return (
     <BaseImagePage tabIdx={0}>
       <ImageUploadCard />
-      <Button onClick={() => updateUser("refreshImages", {})}>
+      <Button onClick={() => updateUser("refresh_images", {})}>
         Refresh Images
       </Button>
       {images.map((image) => (

@@ -213,6 +213,18 @@ def _location_to_dict(location: models.Location) -> dict:
 
 
 def _image_to_dict(user: models.User, image: models.Image) -> dict:
+    solve_dict = {}
+    if image.ra:
+        solve_dict = {
+            "ra": float(image.ra),
+            "dec": float(image.dec),
+            "widthArcSec": float(image.widthArcSec),
+            "heightArcSec": float(image.heightArcSec),
+            "radius": float(image.radius),
+            "pixelScale": float(image.pixelScale),
+            "orientation": float(image.orientation),
+            "parity": float(image.parity),
+        }
     return {
         "id": str(image.id),
         "title": image.title,
@@ -220,6 +232,7 @@ def _image_to_dict(user: models.User, image: models.Image) -> dict:
         "mainImageUrl": f"{ASTRO_APP_BUCKET_PATH}user_images/{user.id}/{image.mainImageId}.jpg",
         "astrometrySid": image.astrometrySid,
         "astrometryStatus": image.astrometryStatus,
+        **solve_dict,
     }
 
 
@@ -816,23 +829,16 @@ async def _upload_to_astrometry(image_url: str) -> Dict:
 
 
 async def _get_astrometry_results(subid: int) -> Dict:
-    session_key = await _get_astrometry_session_key()
-    args = {
-        "session": session_key,
-        "subid": subid,
-    }
     output = {}
     async with aiohttp.ClientSession() as session:
-        async with session.post(
+        async with session.get(
             f"http://nova.astrometry.net/api/jobs/{subid}",
-            data={"request-json": json.dumps(args)},
         ) as response:
-            output.update(json.loads(await response.text()))
+            output["status"] = json.loads(await response.text())
         async with session.post(
             f"http://nova.astrometry.net/api/jobs/{subid}/calibration",
-            data={"request-json": json.dumps(args)},
         ) as response:
-            output.update(json.loads(await response.text()))
+            output["calibration"] = json.loads(await response.text())
     return output
 
 
@@ -882,22 +888,23 @@ async def refresh_images(ctx: context.Context):
     )
     for image in images:
         results = await _get_astrometry_results(image.astrometrySid)
-        if results["status"] == "success":
+        if results["status"]["status"] == "success":
+            calibration = results["calibration"]
             await ctx.prisma.image.update(
                 where={"id": image.id},
                 data={
                     "astrometryStatus": AstrometryStatus.DONE,
-                    "ra": results["ra"],
-                    "dec": results["dec"],
-                    "widthArcSec": results["width_arcsec"],
-                    "heightArcSec": results["height_arcsec"],
-                    "radius": results["radius"],
-                    "pixelScale": results["pixscale"],
-                    "orientation": results["orientation"],
-                    "parity": results["parity"],
+                    "ra": calibration["ra"],
+                    "dec": calibration["dec"],
+                    "widthArcSec": calibration["width_arcsec"],
+                    "heightArcSec": calibration["height_arcsec"],
+                    "radius": calibration["radius"],
+                    "pixelScale": calibration["pixscale"],
+                    "orientation": calibration["orientation"],
+                    "parity": calibration["parity"],
                 },
             )
-        elif results["status"] == "failure":
+        elif results["status"]["status"] == "failure":
             await ctx.prisma.image.update(
                 where={"id": image.id},
                 data={
