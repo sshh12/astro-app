@@ -14,7 +14,11 @@ const IMAGE_TABS = [
   { label: "Equipment", pathname: "/image/equipment", icon: Calculate },
 ];
 
-export default function BaseImagePage({ tabIdx, children }) {
+export default function BaseImagePage({
+  tabIdx,
+  children,
+  maxWidth = "800px",
+}) {
   const title = IMAGE_TABS[tabIdx].label;
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
@@ -54,7 +58,7 @@ export default function BaseImagePage({ tabIdx, children }) {
               spacing={{ xs: 1, md: 3 }}
               sx={{
                 display: "flex",
-                maxWidth: "800px",
+                maxWidth: maxWidth,
                 mx: "auto",
                 px: { xs: 0, md: 6 },
                 py: { xs: 0, md: 3 },

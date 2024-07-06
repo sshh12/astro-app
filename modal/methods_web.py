@@ -235,6 +235,7 @@ def _image_to_dict(user: models.User, image: models.Image) -> dict:
         "astrometrySid": image.astrometrySid,
         "astrometryStatus": image.astrometryStatus,
         "astrometryJobId": image.astrometryJobId,
+        "astrometryJobCalibrationsId": image.astrometryJobCalibrationsId,
         **solve_dict,
     }
 
@@ -901,6 +902,7 @@ async def refresh_images(ctx: context.Context):
         if len(submission["jobs"]) == 0:
             continue
         job_id = submission["jobs"][-1]
+        job_calibration_id = submission["job_calibrations"][-1][-1]
         job_results = await _get_astrometry_results(job_id)
         if job_results["status"] == "success":
             calibration = job_results["calibration"]
@@ -909,6 +911,7 @@ async def refresh_images(ctx: context.Context):
                 data={
                     "astrometryStatus": AstrometryStatus.DONE,
                     "astrometryJobId": job_id,
+                    "astrometryJobCalibrationsId": job_calibration_id,
                     "objsInField": "|".join(job_results["objects_in_field"]),
                     "ra": calibration["ra"],
                     "dec": calibration["dec"],

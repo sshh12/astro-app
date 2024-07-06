@@ -192,18 +192,19 @@ enum AstrometryStatus {
 model Image {
   id BigInt @id @default(autoincrement())
 
-  astrometrySid    BigInt
-  astrometryJobId  BigInt?
-  astrometryStatus AstrometryStatus
-  ra               Decimal?
-  dec              Decimal?
-  widthArcSec      Decimal?
-  heightArcSec     Decimal?
-  radius           Decimal?
-  pixelScale       Decimal?
-  orientation      Decimal?
-  parity           Decimal?
-  objsInField      String?
+  astrometrySid               BigInt
+  astrometryJobId             BigInt?
+  astrometryJobCalibrationsId BigInt?
+  astrometryStatus            AstrometryStatus
+  ra                          Decimal?
+  dec                         Decimal?
+  widthArcSec                 Decimal?
+  heightArcSec                Decimal?
+  radius                      Decimal?
+  pixelScale                  Decimal?
+  orientation                 Decimal?
+  parity                      Decimal?
+  objsInField                 String?
 
   title       String
   mainImageId String
