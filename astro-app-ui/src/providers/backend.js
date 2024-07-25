@@ -229,3 +229,31 @@ export function useObjects(ids) {
   }, [objectStore, idsStr, post]);
   return { objects };
 }
+
+export function fetchWithProgress(url, opts = {}, onProgress = null) {
+  const method = opts.method || "GET";
+  const body = opts.body || null;
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, url, true);
+  xhr.upload.onprogress = (event) => {
+    if (event.lengthComputable) {
+      const percentComplete = (event.loaded / event.total) * 100;
+      if (onProgress) {
+        onProgress(percentComplete);
+      }
+    }
+  };
+  return new Promise((resolve, reject) => {
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(xhr.response);
+      } else {
+        reject(xhr.statusText);
+      }
+    };
+    xhr.onerror = () => {
+      reject(xhr.statusText);
+    };
+    xhr.send(body);
+  });
+}

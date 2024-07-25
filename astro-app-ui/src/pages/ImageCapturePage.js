@@ -8,6 +8,7 @@ import BaseImagePage from "../components/BaseImagePage";
 import Chip from "@mui/joy/Chip";
 import Stack from "@mui/joy/Stack";
 import Tabs from "@mui/joy/Tabs";
+import AspectRatio from "@mui/joy/AspectRatio";
 import TabList from "@mui/joy/TabList";
 import Tab from "@mui/joy/Tab";
 import TabPanel from "@mui/joy/TabPanel";
@@ -93,11 +94,13 @@ function ImageCard({ image }) {
             />
           </Box>
           <Box>
-            <img
-              src={`https://nova.astrometry.net/sky_plot/zoom${zoom}/${image.astrometryJobCalibrationsId}/`}
-              alt={image.id}
-              style={{ objectFit: "contain", width: "100%", height: "100%" }}
-            />
+            <AspectRatio ratio={1}>
+              <img
+                src={`https://nova.astrometry.net/sky_plot/zoom${zoom}/${image.astrometryJobCalibrationsId}/`}
+                alt={image.id}
+                style={{ objectFit: "contain", width: "100%", height: "100%" }}
+              />
+            </AspectRatio>
           </Box>
         </TabPanel>
       </Tabs>
@@ -107,18 +110,24 @@ function ImageCard({ image }) {
 
 export default function ImageCapturePage() {
   const { user, updateUser } = useBackend();
+  const [refreshLoading, setRefreshLoading] = useState(false);
   const images = user?.images || [];
   return (
     <BaseImagePage tabIdx={0} maxWidth={"100vw"}>
-      <Stack sx={{ maxWidth: "800px" }} gap={2}>
+      <Stack sx={{ maxWidth: "400px" }} gap={2}>
         <ImageUploadCard />
         <Button
-          onClick={() => updateUser("refresh_images", {})}
-          color="neutral"
+          onClick={() => {
+            setRefreshLoading(true);
+            updateUser("refresh_images", {}, () => setRefreshLoading(false));
+          }}
+          loading={refreshLoading}
+          color="primary"
         >
-          Refresh Images
+          Refresh Analysis
         </Button>
       </Stack>
+      <Divider />
       <Box
         sx={{
           display: "grid",

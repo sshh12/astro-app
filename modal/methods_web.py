@@ -856,9 +856,8 @@ async def add_image(ctx: context.Context, url: str):
         return {"error": "Invalid URL"}
     astrometry_resp = await _upload_to_astrometry(url)
     new_image_args = {
-        "userId": ctx.user.id,
+        "userId": int(ctx.user.id),
         "title": "Untitled Image",
-        "astrometryObjectsInField": [],
     }
     if astrometry_resp["status"] == "success":
         new_image_args["astrometrySid"] = astrometry_resp["subid"]
@@ -885,6 +884,7 @@ async def add_image(ctx: context.Context, url: str):
             ContentType="image/jpeg",
         )
 
+    print(new_image_args)
     new_image_args["mainImageId"] = main_image_id
     await ctx.prisma.image.create(data=new_image_args)
 
@@ -909,6 +909,11 @@ async def refresh_images(ctx: context.Context):
             await ctx.prisma.image.update(
                 where={"id": image.id},
                 data={
+                    "title": (
+                        job_results["objects_in_field"][0]
+                        if len(job_results.get("objects_in_field", [])) > 0
+                        else "Untitled Image"
+                    ),
                     "astrometryStatus": AstrometryStatus.DONE,
                     "astrometryJobId": job_id,
                     "astrometryJobCalibrationsId": job_calibration_id,

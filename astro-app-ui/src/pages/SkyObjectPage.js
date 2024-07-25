@@ -329,7 +329,7 @@ export default function SkyObjectPage() {
                 longOrbitsStreaming={longOrbitsStreaming}
                 location={location}
               />
-              <SkySurveysCard object={object} />
+              {object?.ra && <SkySurveysCard object={object} />}
             </Stack>
           </Box>
           <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>

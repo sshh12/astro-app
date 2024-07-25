@@ -8,8 +8,9 @@ import {
   ModalDialog,
   ModalClose,
   Stack,
+  LinearProgress,
 } from "@mui/joy";
-import { usePost, useBackend } from "../providers/backend";
+import { usePost, useBackend, fetchWithProgress } from "../providers/backend";
 
 const VALID_FILE_TYPES = ["image/jpeg", "image/png"];
 
@@ -17,6 +18,7 @@ function UploadConfirmModal({ open, setOpen, file }) {
   const { post } = usePost();
   const { updateUser } = useBackend();
   const [loading, setLoading] = useState(false);
+  const [loadingPct, setLoadingPct] = useState(0);
 
   useEffect(() => {
     if (!file) {
@@ -29,10 +31,14 @@ function UploadConfirmModal({ open, setOpen, file }) {
     const { signedUrl, url } = await post("get_signed_image_upload", {
       type: file.type,
     });
-    await fetch(signedUrl, {
-      method: "PUT",
-      body: file,
-    });
+    await fetchWithProgress(
+      signedUrl,
+      {
+        method: "PUT",
+        body: file,
+      },
+      (pct) => setLoadingPct(pct * 0.9)
+    );
     await updateUser(
       "add_image",
       {
@@ -54,7 +60,7 @@ function UploadConfirmModal({ open, setOpen, file }) {
           The contents of this image will be uploaded to a public accessible
           (but unlisted) link. It may also be shared with an astrometric
           provider like astrometry.net for analysis. You maintain all rights to
-          this image.
+          this image. The upload may take several minutes.
         </Typography>
         <Stack direction="row" justifyContent="space-between">
           <Button
@@ -68,6 +74,7 @@ function UploadConfirmModal({ open, setOpen, file }) {
             Upload
           </Button>
         </Stack>
+        {loading && <LinearProgress determinate value={loadingPct} />}
       </ModalDialog>
     </Modal>
   );
