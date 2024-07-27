@@ -145,7 +145,7 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
         }}
       >
         <AspectRatio
-          ratio={eqDetails.aspectRatio}
+          ratio={eqDetails.renderAspectRatio}
           color="primary"
           sx={{ borderRadius: 0 }}
         >

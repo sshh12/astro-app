@@ -64,6 +64,10 @@ export function equipmentToDetails(equipment) {
   if (equipment && equipment.type === "CAMERA") {
     const effectiveFocalLength = equipment.teleFocalLength * equipment.barlow;
     const aspectRatio = equipment.camWidth / equipment.camHeight;
+    const renderAspectRatio =
+      equipment.camWidth > equipment.camHeight
+        ? equipment.camWidth / equipment.camHeight
+        : equipment.camHeight / equipment.camWidth;
     const height = Math.round(aspectRatio * baseWidth);
     const sensorWidthMM = equipment.camWidth * (equipment.camPixelWidth / 1000);
     const sensorHeightMM =
@@ -81,6 +85,7 @@ export function equipmentToDetails(equipment) {
       width: renderWidth,
       height: renderHeight,
       aspectRatio: aspectRatio,
+      renderAspectRatio: renderAspectRatio,
       fov: Math.max(fovWidthDegrees, fovHeightDegrees),
       title: cameraTitle(equipment),
       icon: PhotoCamera,
@@ -180,6 +185,7 @@ export function equipmentToDetails(equipment) {
       width: 1000,
       height: 1000,
       aspectRatio: 1,
+      renderAspectRatio: 1,
       fov: tfov,
       title: visualTitle(equipment),
       icon: VisibilityIcon,
@@ -231,6 +237,7 @@ export function equipmentToDetails(equipment) {
       width: 1000,
       height: 1000,
       aspectRatio: 1,
+      renderAspectRatio: 1,
       fov: equipment.binoActualFOV,
       title: binoTitle(equipment),
       icon: SearchIcon,
@@ -253,6 +260,7 @@ export function equipmentToDetails(equipment) {
       width: 1000,
       height: 1000,
       aspectRatio: 1,
+      renderAspectRatio: 1,
       fov: 1.0,
       title: "Equipment",
       details: [],
