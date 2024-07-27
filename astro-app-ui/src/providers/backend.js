@@ -211,18 +211,28 @@ export function useObjects(ids) {
   useEffect(() => {
     if (objectStore && post && idsStr) {
       (async () => {
-        const objects = await Promise.all(
-          idsStr.split(",").map(async (id) => {
-            const cacheVal = await objectStore.getItem(id);
-            if (cacheVal) {
-              return cacheVal;
-            } else {
-              const freshVal = await post("get_space_object", { id: id });
-              objectStore.setItem(id, freshVal);
-              return freshVal;
-            }
-          })
-        );
+        const cachedObjs = (
+          await Promise.all(
+            idsStr.split(",").map(async (id) => {
+              return await objectStore.getItem(id);
+            })
+          )
+        ).filter((v) => !!v);
+        const uncachedIds = idsStr
+          .split(",")
+          .filter((id) => !cachedObjs.find((v) => v.id === id));
+        let freshObjs = [];
+        if (uncachedIds.length > 0) {
+          freshObjs = await post("get_space_objects", {
+            ids: uncachedIds,
+          });
+          await Promise.all(
+            freshObjs.map(async (obj) => {
+              await objectStore.setItem(obj.id, obj);
+            })
+          );
+        }
+        const objects = cachedObjs.concat(freshObjs);
         setObjects(objects);
       })();
     }

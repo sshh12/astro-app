@@ -224,6 +224,12 @@ async def get_space_object(ctx: context.Context, id: str) -> Dict:
 
 
 @method_web(require_login=False)
+async def get_space_objects(ctx: context.Context, ids: List[str]) -> Dict:
+    objs = await ctx.prisma.spaceobject.find_many(where={"id": {"in": ids}})
+    return [space_object_to_dict(obj) for obj in objs]
+
+
+@method_web(require_login=False)
 async def get_list(ctx: context.Context, id: str) -> Dict:
     list_ = await ctx.prisma.list.find_unique(
         where={"id": id},

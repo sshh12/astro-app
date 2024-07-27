@@ -82,7 +82,7 @@ function ImageCard({ image, aspectRatio }) {
         </Link>
       </Box>
       <Divider />
-      <Box sx={{ paddingX: "8px" }}>
+      <Box sx={{ paddingX: "10px" }}>
         <RichListListItem
           title="Image Objects"
           objects={objects || []}

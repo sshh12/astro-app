@@ -20,6 +20,7 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
+    "react-zoom-pan-pinch": "^3.6.1",
     "recharts": "^2.12.7",
     "web-vitals": "^2.1.4",
     "workbox-background-sync": "^6.6.0",
