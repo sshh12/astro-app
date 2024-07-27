@@ -14,6 +14,7 @@ import ModalDialog from "@mui/joy/ModalDialog";
 import ModalClose from "@mui/joy/ModalClose";
 import ProfileLocationCard from "../components/ProfileLocationCard";
 import ProfileEquipmentCard from "../components/ProfileEquipmentCard";
+import AcknowledgementsCard from "../components/AcknowledgementsCard";
 import { SideBarNav } from "../components/Sidebars";
 
 export default function ProfilePage() {
@@ -56,6 +57,7 @@ export default function ProfilePage() {
             >
               <ProfileLocationCard setOpen={setOpenLocationDialog} />
               <ProfileEquipmentCard setOpen={setOpenEquipmentDialog} />
+              <AcknowledgementsCard />
             </Stack>
           </Box>
         </Layout.Main>

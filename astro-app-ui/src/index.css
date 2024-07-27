@@ -7,3 +7,8 @@ body {
   background-color: transparent !important;
   border: none !important;
 }
+
+.leaflet-control-attribution {
+  display: none;
+  /* render issues, included in acknowledgements */
+}
