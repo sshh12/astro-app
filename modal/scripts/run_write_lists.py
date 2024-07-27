@@ -28,7 +28,7 @@ async def main(args):
     lists.sort(key=lambda x: x.title)
 
     with open("../astro-app-ui/src/constants/lists.js", "w") as f:
-        list_dicts = [methods_web._list_to_dict(list) for list in lists]
+        list_dicts = [methods_web.list_to_dict(list) for list in lists]
         list_dicts = [
             ld
             for ld in list_dicts
@@ -38,7 +38,7 @@ async def main(args):
             "export const CURATED_LISTS = " + json.dumps(list_dicts, indent=2) + ";\n\n"
         )
 
-        list_dicts = [methods_web._list_to_dict(list) for list in lists]
+        list_dicts = [methods_web.list_to_dict(list) for list in lists]
         list_dicts = [
             ld
             for ld in list_dicts

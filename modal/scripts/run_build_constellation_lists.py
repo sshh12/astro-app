@@ -692,7 +692,7 @@ async def main(args):
                     )
                     for edge in edges
                 ],
-                "objects": [methods_web._space_object_to_dict(obj) for obj in objs],
+                "objects": [methods_web.space_object_to_dict(obj) for obj in objs],
             }
         )
 
@@ -732,7 +732,7 @@ async def main(args):
     with open("../app/data/lists.js", "w") as f:
         f.write(
             "export const LISTS = "
-            + json.dumps([methods_web._list_to_dict(list) for list in lists], indent=2)
+            + json.dumps([methods_web.list_to_dict(list) for list in lists], indent=2)
             + ";\n\n"
         )
 

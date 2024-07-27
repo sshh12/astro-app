@@ -10,6 +10,7 @@ const SkyListPage = lazy(() => import("./pages/SkyListPage"));
 const SkyObjectPage = lazy(() => import("./pages/SkyObjectPage"));
 const ImageCapturePage = lazy(() => import("./pages/ImageCapturePage"));
 const ImageEquipmentPage = lazy(() => import("./pages/ImageEquipmentPage"));
+const ImageImagePage = lazy(() => import("./pages/ImageImagePage"));
 const LocationWeatherPage = lazy(() => import("./pages/LocationWeatherPage"));
 const LocationPollutionPage = lazy(() =>
   import("./pages/LocationPollutionPage")
@@ -29,6 +30,7 @@ function App() {
           <Route path="/sky/list/:id" element={<SkyListPage />} />
           <Route path="/sky/object/:id" element={<SkyObjectPage />} />
           <Route path="/image/capture" element={<ImageCapturePage />} />
+          <Route path="/image/images/:id" element={<ImageImagePage />} />
           <Route path="/image/equipment" element={<ImageEquipmentPage />} />
           <Route path="/location/weather" element={<LocationWeatherPage />} />
           <Route

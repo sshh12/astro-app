@@ -159,7 +159,7 @@ function ObjectAvatar({ object }) {
           <img
             src={getImageURL(object)}
             alt={object.name}
-            crossorigin="anonymous"
+            crossOrigin="anonymous"
             style={{
               objectFit: "contain",
               color: "transparent",
@@ -176,10 +176,16 @@ function ObjectAvatar({ object }) {
   );
 }
 
-function RichListListItem({ list, idx }) {
-  if (list.fake) {
+export function RichListListItem({
+  list = null,
+  objects = null,
+  title = null,
+  link = null,
+  idx = 0,
+}) {
+  if (list?.fake) {
     return (
-      <ListItem key={list.id}>
+      <ListItem key={list?.id}>
         <ListItemButton>
           <ListItemContent>
             <Skeleton variant="text"></Skeleton>
@@ -188,34 +194,40 @@ function RichListListItem({ list, idx }) {
       </ListItem>
     );
   }
-  const avatarsObjs = list.objects.slice(0, 3);
-  const extras = list.objects.length - avatarsObjs.length;
+  const renderTitle = list?.title || title;
+  const renderLink = !!list ? `/sky/list/${list?.id}` : link;
+  const objs = list?.objects || objects;
+  const avatarsObjs = objs.slice(0, 3);
+  const extras = objs.length - avatarsObjs.length;
   return (
     <Link
-      to={{ pathname: `/sky/list/${list.id}` }}
+      to={{ pathname: renderLink }}
       style={{ textDecoration: "none" }}
-      key={list.id}
+      key={list?.id || title}
     >
       <ListItem>
         <ListItemButton>
-          <ListItemDecorator>
-            <Box
-              sx={{
-                width: "10px",
-                height: "10px",
-                borderRadius: "99px",
-                bgcolor: idxToColorHex(idx),
-              }}
-            />
-          </ListItemDecorator>
+          {list && (
+            <ListItemDecorator>
+              <Box
+                sx={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "99px",
+                  bgcolor: idxToColorHex(idx),
+                }}
+              />
+            </ListItemDecorator>
+          )}
           <ListItemContent>
-            <Typography fontSize={"0.9rem"}>{list.title}</Typography>
+            <Typography fontSize={"0.9rem"}>{renderTitle}</Typography>
           </ListItemContent>
           <AvatarGroup>
             {avatarsObjs.map((obj) => (
               <ObjectAvatar object={obj} key={obj.id} />
             ))}
             {!!extras && <Avatar>+{Math.min(extras, 99)}</Avatar>}
+            {objects.length === 0 && <Avatar>0</Avatar>}
           </AvatarGroup>
           <KeyboardArrowRight />
         </ListItemButton>

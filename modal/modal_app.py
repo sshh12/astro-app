@@ -15,7 +15,9 @@ class BackendArgs(BaseModel):
 
 @app.cls(
     image=image_base,
-    mounts=[modal.Mount.from_local_python_packages("context", "methods_web")],
+    mounts=[
+        modal.Mount.from_local_python_packages("context", "methods_web", "methods")
+    ],
     container_idle_timeout=500,
     allow_concurrent_inputs=10,
     cpu=0.25,

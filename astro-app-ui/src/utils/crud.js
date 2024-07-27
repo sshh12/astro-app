@@ -99,6 +99,10 @@ const POST_METHODS = {
     }
     return { ...user, location: newLocation };
   },
+  delete_image: async ({ user, id }) => {
+    const newImages = user.images.filter((img) => img.id !== id);
+    return { ...user, images: newImages };
+  },
   add_list: async ({ user, id, listStore }) => {
     const list = await listStore.getItem(id);
     return { ...user, lists: [...user.lists, list] };

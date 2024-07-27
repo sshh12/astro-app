@@ -14,6 +14,9 @@ image_base = (
         "geopy==2.4.1",
         "aioboto3==13.1.0",
         "pillow==10.4.0",
+        "astropy==6.1.2",
+        "cachetools==5.4.0",
+        "openai==1.37.1",
     )
     .run_commands(
         "prisma generate --schema /root/prisma/schema.prisma",

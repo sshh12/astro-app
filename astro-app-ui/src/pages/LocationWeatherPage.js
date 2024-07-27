@@ -376,7 +376,7 @@ function GOESImage({ wfo }) {
             onError={() => setSupportsStatic(false)}
             onLoad={() => setLoading(false)}
             alt={"clouds"}
-            crossorigin="anonymous"
+            crossOrigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
           />
         </div>
@@ -388,7 +388,7 @@ function GOESImage({ wfo }) {
             onError={() => setSupportsGOES18(false)}
             onLoad={() => setLoading(false)}
             alt={"clouds"}
-            crossorigin="anonymous"
+            crossOrigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
         </div>
@@ -400,7 +400,7 @@ function GOESImage({ wfo }) {
             onError={() => setSupportsGOES16(false)}
             onLoad={() => setLoading(false)}
             alt={"clouds"}
-            crossorigin="anonymous"
+            crossOrigin="anonymous"
             src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
           />
         </div>

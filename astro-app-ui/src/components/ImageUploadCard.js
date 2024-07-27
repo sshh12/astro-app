@@ -60,7 +60,8 @@ function UploadConfirmModal({ open, setOpen, file }) {
           The contents of this image will be uploaded to a public accessible
           (but unlisted) link. It may also be shared with an astrometric
           provider like astrometry.net for analysis. You maintain all rights to
-          this image. The upload may take several minutes.
+          this image. The upload may take several minutes. The analysis may take
+          a few hours.
         </Typography>
         <Stack direction="row" justifyContent="space-between">
           <Button

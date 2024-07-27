@@ -7,103 +7,93 @@ import ImageUploadCard from "../components/ImageUploadCard";
 import BaseImagePage from "../components/BaseImagePage";
 import Chip from "@mui/joy/Chip";
 import Stack from "@mui/joy/Stack";
-import Tabs from "@mui/joy/Tabs";
-import AspectRatio from "@mui/joy/AspectRatio";
-import TabList from "@mui/joy/TabList";
-import Tab from "@mui/joy/Tab";
-import TabPanel from "@mui/joy/TabPanel";
 import Divider from "@mui/joy/Divider";
-import Slider from "@mui/joy/Slider";
-import { useBackend } from "../providers/backend";
+import { Link } from "react-router-dom";
+import { useBackend, useObjects } from "../providers/backend";
+import { RichListListItem } from "../components/SkyListLists";
+import OverlayImage from "../components/OverlayImage";
+import Tooltip from "@mui/joy/Tooltip";
+import IconButton from "@mui/joy/IconButton";
+import { Delete } from "@mui/icons-material";
 
 function ImageCard({ image }) {
-  const [zoom, setZoom] = useState(0);
+  const { updateUser } = useBackend();
   const hasAnalysis = image.astrometryStatus === "DONE";
-  const defaultIdx = hasAnalysis ? 1 : 0;
+  const { objects } = useObjects(image?.mappedObjs?.map((o) => o[0]) || []);
+  const link = `/image/images/${image.id}`;
   return (
     <Card sx={{ p: 0 }}>
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography level="title-md">{image.title}</Typography>
+          <Typography level="title-md" sx={{ minHeight: "3rem" }}>
+            {image.title}
+          </Typography>
           {image.astrometryStatus === "DONE" && (
-            <Chip variant="soft" color="success">
+            <Chip variant="soft" color="success" sx={{ maxHeight: "1rem" }}>
               Analyzed
             </Chip>
           )}
           {image.astrometryStatus === "PENDING" && (
-            <Chip variant="soft" color="warning">
-              Analyzing...
+            <Chip variant="soft" color="warning" sx={{ maxHeight: "1rem" }}>
+              Analyzing
             </Chip>
           )}
           {image.astrometryStatus === "ERROR" && (
-            <Chip variant="soft" color="danger">
-              Analysis Failed
+            <Chip variant="soft" color="danger" sx={{ maxHeight: "1rem" }}>
+              Failed
             </Chip>
           )}
         </Stack>
       </Box>
       <Divider />
-      <Tabs defaultValue={defaultIdx} size="sm">
-        <TabList sx={{ justifyContent: "center", flexGrow: 1 }}>
-          <Tab>Original</Tab>
-          <Tab disabled={!hasAnalysis}>Annotated</Tab>
-          <Tab disabled={!hasAnalysis}>Position</Tab>
-        </TabList>
-        <TabPanel value={0}>
-          <Box>
+      <Box sx={{ minHeight: "18rem" }}>
+        <Link to={link}>
+          {hasAnalysis ? (
+            <OverlayImage image={image} objects={objects} />
+          ) : (
             <img
               src={image.mainImageUrl}
               alt={image.id}
-              style={{ objectFit: "contain", width: "100%", height: "100%" }}
+              style={{
+                objectFit: "contain",
+                width: "100%",
+                height: "100%",
+              }}
             />
-          </Box>
-        </TabPanel>
-        <TabPanel value={1}>
-          <Box>
-            <img
-              src={`https://nova.astrometry.net/annotated_display/${image.astrometryJobId}`}
-              alt={image.id}
-              style={{ objectFit: "contain", width: "100%", height: "100%" }}
-            />
-          </Box>
-        </TabPanel>
-        <TabPanel value={2}>
-          <Box sx={{ px: 4, pb: 2 }}>
-            <Slider
-              aria-label="Zoom"
-              value={zoom}
-              getAriaValueText={(v) => v}
-              valueLabelDisplay="auto"
-              onChange={(_, v) => setZoom(v)}
-              marks={[
-                {
-                  value: 0,
-                  label: "Full Sky",
-                },
-                {
-                  value: 1,
-                  label: "",
-                },
-                {
-                  value: 2,
-                  label: "Zoomed",
-                },
-              ]}
-              min={0}
-              max={2}
-            />
-          </Box>
-          <Box>
-            <AspectRatio ratio={1}>
-              <img
-                src={`https://nova.astrometry.net/sky_plot/zoom${zoom}/${image.astrometryJobCalibrationsId}/`}
-                alt={image.id}
-                style={{ objectFit: "contain", width: "100%", height: "100%" }}
-              />
-            </AspectRatio>
-          </Box>
-        </TabPanel>
-      </Tabs>
+          )}
+        </Link>
+      </Box>
+      <Divider />
+      <Box sx={{ paddingX: "8px" }}>
+        <RichListListItem
+          title="Image Objects"
+          objects={objects || []}
+          link={link}
+        />
+      </Box>
+      <Divider />
+      <Stack
+        justifyItems={"end"}
+        alignItems={"end"}
+        flexGrow={0}
+        sx={{ paddingX: "8px", marginBottom: "8px" }}
+      >
+        <Tooltip title="Delete this image">
+          <IconButton
+            size="sm"
+            color="danger"
+            onClick={() => {
+              if (
+                window.confirm("Are you sure you want to delete this image?")
+              ) {
+                updateUser("delete_image", { id: image.id });
+              }
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </Tooltip>
+      </Stack>
     </Card>
   );
 }
@@ -138,8 +128,8 @@ export default function ImageCapturePage() {
         {images.map((image) => (
           <ImageCard key={image.id} image={image} />
         ))}
-        <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
       </Box>
+      <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
     </BaseImagePage>
   );
 }

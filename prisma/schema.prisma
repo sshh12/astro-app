@@ -205,6 +205,9 @@ model Image {
   orientation                 Decimal?
   parity                      Decimal?
   objsInField                 String?
+  widthPx                     Int?
+  heightPx                    Int?
+  mappedObjs                  Json?            @db.JsonB
 
   title       String
   mainImageId String
