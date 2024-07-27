@@ -15,8 +15,22 @@ import OverlayImage from "../components/OverlayImage";
 import Tooltip from "@mui/joy/Tooltip";
 import IconButton from "@mui/joy/IconButton";
 import { Delete } from "@mui/icons-material";
+import { AspectRatio } from "@mui/joy";
 
-function ImageCard({ image }) {
+function commonAspectRatio(images) {
+  if (!images) {
+    return 1;
+  }
+  const ratios = images.map((i) => i.widthPx / i.heightPx);
+  ratios.sort(
+    (a, b) =>
+      ratios.filter((v) => v === a).length -
+      ratios.filter((v) => v === b).length
+  );
+  return ratios[0];
+}
+
+function ImageCard({ image, aspectRatio }) {
   const { updateUser } = useBackend();
   const hasAnalysis = image.astrometryStatus === "DONE";
   const { objects } = useObjects(image?.mappedObjs?.map((o) => o[0]) || []);
@@ -46,20 +60,24 @@ function ImageCard({ image }) {
         </Stack>
       </Box>
       <Divider />
-      <Box sx={{ minHeight: "18rem" }}>
+      <Box>
         <Link to={link}>
           {hasAnalysis ? (
-            <OverlayImage image={image} objects={objects} />
+            <AspectRatio ratio={aspectRatio}>
+              <OverlayImage image={image} objects={objects} />
+            </AspectRatio>
           ) : (
-            <img
-              src={image.mainImageUrl}
-              alt={image.id}
-              style={{
-                objectFit: "contain",
-                width: "100%",
-                height: "100%",
-              }}
-            />
+            <AspectRatio ratio={aspectRatio}>
+              <img
+                src={image.mainImageUrl}
+                alt={image.id}
+                style={{
+                  objectFit: "contain",
+                  width: "100%",
+                  height: "100%",
+                }}
+              />
+            </AspectRatio>
           )}
         </Link>
       </Box>
@@ -102,6 +120,7 @@ export default function ImageCapturePage() {
   const { user, updateUser } = useBackend();
   const [refreshLoading, setRefreshLoading] = useState(false);
   const images = user?.images || [];
+  const aspectRatio = commonAspectRatio(images);
   return (
     <BaseImagePage tabIdx={0} maxWidth={"100vw"}>
       <Stack sx={{ maxWidth: "400px" }} gap={2}>
@@ -126,7 +145,7 @@ export default function ImageCapturePage() {
         }}
       >
         {images.map((image) => (
-          <ImageCard key={image.id} image={image} />
+          <ImageCard key={image.id} image={image} aspectRatio={aspectRatio} />
         ))}
       </Box>
       <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>

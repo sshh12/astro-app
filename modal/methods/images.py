@@ -156,7 +156,14 @@ async def _name_image(job_results: Dict) -> str:
         messages=[
             {
                 "role": "system",
-                "content": "Given the platesolving results for an astro image, provide a title for this image based on what it contains. Make it short and specific to the region of the sky, only a few words. Do not include quotes. Respond only with the title.",
+                "content": """
+Given the platesolving results for an astro image, provide a title for this image based on what it contains. 
+- Make it short and specific to the region of the sky, only a few words
+- Prefer common names over catalog names
+- Do not include quotes. 
+
+Respond only with the title.
+""".strip(),
             },
             {"role": "user", "content": repr(job_results)},
         ],

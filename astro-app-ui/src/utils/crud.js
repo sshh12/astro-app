@@ -111,7 +111,7 @@ const POST_METHODS = {
     return { ...user, lists: user.lists.filter((list) => list.id !== id) };
   },
   add_image: async ({ user, url }) => {
-    const newImages = user.equipment.concat([
+    const newImages = user.images.concat([
       {
         url: url,
         id: Math.random().toString(36),

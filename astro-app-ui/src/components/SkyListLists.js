@@ -227,7 +227,7 @@ export function RichListListItem({
               <ObjectAvatar object={obj} key={obj.id} />
             ))}
             {!!extras && <Avatar>+{Math.min(extras, 99)}</Avatar>}
-            {objects.length === 0 && <Avatar>0</Avatar>}
+            {objects && objects.length === 0 && <Avatar>0</Avatar>}
           </AvatarGroup>
           <KeyboardArrowRight />
         </ListItemButton>

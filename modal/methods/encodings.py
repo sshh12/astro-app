@@ -120,6 +120,8 @@ def image_to_dict(user: models.User, image: models.Image) -> dict:
         "astrometryStatus": image.astrometryStatus,
         "astrometryJobId": image.astrometryJobId,
         "astrometryJobCalibrationsId": image.astrometryJobCalibrationsId,
+        "widthPx": image.widthPx,
+        "heightPx": image.heightPx,
         **solve_dict,
     }
 
