@@ -129,7 +129,7 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
     <Card variant="outlined" size="sm">
       <Stack>
         <Stack direction={"row"} spacing={1} sx={{ display: "flex" }}>
-          <Box sx={{ flex: 1, alignContent: "center" }}>
+          <Box sx={{ flex: 1, alignContent: "center", minHeight: "3rem" }}>
             <Typography level="title-md">{object.name}</Typography>
           </Box>
           {singleBadge && <BadgesGroup badges={badges} />}
