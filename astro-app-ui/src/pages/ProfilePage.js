@@ -60,6 +60,7 @@ export default function ProfilePage() {
               <AcknowledgementsCard />
             </Stack>
           </Box>
+          <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
         </Layout.Main>
       </Layout.Root>
       <Modal
