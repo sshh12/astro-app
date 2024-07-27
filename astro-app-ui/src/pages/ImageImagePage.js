@@ -76,7 +76,6 @@ export default function ImageImagePage() {
   const { id: imageId } = useParams();
   const { location, user } = useBackend();
   const image = user?.images.find((img) => img.id === imageId);
-  const [scale, setScale] = useState(1);
 
   const { objects: listObjects } = useObjects(
     image?.mappedObjs?.map((o) => o[0]) || []
@@ -134,12 +133,7 @@ export default function ImageImagePage() {
           <Stack gap={1}>
             <Sheet variant="outlined">
               <Box sx={{ width: "100%", height: "100%" }}>
-                <TransformWrapper
-                  onZoomStop={({ state }) => {
-                    setScale(state.scale);
-                  }}
-                  maxScale={100}
-                >
+                <TransformWrapper maxScale={100}>
                   <TransformComponent>
                     <OverlayImage image={image} objects={listObjects} />
                   </TransformComponent>
