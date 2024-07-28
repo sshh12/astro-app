@@ -1,62 +1,73 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useMemo } from "react";
 import { colorToHex } from "../constants/colors";
+import {
+  MapContainer,
+  ImageOverlay,
+  Circle,
+  Tooltip,
+  Popup,
+} from "react-leaflet";
+import L from "leaflet";
+import SkyObjectCard from "./SkyObjectCard";
 
-const pixelScaleOffset = 30;
+const SCALE = 300;
+const pixelScaleOffset = 1;
 
 export default function OverlayImage({ image, objects }) {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    if (!image) {
-      return;
+  const mapRef = useRef(null);
+
+  const elems = useMemo(() => {
+    if (!image || !objects) {
+      return [];
     }
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const cImg = new Image();
-
-    cImg.src = image.mainImageUrl;
-    cImg.onload = () => {
-      canvas.width = cImg.width;
-      canvas.height = cImg.height;
-      ctx.drawImage(cImg, 0, 0);
-
-      const fontSize = Math.max(Math.round(cImg.width / 80), 10);
-      const lineWidth = Math.max(1, Math.round(cImg.width / 500));
-      const minSize = Math.max(1, Math.round(cImg.width / 5000));
-
-      const mappings = image?.mappedObjs || [];
-      if (mappings.length !== objects?.length) {
-        return;
-      }
-      mappings.forEach((map) => {
-        const [objId, x, y] = map;
-        const obj = objects.find((o) => o.id === objId);
-        ctx.beginPath();
-        const size = obj.sizeMajor || minSize;
-        ctx.arc(
-          x,
-          y,
-          size * (1 / image.pixelScale) * pixelScaleOffset,
-          0,
-          2 * Math.PI
-        );
-        ctx.strokeStyle = colorToHex(obj.color);
-        ctx.lineWidth = lineWidth;
-        ctx.stroke();
-
-        ctx.font = `${fontSize}px Arial`;
-        ctx.fillStyle = colorToHex(obj.color);
-        ctx.textAlign = "center";
-        ctx.fillText(
-          obj.name,
-          x,
-          Math.max(
-            fontSize,
-            y - size * (1 / image.pixelScale) * pixelScaleOffset - 20
-          )
-        );
-      });
-    };
+    const aspectRatio = image.widthPx / image.heightPx;
+    const objSizes = objects.map((o) => o.sizeMajor || 1).sort((a, b) => b - a);
+    const top10Size = objSizes.slice(0, 10).at(-1);
+    return (image?.mappedObjs || []).map((map) => {
+      const [objId, x, y] = map;
+      const obj = objects.find((o) => o.id === objId);
+      const size =
+        obj.sizeMajor * (1 / image.pixelScale) * pixelScaleOffset || 1;
+      const posX = (1 - y / image.heightPx) * SCALE;
+      const posY = (x / image.widthPx) * SCALE * aspectRatio;
+      return (
+        <Circle
+          center={[posX, posY]}
+          radius={size}
+          pathOptions={{ color: colorToHex(obj.color), fillOpacity: 0 }}
+          key={obj.id}
+        >
+          <Tooltip offset={[0, -10]} permanent={obj.sizeMajor > top10Size}>
+            {obj.name}
+          </Tooltip>
+          <Popup className="obj-overlap-popup">
+            <SkyObjectCard object={obj} />
+          </Popup>
+        </Circle>
+      );
+    });
   }, [image, objects]);
 
-  return <canvas ref={canvasRef} style={{ width: "100%", display: "block" }} />;
+  if (!image) {
+    return <></>;
+  }
+  const aspectRatio = image.widthPx / image.heightPx;
+  const bounds = [
+    [0, 0],
+    [SCALE, SCALE * aspectRatio],
+  ];
+  const center = [bounds[1][0] / 2, bounds[1][1] / 2];
+  return (
+    <MapContainer
+      crs={L.CRS.Simple}
+      bounds={bounds}
+      style={{ height: "36vh", width: "100%" }}
+      ref={mapRef}
+      center={center}
+      zoom={0}
+    >
+      <ImageOverlay url={image.mainImageUrl} bounds={bounds} />
+      {elems}
+    </MapContainer>
+  );
 }

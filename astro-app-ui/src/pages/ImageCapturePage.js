@@ -11,7 +11,6 @@ import Divider from "@mui/joy/Divider";
 import { Link } from "react-router-dom";
 import { useBackend, useObjects } from "../providers/backend";
 import { RichListListItem } from "../components/SkyListLists";
-import OverlayImage from "../components/OverlayImage";
 import Tooltip from "@mui/joy/Tooltip";
 import IconButton from "@mui/joy/IconButton";
 import { Delete } from "@mui/icons-material";
@@ -32,7 +31,6 @@ function commonAspectRatio(images) {
 
 function ImageCard({ image, aspectRatio }) {
   const { updateUser } = useBackend();
-  const hasAnalysis = image.astrometryStatus === "DONE";
   const { objects } = useObjects(image?.mappedObjs?.map((o) => o[0]) || []);
   const link = `/image/images/${image.id}`;
   return (
@@ -62,23 +60,17 @@ function ImageCard({ image, aspectRatio }) {
       <Divider />
       <Box>
         <Link to={link}>
-          {hasAnalysis ? (
-            <AspectRatio ratio={aspectRatio}>
-              <OverlayImage image={image} objects={objects} />
-            </AspectRatio>
-          ) : (
-            <AspectRatio ratio={aspectRatio}>
-              <img
-                src={image.mainImageUrl}
-                alt={image.id}
-                style={{
-                  objectFit: "contain",
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </AspectRatio>
-          )}
+          <AspectRatio ratio={aspectRatio}>
+            <img
+              src={image.mainImageUrl}
+              alt={image.id}
+              style={{
+                objectFit: "contain",
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </AspectRatio>
         </Link>
       </Box>
       <Divider />

@@ -112,7 +112,11 @@ function BadgesGroup({ badges }) {
   );
 }
 
-export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
+export default function SkyObjectCard({
+  object,
+  orbits,
+  setDisplayModalOpen = null,
+}) {
   const { equipment, displaySettings } = useBackend();
   const eqDetails = equipmentToDetails(equipment);
   if (!object || !displaySettings) {
@@ -133,7 +137,9 @@ export default function SkyObjectCard({ object, orbits, setDisplayModalOpen }) {
             <Typography level="title-md">{object.name}</Typography>
           </Box>
           {singleBadge && <BadgesGroup badges={badges} />}
-          <SkyObjectCardOptions setDisplayModalOpen={setDisplayModalOpen} />
+          {setDisplayModalOpen && (
+            <SkyObjectCardOptions setDisplayModalOpen={setDisplayModalOpen} />
+          )}
         </Stack>
         {!singleBadge && <BadgesGroup badges={badges} />}
       </Stack>

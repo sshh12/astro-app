@@ -21,7 +21,6 @@ import AspectRatio from "@mui/joy/AspectRatio";
 import Slider from "@mui/joy/Slider";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 function ImageLocationCard({ image }) {
   const [zoom, setZoom] = useState(0);
@@ -133,11 +132,7 @@ export default function ImageImagePage() {
           <Stack gap={1}>
             <Sheet variant="outlined">
               <Box sx={{ width: "100%", height: "100%" }}>
-                <TransformWrapper maxScale={100}>
-                  <TransformComponent>
-                    <OverlayImage image={image} objects={listObjects} />
-                  </TransformComponent>
-                </TransformWrapper>
+                <OverlayImage image={image} objects={listObjects} />
               </Box>
             </Sheet>
             {image?.astrometryJobCalibrationsId && (
