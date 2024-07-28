@@ -13,7 +13,7 @@ import SkyObjectCard from "./SkyObjectCard";
 const SCALE = 300;
 const pixelScaleOffset = 1;
 
-export default function OverlayImage({ image, objects }) {
+export default function OverlayImage({ image, objects, orbits }) {
   const mapRef = useRef(null);
 
   const elems = useMemo(() => {
@@ -41,12 +41,12 @@ export default function OverlayImage({ image, objects }) {
             {obj.name}
           </Tooltip>
           <Popup className="obj-overlap-popup">
-            <SkyObjectCard object={obj} />
+            <SkyObjectCard object={obj} orbits={orbits} />
           </Popup>
         </Circle>
       );
     });
-  }, [image, objects]);
+  }, [image, objects, orbits]);
 
   if (!image) {
     return <></>;
@@ -61,7 +61,7 @@ export default function OverlayImage({ image, objects }) {
     <MapContainer
       crs={L.CRS.Simple}
       bounds={bounds}
-      style={{ height: "36vh", width: "100%" }}
+      style={{ height: "36vh", width: "100%", backgroundColor: "#161616" }}
       ref={mapRef}
       center={center}
       zoom={0}

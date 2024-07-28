@@ -5,7 +5,6 @@ import Box from "@mui/joy/Box";
 import Layout from "../components/Layout";
 import { SubPageHeader } from "../components/Headers";
 import { theme } from "../theme/theme";
-import SkyObjectsList from "../components/SkyObjectsList";
 import { useBackend, useObjects } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
 import { useParams } from "react-router-dom";
@@ -132,24 +131,16 @@ export default function ImageImagePage() {
           <Stack gap={1}>
             <Sheet variant="outlined">
               <Box sx={{ width: "100%", height: "100%" }}>
-                <OverlayImage image={image} objects={listObjects} />
+                <OverlayImage
+                  image={image}
+                  objects={listObjects}
+                  orbits={listOrbits}
+                />
               </Box>
             </Sheet>
             {image?.astrometryJobCalibrationsId && (
               <ImageLocationCard image={image} />
             )}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                gap: { xs: 0.5, sm: 2 },
-                marginTop: "1rem",
-              }}
-            >
-              {listObjects && (
-                <SkyObjectsList objects={listObjects} orbits={listOrbits} />
-              )}
-            </Box>
           </Stack>
           <Box sx={{ height: { xs: "4rem", sm: 0 } }}></Box>
         </Layout.Main>
