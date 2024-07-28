@@ -8,6 +8,7 @@ import { PythonContext, usePythonControl } from "./providers/python";
 const SkyPage = lazy(() => import("./pages/SkyPage"));
 const SkyListPage = lazy(() => import("./pages/SkyListPage"));
 const SkyObjectPage = lazy(() => import("./pages/SkyObjectPage"));
+const SkySearchPage = lazy(() => import("./pages/SkySearchPage"));
 const ImageCapturePage = lazy(() => import("./pages/ImageCapturePage"));
 const ImageEquipmentPage = lazy(() => import("./pages/ImageEquipmentPage"));
 const ImageImagePage = lazy(() => import("./pages/ImageImagePage"));
@@ -29,6 +30,7 @@ function App() {
           <Route path="/sky" element={<SkyPage />} />
           <Route path="/sky/list/:id" element={<SkyListPage />} />
           <Route path="/sky/object/:id" element={<SkyObjectPage />} />
+          <Route path="/sky/search" element={<SkySearchPage />} />
           <Route path="/image/capture" element={<ImageCapturePage />} />
           <Route path="/image/images/:id" element={<ImageImagePage />} />
           <Route path="/image/equipment" element={<ImageEquipmentPage />} />

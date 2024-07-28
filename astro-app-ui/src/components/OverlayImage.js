@@ -37,7 +37,7 @@ export default function OverlayImage({ image, objects, orbits }) {
           pathOptions={{ color: colorToHex(obj.color), fillOpacity: 0 }}
           key={obj.id}
         >
-          <Tooltip offset={[0, -10]} permanent={obj.sizeMajor > top10Size}>
+          <Tooltip offset={[0, 0]} permanent={obj.sizeMajor > top10Size}>
             {obj.name}
           </Tooltip>
           <Popup className="obj-overlap-popup">

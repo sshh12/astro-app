@@ -1,4 +1,6 @@
 from prisma import models
+from prisma.enums import EquipmentType
+import datetime
 
 from methods.base import ASTRO_APP_BUCKET_PATH
 
@@ -135,3 +137,30 @@ def user_to_dict(user: models.User) -> dict:
         "location": [location_to_dict(loc) for loc in user.location],
         "images": [image_to_dict(user, image) for image in user.images],
     }
+
+
+def user_to_text(user: models.User) -> str:
+    props = {
+        "Username": user.name,
+        "Current Month": datetime.datetime.now().strftime("%B"),
+    }
+    primary_eq = [eq for eq in user.equipment if eq.active][0]
+    primary_loc = [loc for loc in user.location if loc.active][0]
+    if primary_loc.name:
+        props["Location Name"] = primary_loc.name
+    props["Lat/Lon"] = f"{round(primary_loc.lat, 2)}, {round(primary_loc.lon, 2)}"
+    if primary_eq.type == EquipmentType.CAMERA:
+        props["Equipment Type"] = "Telescope + Camera"
+        props["Focal Length"] = f"{primary_eq.teleFocalLength}mm"
+        props["Aperture"] = f"{primary_eq.teleAperture}mm"
+        props["Camera Resolution"] = f"{primary_eq.camWidth}x{primary_eq.camHeight}"
+    elif primary_eq.type == EquipmentType.EYEPIECE:
+        props["Equipment Type"] = "Telescope + Eyepiece"
+        props["Focal Length"] = f"{primary_eq.eyeFocalLength}mm"
+        props["Field of View"] = f"{primary_eq.eyeFOV}°"
+    elif primary_eq.type == EquipmentType.BINOCULARS:
+        props["Equipment Type"] = "Binoculars"
+        props["Aperture"] = f"{primary_eq.binoAperture}mm"
+        props["Magnification"] = f"{primary_eq.binoMagnification}x"
+        props["Actual Field of View"] = f"{primary_eq.binoActualFOV}°"
+    return "\n".join([f"{key}: {value}" for key, value in props.items()])

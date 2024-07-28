@@ -28,6 +28,27 @@ import { renderAz, renderLatLon } from "../utils/pos";
 import { equipmentToDetails } from "../utils/equipment";
 import SkyLongTermAltChart from "../charts/SkyLongTermAltChart";
 import ObjectImage from "../components/SkyObjectImage";
+import { Tooltip } from "@mui/joy";
+
+function DescriptionCard({ object }) {
+  return (
+    <Card sx={{ gap: 0 }}>
+      <Stack direction="row" justifyContent="space-between">
+        <Typography level="title-md">{object.name}</Typography>
+      </Stack>
+      <Typography level="body-sm">{object.description}</Typography>
+      <Box sx={{ marginTop: 1 }}>
+        <Tooltip
+          title="Contents are sourced from wikipedia and ChatGPT"
+          enterTouchDelay={100}
+          enterDelay={100}
+        >
+          <Typography level="body-sm">(content may be inaccurate)</Typography>
+        </Tooltip>
+      </Box>
+    </Card>
+  );
+}
 
 function LiveLocationCard({ object, location }) {
   const { ts } = useTimestamp();
@@ -321,6 +342,7 @@ export default function SkyObjectPage() {
                 py: { xs: 0, md: 3 },
               }}
             >
+              {object?.description && <DescriptionCard object={object} />}
               <LiveLocationCard object={object} location={location} />
               <LongTermPositionsCard
                 object={object}

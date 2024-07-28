@@ -7,7 +7,7 @@ import context
 import random
 import asyncio
 
-from methods.base import method_web, clean_search_term
+from methods.base import method_web
 from methods.encodings import (
     user_to_dict,
     space_object_to_dict,
@@ -302,22 +302,6 @@ async def update_space_object_lists(
             list_ids_deleted.append(list_id)
     updated_user = await context.fetch_user(ctx.prisma, ctx.user.apiKey)
     return {**user_to_dict(updated_user)}
-
-
-@method_web()
-async def search(ctx: context.Context, term: str) -> Dict:
-    print("search/", repr(term))
-    term = clean_search_term(term)
-    objs = await ctx.prisma.spaceobject.find_many(
-        where={"searchKey": {"contains": term}}
-    )
-    try:
-        obj = await query_and_import_simbad(ctx.prisma, term)
-        objs.append(obj)
-    except Exception as e:
-        print(e)
-    objs = list({obj.id: obj for obj in objs}.values())[:10]
-    return {"objects": [space_object_to_dict(obj) for obj in objs]}
 
 
 @method_web()

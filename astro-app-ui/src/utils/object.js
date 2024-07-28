@@ -137,7 +137,7 @@ export const OBJECT_FIELDS = [
     id: "max-alt",
     label: "max altitude",
     sort: ({ a, b, orbits }) => {
-      if (!orbits) return 0;
+      if (!orbits || !orbits.objects[a.id] || !orbits.objects[b.id]) return 0;
       const orbitAltA = orbits.objects[a.id].alt;
       const [maxAltA] = getMaxWhile(
         orbitAltA,
@@ -151,7 +151,11 @@ export const OBJECT_FIELDS = [
       return maxAltA - maxAltB;
     },
     badge: ({ obj, orbits }) => {
-      if (!orbits) return null;
+      if (!orbits || !orbits.objects[obj.id])
+        return {
+          text: ``,
+          color: "gray",
+        };
       const orbitAlt = orbits.objects[obj.id].alt;
       const [maxAlt] = getMaxWhile(
         orbitAlt,

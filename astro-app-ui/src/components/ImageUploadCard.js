@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Typography from "@mui/joy/Typography";
 import {
-  Card,
+  Sheet,
   Box,
   Button,
   Modal,
@@ -113,7 +113,7 @@ export default function ImageUploadCard() {
   };
 
   return (
-    <Card sx={{ p: 0 }}>
+    <Sheet sx={{ p: 0, borderRadius: "sm" }} variant="outlined">
       <UploadConfirmModal
         open={confirmOpen}
         setOpen={setConfirmOpen}
@@ -171,6 +171,6 @@ export default function ImageUploadCard() {
           </Button>
         </label>
       </Box>
-    </Card>
+    </Sheet>
   );
 }

@@ -11,7 +11,7 @@ import { yellow } from "@mui/material/colors";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import Layout from "./Layout";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import { Typography } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
@@ -58,6 +58,8 @@ function DesktopTabs() {
 }
 
 export function Header({ title, subtitle, enableSearch }) {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = React.useState("");
   return (
     <Box
       sx={{
@@ -107,6 +109,13 @@ export function Header({ title, subtitle, enableSearch }) {
                   sm: "flex",
                 },
               }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !!searchQuery) {
+                  navigate(`/sky/search?q=${searchQuery}`);
+                }
+              }}
             />
             <IconButton
               size="sm"
@@ -117,7 +126,9 @@ export function Header({ title, subtitle, enableSearch }) {
                 alignSelf: "center",
               }}
             >
-              <SearchRoundedIcon />
+              <SearchRoundedIcon
+                onClick={() => navigate(`/sky/search?q=${searchQuery}`)}
+              />
             </IconButton>
           </>
         )}
@@ -129,7 +140,7 @@ export function Header({ title, subtitle, enableSearch }) {
   );
 }
 
-export function SubPageHeader({ title, backPath }) {
+export function SubPageHeader({ title, backPath, enableSearch }) {
   return (
     <Box
       sx={{
@@ -183,19 +194,21 @@ export function SubPageHeader({ title, backPath }) {
           marginLeft: "auto",
         }}
       >
-        <Input
-          size="sm"
-          variant="outlined"
-          placeholder="Search"
-          startDecorator={<SearchRoundedIcon color="primary" />}
-          sx={{
-            alignSelf: "center",
-            display: {
-              xs: "none",
-              sm: "flex",
-            },
-          }}
-        />
+        {enableSearch && (
+          <Input
+            size="sm"
+            variant="outlined"
+            placeholder="Search"
+            startDecorator={<SearchRoundedIcon color="primary" />}
+            sx={{
+              alignSelf: "center",
+              display: {
+                xs: "none",
+                sm: "flex",
+              },
+            }}
+          />
+        )}
 
         <Box sx={{ display: { xs: "none", sm: "flex" } }}>
           <ThemeToggle />
