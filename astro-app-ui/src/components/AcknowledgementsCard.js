@@ -9,8 +9,9 @@ export default function AcknowledgementsCard() {
         <Typography level="title-md">Acknowledgements ❤️</Typography>
         <Typography level="body-sm">
           Thanks to HiPS2FITS for sky survey data, wikipedia for object
-          descriptions, astronomy.tools for equipment data, OpenStreetMap for
-          map visuals, and David Lorenz for light pollution tools.
+          descriptions, astronomy.tools for equipment data, astrometry.net for
+          platesolving, OpenStreetMap for map visuals, and David Lorenz for
+          light pollution tools.
         </Typography>
       </Box>
     </Card>
