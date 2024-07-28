@@ -211,9 +211,7 @@ export default function ConfigureLocationCard({
           lat: submitValues.lat,
           lon: submitValues.lon,
         });
-        if (!submitValues.timezone) {
-          submitValues.timezone = geoData.timezone;
-        }
+        submitValues.timezone = geoData.timezone;
         if (!submitValues.name) {
           submitValues.name = geocodeLocationToName(geoData.location);
         }
