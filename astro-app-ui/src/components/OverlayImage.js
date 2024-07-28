@@ -27,7 +27,7 @@ export default function OverlayImage({ image, objects, orbits }) {
       const [objId, x, y] = map;
       const obj = objects.find((o) => o.id === objId);
       const size =
-        obj.sizeMajor * (1 / image.pixelScale) * pixelScaleOffset || 1;
+        obj.sizeMajor * (1 / image.pixelScale) * pixelScaleOffset || 0.1;
       const posX = (1 - y / image.heightPx) * SCALE;
       const posY = (x / image.widthPx) * SCALE * aspectRatio;
       return (
