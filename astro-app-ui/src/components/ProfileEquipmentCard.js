@@ -28,7 +28,8 @@ export default function ProfileEquipmentCard({ setOpen }) {
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Typography level="title-md">Equipment</Typography>
         <Typography level="body-sm">
-          Your equipment is used to render accurate views of the sky.
+          Your equipment is used to render accurate views of the sky and
+          optimize search.
         </Typography>
       </Box>
       <Divider />

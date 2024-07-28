@@ -20,6 +20,10 @@ import AspectRatio from "@mui/joy/AspectRatio";
 import Slider from "@mui/joy/Slider";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
+import Tabs from "@mui/joy/Tabs";
+import TabList from "@mui/joy/TabList";
+import Tab from "@mui/joy/Tab";
+import TabPanel from "@mui/joy/TabPanel";
 
 function ImageLocationCard({ image }) {
   const [zoom, setZoom] = useState(0);
@@ -67,6 +71,43 @@ function ImageLocationCard({ image }) {
         </AspectRatio>
       </Box>
     </Card>
+  );
+}
+
+function ImageSheet({ image, objects, orbits }) {
+  return (
+    <Sheet variant="outlined">
+      <Tabs>
+        <TabList
+          sx={{
+            justifyContent: { xs: "center", sm: "start" },
+            display: "flex",
+            overflow: "hidden",
+          }}
+        >
+          <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
+            <Typography level="title-sm">Annotated Image</Typography>
+          </Tab>
+          <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
+            <Typography level="title-sm">Full Image</Typography>
+          </Tab>
+        </TabList>
+        <TabPanel value={0} sx={{ p: 0 }}>
+          <Box sx={{ width: "100%", height: "100%" }}>
+            <OverlayImage image={image} objects={objects} orbits={orbits} />
+          </Box>
+        </TabPanel>
+        <TabPanel value={1} sx={{ p: 0 }}>
+          <Box sx={{ width: "100%", height: "100%" }}>
+            <img
+              src={image?.mainImageUrl}
+              alt={image?.title}
+              style={{ width: "100%" }}
+            />
+          </Box>
+        </TabPanel>
+      </Tabs>
+    </Sheet>
   );
 }
 
@@ -129,15 +170,11 @@ export default function ImageImagePage() {
         </Layout.SideNav>
         <Layout.Main>
           <Stack gap={1}>
-            <Sheet variant="outlined">
-              <Box sx={{ width: "100%", height: "100%" }}>
-                <OverlayImage
-                  image={image}
-                  objects={listObjects}
-                  orbits={listOrbits}
-                />
-              </Box>
-            </Sheet>
+            <ImageSheet
+              image={image}
+              objects={listObjects}
+              orbits={listOrbits}
+            />
             {image?.astrometryJobCalibrationsId && (
               <ImageLocationCard image={image} />
             )}

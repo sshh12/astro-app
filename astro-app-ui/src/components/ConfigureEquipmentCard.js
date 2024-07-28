@@ -413,7 +413,7 @@ export default function ConfigureEquipmentCard({
   return (
     <ConfigureTabsCard
       title="Equipment"
-      subtitle="Your equipment is used to render accurate views of the sky."
+      subtitle="Your equipment is used to render accurate views of the sky and optimize search."
       tabs={tabs}
       buttonName={showButton && "Add Equipment"}
       buttonLoading={loading}
