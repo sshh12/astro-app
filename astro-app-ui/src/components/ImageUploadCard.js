@@ -61,7 +61,7 @@ function UploadConfirmModal({ open, setOpen, file }) {
           (but unlisted) link. It may also be shared with an astrometric
           provider like astrometry.net for analysis. You maintain all rights to
           this image. The upload may take several minutes and the analysis may
-          take a few hours. Images that fail to analyze may be delete in the
+          take a few hours. Images that fail to analyze may be deleted in the
           future without notice.
         </Typography>
         <Stack direction="row" justifyContent="space-between">
