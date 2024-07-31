@@ -124,6 +124,7 @@ async def add_image(ctx: context.Context, url: str):
     s3_session = aioboto3.Session()
     async with s3_session.client("s3") as s3_client:
         img = Image.open(io.BytesIO(image_data))
+        img = img.convert("RGB")
         del image_data
         img_jpg_bytes = io.BytesIO()
         img.save(img_jpg_bytes, format="JPEG")
