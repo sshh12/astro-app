@@ -388,7 +388,7 @@ export default function SkyObjectPage() {
                 longOrbitsStreaming={longOrbitsStreaming}
                 location={location}
               />
-              {object?.id === 944241943867162625 && (
+              {object?.id === "944241943867162625" && (
                 <MoonPhaseCard
                   object={object}
                   longOrbit={longOrbit}
