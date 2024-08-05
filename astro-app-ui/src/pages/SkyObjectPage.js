@@ -42,6 +42,8 @@ function DescriptionCard({ object }) {
           title="Contents are sourced from wikipedia and ChatGPT"
           enterTouchDelay={100}
           enterDelay={100}
+          sx={{ maxWidth: "400px" }}
+          arrow
         >
           <Typography level="body-sm">(content may be inaccurate)</Typography>
         </Tooltip>

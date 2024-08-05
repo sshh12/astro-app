@@ -18,6 +18,7 @@ import {
   renderTime,
   renderDate,
   useTimestamp,
+  renderTimeTill,
 } from "../utils/date";
 
 function SkyDarknessStatesCard({ location }) {
@@ -76,7 +77,10 @@ function SkyDarknessStatesCard({ location }) {
                 {renderDate(event.ts, location?.timezone)}{" "}
                 {renderTime(event.ts, location?.timezone)}
                 {eventIdxNow === idx &&
-                  ` (Now ${renderTime(ts, location?.timezone)})`}
+                  ` (now ${renderTime(ts, location?.timezone)})`}
+                {eventIdxNow > 0 &&
+                  eventIdxNow < idx &&
+                  ` (in ${renderTimeTill(ts, event.ts)})`}
               </Typography>
             </div>{" "}
           </Step>

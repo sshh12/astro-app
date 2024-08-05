@@ -32,6 +32,20 @@ export function renderTimeWithSeconds(ts, tz) {
   });
 }
 
+export function renderTimeTill(nowTs, toTs) {
+  const diff = toTs - nowTs;
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) {
+    return `${seconds} seconds`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) {
+    return `${minutes} minutes`;
+  }
+  const hours = Math.floor((diff / 60 / 60 / 1000) * 10) / 10;
+  return `${hours} hours`;
+}
+
 export function useTimestamp({ updateInterval } = {}) {
   const interval = updateInterval || 1000;
   const [ts, setTs] = React.useState(+Date.now());
