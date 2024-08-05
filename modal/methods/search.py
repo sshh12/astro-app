@@ -24,7 +24,7 @@ async def _search_by_term(ctx: context.Context, term: str) -> List[models.SpaceO
     except Exception as e:
         print(e)
     objs = list({obj.id: obj for obj in objs}.values())[:10]
-    return {"objects": [space_object_to_dict(obj) for obj in objs]}
+    return objs
 
 
 async def _prompt_to_object_names(prompt: str, user_text: str) -> List[str]:
