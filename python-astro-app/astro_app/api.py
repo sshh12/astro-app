@@ -132,6 +132,8 @@ def get_longterm_orbit_calculations(
 
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     earth = eph["earth"]
+    sun = eph["sun"]
+    moon = eph["moon"]
     loc_place = earth + loc
 
     obj = space_util.space_object_to_observables(ts, eph, object)
@@ -197,6 +199,16 @@ def get_longterm_orbit_calculations(
         day_info["az_at_min_alt"] = round(az_at(min_alt_ts), 2)
         day_info["ts_at_min_alt"] = int(min_alt_ts.utc_datetime().timestamp() * 1000)
         day_info["satellite_passes"] = []
+
+        day_info["moon_illumination_pct"] = None
+        if object["id"] == "944241943867162625":
+            t_mid = ts.from_datetime(
+                most_recent_noon + (next_noon - most_recent_noon) / 2
+            )
+            earth_pos = earth.at(t_mid)
+            moon_apparent = earth_pos.observe(moon).apparent()
+            percent = 100.0 * moon_apparent.fraction_illuminated(sun)
+            day_info["moon_illumination_pct"] = round(percent, 2)
 
         # if object["type"] == "EARTH_SATELLITE":
         #     pass_t, pass_events = obj.satellite.find_events(

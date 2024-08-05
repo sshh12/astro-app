@@ -27,6 +27,7 @@ import { SideBarNav } from "../components/Sidebars";
 import { renderAz, renderLatLon } from "../utils/pos";
 import { equipmentToDetails } from "../utils/equipment";
 import SkyLongTermAltChart from "../charts/SkyLongTermAltChart";
+import SkyMoonPhaseChart from "../charts/SkyMoonPhaseChart";
 import ObjectImage from "../components/SkyObjectImage";
 import { Tooltip } from "@mui/joy";
 
@@ -100,9 +101,6 @@ function LiveLocationCard({ object, location }) {
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Position</Typography>
         </Stack>
-        <Typography level="body-sm">
-          The live location of this object.
-        </Typography>
       </Box>
       <Divider sx={{ mb: 0 }} />
       <List sx={{ p: 1 }}>
@@ -143,9 +141,7 @@ function LongTermPositionsCard({
           <Typography level="title-md">Annual Position</Typography>
         </Stack>
         {!longOrbitsStreaming && (
-          <Typography level="body-sm">
-            The location of this object throughout the year.
-          </Typography>
+          <Typography level="body-sm">Daily Min & Max Altitudes</Typography>
         )}
         {longOrbitsStreaming && (
           <Typography level="body-sm">Generating...</Typography>
@@ -155,6 +151,45 @@ function LongTermPositionsCard({
       {location && object && longOrbit ? (
         <Box sx={{ height: "16rem" }}>
           <SkyLongTermAltChart
+            object={object}
+            longOrbit={longOrbit}
+            stale={longOrbitStale}
+            timezone={location.timezone}
+          />
+        </Box>
+      ) : (
+        <Box>
+          <Skeleton variant="text" />
+        </Box>
+      )}
+    </Card>
+  );
+}
+
+function MoonPhaseCard({
+  location,
+  object,
+  longOrbit,
+  longOrbitStale,
+  longOrbitsStreaming,
+}) {
+  return (
+    <Card sx={{ p: 0, gap: 0 }}>
+      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography level="title-md">Moon Phase</Typography>
+        </Stack>
+        {!longOrbitsStreaming && (
+          <Typography level="body-sm">% Illumination</Typography>
+        )}
+        {longOrbitsStreaming && (
+          <Typography level="body-sm">Generating...</Typography>
+        )}
+      </Box>
+      <Divider sx={{ mb: 0 }} />
+      {location && object && longOrbit ? (
+        <Box sx={{ height: "16rem" }}>
+          <SkyMoonPhaseChart
             object={object}
             longOrbit={longOrbit}
             stale={longOrbitStale}
@@ -353,6 +388,15 @@ export default function SkyObjectPage() {
                 longOrbitsStreaming={longOrbitsStreaming}
                 location={location}
               />
+              {object?.id === 944241943867162625 && (
+                <MoonPhaseCard
+                  object={object}
+                  longOrbit={longOrbit}
+                  longOrbitStale={longOrbitStale}
+                  longOrbitsStreaming={longOrbitsStreaming}
+                  location={location}
+                />
+              )}
               {object?.ra && <SkySurveysCard object={object} />}
             </Stack>
           </Box>
