@@ -300,7 +300,7 @@ function WeekForecastCard({ location }) {
           <Typography level="title-md">Forecast</Typography>
           <ForecastOptions />
         </Stack>
-        <Typography level="body-sm">When to expect clear skies.</Typography>
+        <Typography level="body-sm">From Open Meteo API</Typography>
       </Box>
       <Divider />
       {weather &&
@@ -414,11 +414,9 @@ function LiveWeatherCard({ location, wfo }) {
     <Card sx={{ p: 0, gap: 0 }}>
       <Box sx={{ mb: 1, pt: 2, px: 2 }}>
         <Stack direction="row" justifyContent="space-between">
-          <Typography level="title-md">Live Weather</Typography>
+          <Typography level="title-md">Live Clouds</Typography>
         </Stack>
-        <Typography level="body-sm">
-          The latest cloud imagery from GOES.
-        </Typography>
+        <Typography level="body-sm">GOES Satellite</Typography>
       </Box>
       <Divider sx={{ mb: 0 }} />
       <Box

@@ -392,6 +392,64 @@ def get_week_info_with_weather_data(
     return resp
 
 
+@method_api()
+def get_events_sky_darkness(
+    start_ts: int,
+    end_ts: int,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    send_js: Callable,
+) -> Dict:
+
+    ts, eph = get_commons()
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
+
+    t0 = space_util.ts_from_timestamp(ts, start_ts, pytz.timezone(timezone))
+    t1 = space_util.ts_from_timestamp(ts, end_ts, pytz.timezone(timezone))
+
+    f = almanac.dark_twilight_day(eph, loc)
+    times, _ = almanac.find_discrete(t0, t1, f)
+
+    timestamps = [int(t.utc_datetime().timestamp() * 1000) for t in times]
+    timestamps.sort()
+
+    if len(timestamps) != 8:
+        return []
+
+    titles = [
+        "Sunset",
+        "Nautical Twilight",
+        "Astronomical Twilight",
+        "Night",
+        "Astronomical Twilight",
+        "Nautical Twilight",
+        "Civil Twilight",
+        "Sunrise",
+    ]
+    descriptions = [
+        "The moment when the upper limb of the Sun disappears below the horizon.",
+        "The period after civil twilight in the evening or before civil twilight in the morning, when the Sun is between 6 and 12 degrees below the horizon. The horizon is still visible at sea, allowing sailors to take reliable star sightings.",
+        "The period after nautical twilight in the evening or before nautical twilight in the morning, when the Sun is between 12 and 18 degrees below the horizon. The sky is dark enough for astronomers to observe celestial objects without interference from sunlight.",
+        "The period when the Sun is more than 18 degrees below the horizon. The sky is completely dark, ideal for observing faint celestial objects.",
+        "The period before nautical twilight in the morning or after nautical twilight in the evening, when the Sun is between 18 and 12 degrees below the horizon. The sky begins to brighten slightly but is still dark enough for most astronomical observations.",
+        "The period before civil twilight in the morning or after civil twilight in the evening, when the Sun is between 12 and 6 degrees below the horizon. The horizon becomes visible again.",
+        "The period after sunset in the evening or before sunrise in the morning, when the Sun is between 6 degrees below the horizon and the horizon. There is enough light for most outdoor activities.",
+        "The moment when the upper limb of the Sun appears above the horizon.",
+    ]
+
+    events = [
+        {
+            "title": titles[i],
+            "tooltip": descriptions[i],
+            "ts": timestamps[i],
+        }
+        for i in range(8)
+    ]
+    return events
+
+
 def call(send_js: Callable, method_name: str, kwargs: Dict) -> str:
     def _send_js(data: Dict):
         send_js(json.dumps(data))

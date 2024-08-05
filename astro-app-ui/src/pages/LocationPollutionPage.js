@@ -64,9 +64,7 @@ function SkyQualityCard({ location }) {
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Sky Quality</Typography>
         </Stack>
-        <Typography level="body-sm">
-          The night sky quality of your location.
-        </Typography>
+        <Typography level="body-sm">At Active Location</Typography>
       </Box>
       <Divider />
       <List>
@@ -164,7 +162,6 @@ function LightPollutionMapCard({ location }) {
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Light Pollution</Typography>
         </Stack>
-        <Typography level="body-sm">Find nearby dark areas.</Typography>
       </Box>
       <Divider />
       <Box sx={{ padding: 0 }}>
