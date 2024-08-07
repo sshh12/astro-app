@@ -7,6 +7,7 @@ import Typography from "@mui/joy/Typography";
 import SkyAltChart from "../charts/SkyAltitudesChart";
 import SkyPositionsChart from "../charts/SkyPositionsChart";
 import Skeleton from "@mui/joy/Skeleton";
+import VirtualSky from "./VirtualSky";
 
 function SkySummaries({ objects, orbits, stale }) {
   return (
@@ -24,6 +25,9 @@ function SkySummaries({ objects, orbits, stale }) {
         <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
           <Typography level="title-sm">Positions</Typography>
         </Tab>
+        <Tab sx={{ flexGrow: { xs: 1, sm: 0 } }}>
+          <Typography level="title-sm">3D</Typography>
+        </Tab>
       </TabList>
       <TabPanel value={0} sx={{ p: 0 }}>
         {objects && orbits ? (
@@ -38,6 +42,9 @@ function SkySummaries({ objects, orbits, stale }) {
         ) : (
           <Skeleton variant="overlay"></Skeleton>
         )}
+      </TabPanel>
+      <TabPanel value={2} sx={{ p: 0 }}>
+        <VirtualSky objects={objects} />
       </TabPanel>
     </Tabs>
   );
