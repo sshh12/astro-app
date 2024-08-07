@@ -61,7 +61,7 @@ export default function VirtualSky({ objects }) {
         colour: colorToHex(obj.color),
         img: getImageURL(obj),
         url: "/sky/object/" + obj.id,
-        credit: "HIPS2FITS",
+        credit: obj.name,
       });
     });
   }, [id, location, objects, orbitsNow, planetariumRef]);
