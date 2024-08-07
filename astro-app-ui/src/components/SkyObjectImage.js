@@ -145,7 +145,7 @@ export default function ObjectImage({
   const imgStyle = {
     width: "100%",
   };
-  if (source !== "wiki" && !!object.ra) {
+  if (source !== "wiki" && !!object.ra && !!object.dec) {
     return (
       <SkySurveyImage
         object={object}

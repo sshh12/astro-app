@@ -21,7 +21,7 @@ import {
   renderTimeTill,
 } from "../utils/date";
 
-function SkyDarknessStatesCard({ location }) {
+function TonightEvents({ location }) {
   const { ts } = useTimestamp();
   const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
   const { result: events } = useCachedPythonOutput(
@@ -45,7 +45,7 @@ function SkyDarknessStatesCard({ location }) {
     <Card>
       <Box>
         <Stack direction="row" justifyContent="space-between">
-          <Typography level="title-md">Sky Darkness</Typography>
+          <Typography level="title-md">Tonight's Events</Typography>
         </Stack>
       </Box>
       <Divider />
@@ -55,12 +55,13 @@ function SkyDarknessStatesCard({ location }) {
             key={event.ts}
             indicator={
               eventIdxNow === idx ? (
-                <StepIndicator variant="solid" color="primary">
-                  {idx + 1}
-                </StepIndicator>
-              ) : (
-                <StepIndicator>{idx + 1}</StepIndicator>
-              )
+                <StepIndicator
+                  variant="solid"
+                  color="primary"
+                  size={"sm"}
+                  sx={{ height: "0.5rem", width: "0.5rem" }}
+                ></StepIndicator>
+              ) : null
             }
           >
             <div>
@@ -94,7 +95,7 @@ export default function LocationEventsPage() {
   const { location } = useBackend();
   return (
     <BaseLocationPage tabIdx={2}>
-      <SkyDarknessStatesCard location={location} />
+      <TonightEvents location={location} />
     </BaseLocationPage>
   );
 }
