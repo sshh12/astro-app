@@ -112,7 +112,7 @@ export function Header({ title, subtitle, enableSearch }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !!searchQuery) {
+                if (e.key === "Enter") {
                   navigate(`/sky/search?q=${searchQuery}`);
                 }
               }}
