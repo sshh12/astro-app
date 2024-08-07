@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import { idxToColorHex } from "../constants/colors";
 import { CURATED_LISTS, PUBLIC_LISTS } from "../constants/lists";
 import Toggler from "./Toggler";
+import { Divider } from "@mui/joy";
 
 function RichListSideBarItem({ list, idx }) {
   return list.fake ? (
@@ -276,6 +277,7 @@ export function ListMobileTab({ lists }) {
           <RichListListItem list={lst} key={lst.id} idx={idx} />
         ))}
       </List>
+      <Divider />
       <AccordionGroup>
         <Accordion>
           <AccordionSummary>

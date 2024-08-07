@@ -295,12 +295,15 @@ function WeekForecastCard({ location }) {
   const { weather } = useWeather(location);
   return (
     <Card sx={{ p: 0 }}>
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
-        <Stack direction="row" justifyContent="space-between">
+      <Box sx={{ pt: 2, px: 2 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems={"center"}
+        >
           <Typography level="title-md">Forecast</Typography>
           <ForecastOptions />
         </Stack>
-        <Typography level="body-sm">From Open Meteo API</Typography>
       </Box>
       <Divider />
       {weather &&
