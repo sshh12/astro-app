@@ -10,8 +10,8 @@ export default function AcknowledgementsCard() {
         <Typography level="body-sm">
           Thanks to HiPS2FITS for sky survey data, wikipedia for object
           descriptions, astronomy.tools for equipment data, astrometry.net for
-          platesolving, OpenStreetMap for map visuals, and David Lorenz for
-          light pollution tools.
+          platesolving, OpenStreetMap for map visuals, Stuart Lowe for
+          VirtualSky, and David Lorenz for light pollution tools.
         </Typography>
       </Box>
     </Card>
