@@ -173,12 +173,12 @@ export default function ObjectImage({
   }
   return (
     <ImageWithBackgound
-      src={"/600.png"}
+      src={"/static/no-image.jpg"}
       width={width}
       height={height}
       alt={"image of " + object.name}
-      fill={"#000000"}
-      scale={0}
+      fill={"#0A2744"}
+      scale={1}
     />
   );
 }
