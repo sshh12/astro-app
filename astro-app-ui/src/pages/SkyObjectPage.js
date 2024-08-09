@@ -26,6 +26,7 @@ import { useCurrentObservingWindow, useTimestamp } from "../utils/date";
 import { SideBarNav } from "../components/Sidebars";
 import { renderAz, renderLatLon } from "../utils/pos";
 import { equipmentToDetails } from "../utils/equipment";
+import AspectRatio from "@mui/joy/AspectRatio";
 import SkyLongTermAltChart from "../charts/SkyLongTermAltChart";
 import SkyMoonPhaseChart from "../charts/SkyMoonPhaseChart";
 import ObjectImage from "../components/SkyObjectImage";
@@ -227,9 +228,8 @@ function SkySurveysCard({ object }) {
   ];
   return (
     <Card sx={{ p: 0 }}>
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+      <Box sx={{ pt: 2, px: 2 }}>
         <Typography level="title-md">Sky Surveys</Typography>
-        <Typography level="body-sm">Sky renders for your equipment.</Typography>
       </Box>
       <Divider />
       <Box
@@ -259,12 +259,18 @@ function SkySurveysCard({ object }) {
           <Grid container spacing={2} sx={{ flexGrow: 1 }}>
             {skySurveys.map((ss) => (
               <Grid xs={6} sx={{ border: "3px solid", borderColor: "divider" }}>
-                <ObjectImage
-                  key={eqSelected?.id}
-                  object={object}
-                  equipment={eqSelected}
-                  source={ss.hips}
-                />
+                <AspectRatio
+                  ratio={eqSelected?.renderAspectRatio}
+                  color="primary"
+                  sx={{ borderRadius: 0 }}
+                >
+                  <ObjectImage
+                    key={eqSelected?.id}
+                    object={object}
+                    equipment={eqSelected}
+                    source={ss.hips}
+                  />
+                </AspectRatio>
               </Grid>
             ))}
           </Grid>

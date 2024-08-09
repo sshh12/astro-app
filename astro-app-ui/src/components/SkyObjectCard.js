@@ -14,7 +14,9 @@ import CardOverflow from "@mui/joy/CardOverflow";
 import Skeleton from "@mui/joy/Skeleton";
 import ObjectImage from "./SkyObjectImage";
 import Chip from "@mui/joy/Chip";
+import Divider from "@mui/joy/Divider";
 import Stack from "@mui/joy/Stack";
+import CardContent from "@mui/joy/CardContent";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 import { OBJECT_FIELDS } from "../utils/object";
@@ -128,28 +130,9 @@ export default function SkyObjectCard({
       orbits: orbits,
     })
   );
-  const singleBadge = !badges || badges.length === 1;
   return (
-    <Card variant="outlined" size="sm">
-      <Stack>
-        <Stack direction={"row"} spacing={1} sx={{ display: "flex" }}>
-          <Box sx={{ flex: 1, alignContent: "center", minHeight: "3rem" }}>
-            <Typography level="title-md">{object.name}</Typography>
-          </Box>
-          {singleBadge && <BadgesGroup badges={badges} />}
-          {setDisplayModalOpen && (
-            <SkyObjectCardOptions setDisplayModalOpen={setDisplayModalOpen} />
-          )}
-        </Stack>
-        {!singleBadge && <BadgesGroup badges={badges} />}
-      </Stack>
-      <CardOverflow
-        sx={{
-          borderBottom: "1px solid",
-          borderTop: "1px solid",
-          borderColor: "neutral.outlinedBorder",
-        }}
-      >
+    <Card variant="outlined">
+      <CardOverflow>
         <AspectRatio
           ratio={eqDetails.renderAspectRatio}
           color="primary"
@@ -162,6 +145,30 @@ export default function SkyObjectCard({
             <ObjectImage object={object} />
           </Link>
         </AspectRatio>
+      </CardOverflow>
+      <CardContent>
+        <Typography level="title-md">
+          <Link
+            to={{ pathname: `/sky/object/${object.id}` }}
+            style={{
+              textDecoration: "none",
+              color: "var(--joy-palette-text-primary)",
+            }}
+            overlay
+            underline="none"
+          >
+            {object.name}
+          </Link>
+        </Typography>
+      </CardContent>
+      <CardOverflow variant="soft">
+        <Divider inset="context" />
+        <CardContent orientation="horizontal" sx={{ columnGap: "4px" }}>
+          {setDisplayModalOpen && (
+            <SkyObjectCardOptions setDisplayModalOpen={setDisplayModalOpen} />
+          )}
+          <BadgesGroup badges={badges} />
+        </CardContent>
       </CardOverflow>
     </Card>
   );

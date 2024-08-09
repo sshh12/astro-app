@@ -13,6 +13,7 @@ import {
 import { useBackend } from "../providers/backend";
 import BaseLocationPage from "../components/BaseLocationPage";
 import { useCachedPythonOutput } from "../providers/python";
+import Skeleton from "@mui/joy/Skeleton";
 import {
   useCurrentObservingWindow,
   renderTime,
@@ -24,7 +25,7 @@ import {
 function TonightEvents({ location }) {
   const { ts } = useTimestamp();
   const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
-  const { result: events } = useCachedPythonOutput(
+  const { result: events, stale: eventsStale } = useCachedPythonOutput(
     "get_events_sky_darkness",
     location && {
       start_ts: startTs,
@@ -72,7 +73,13 @@ function TonightEvents({ location }) {
                 sx={{ maxWidth: "400px" }}
                 arrow
               >
-                <Typography level="title-sm">{event.title}</Typography>
+                {eventsStale ? (
+                  <Skeleton>
+                    <Typography level="title-sm">{event.title}</Typography>
+                  </Skeleton>
+                ) : (
+                  <Typography level="title-sm">{event.title}</Typography>
+                )}
               </Tooltip>
               <Typography level="body-xs">
                 {renderDate(event.ts, location?.timezone)}{" "}
