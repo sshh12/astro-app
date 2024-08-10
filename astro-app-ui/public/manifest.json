@@ -18,7 +18,8 @@
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
       "src": "logo192_mask.png",
@@ -36,5 +37,7 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#111827",
-  "background_color": "#111827"
+  "background_color": "#111827",
+  "id": "astro_app",
+  "categories": ["education", "photo", "weather"]
 }
