@@ -19,12 +19,14 @@ LISTS = {
         "/list_icons/messier.jpg",
         "https://en.wikipedia.org/wiki/Messier_object",
         Color.BLUE,
+        ListType.CURATED_LIST,
     ): [f"M {i}" for i in range(1, 111)],
     (
         "Solar System",
         "/list_icons/solar-system.jpg",
         "https://en.wikipedia.org/wiki/Solar_System",
         Color.YELLOW,
+        ListType.CURATED_LIST,
     ): [
         "Sun",
         "Mercury",
@@ -42,6 +44,7 @@ LISTS = {
         "/list_icons/galaxy-groups.jpg",
         "https://www.skyatnightmagazine.com/astrophotography/galaxies/galaxy-clusters-groups",
         Color.BLUE,
+        ListType.CURATED_LIST,
     ): [
         "Fornax Cluster",
         "M 96",
@@ -61,6 +64,7 @@ LISTS = {
         "/list_icons/grand-spiral.jpg",
         "https://en.wikipedia.org/wiki/Grand_design_spiral_galaxy",
         Color.BLUE,
+        ListType.CURATED_LIST,
     ): [
         "M 51",
         "M 74",
@@ -78,6 +82,7 @@ LISTS = {
         "/list_icons/bright.jpg",
         "https://www.britannica.com/topic/list-of-brightest-stars-2231574",
         Color.YELLOW,
+        ListType.CURATED_LIST,
     ): [
         "Sun",
         "Sirius",
@@ -111,6 +116,7 @@ LISTS = {
         "/list_icons/red-giants.jpg",
         "https://www.go-astronomy.com/red-giant-stars.php",
         Color.RED,
+        ListType.CURATED_LIST,
     ): [
         "Arcturus",
         "VY CMa",
@@ -133,6 +139,7 @@ LISTS = {
         "/list_icons/var-stars.jpg",
         "https://en.wikipedia.org/wiki/Variable_star",
         Color.RED,
+        ListType.CURATED_LIST,
     ): [
         "Algol",
         "Mira",
@@ -150,6 +157,7 @@ LISTS = {
         "/list_icons/clusters.jpg",
         "https://skyandtelescope.org/astronomy-blogs/imaging-foundations-richard-wright/star-clusters-the-low-hanging-fruit-of-astrophotography/",
         Color.BLUE,
+        ListType.CURATED_LIST,
     ): [
         "M 72",
         "M 73",
@@ -197,6 +205,7 @@ LISTS = {
         "/list_icons/snrs.jpg",
         "https://www.go-astronomy.com/supernova-remnants.php",
         Color.GREEN,
+        ListType.CURATED_LIST,
     ): [
         "W50",
         "W44",
@@ -232,6 +241,7 @@ LISTS = {
         "/list_icons/comets.jpg",
         "https://skyandtelescope.org/astronomy-news/the-best-comets-in-2024/",
         Color.GREEN,
+        ListType.CURATED_LIST,
     ): [
         "12P/Pons-Brooks",
         "144P/Kushida",
@@ -246,6 +256,7 @@ LISTS = {
         "/list_icons/stations.jpg",
         "https://celestrak.org/NORAD/elements/table.php?GROUP=stations&FORMAT=tle",
         Color.SLATE,
+        ListType.CURATED_LIST,
     ): [
         "ISS (ZARYA)",
         "SHENZHOU-17 (SZ-17)",
@@ -258,6 +269,7 @@ LISTS = {
         "/list_icons/black-hole.jpg",
         "https://www.go-astronomy.com/black-holes.php",
         Color.GRAY,
+        ListType.CURATED_LIST,
     ): [
         "W50",
         "SS 433",
@@ -294,6 +306,7 @@ LISTS = {
         "/list_icons/hubble.jpg",
         "https://esahubble.org/images/archive/top100/",
         Color.GRAY,
+        ListType.CURATED_LIST,
     ): [
         "M 16",
         "Westerlund 2",
@@ -330,6 +343,7 @@ LISTS = {
         "/list_icons/go-astro.jpg",
         "https://skyandtelescope.org/observing/deep-sky-naked-eye/",
         Color.PURPLE,
+        ListType.PUBLIC_LIST,
     ): [
         "M 31",
         "M 44",
@@ -357,6 +371,7 @@ LISTS = {
         "/list_icons/go-astro.jpg",
         "https://www.go-astronomy.com/top20-astrophotography.htm",
         Color.PURPLE,
+        ListType.PUBLIC_LIST,
     ): [
         "Galactic Center",
         "Large Magellanic Cloud",
@@ -384,6 +399,7 @@ LISTS = {
         "/list_icons/st.jpg",
         "https://skyandtelescope.org/observing/deep-sky-naked-eye/",
         Color.RED,
+        ListType.PUBLIC_LIST,
     ): [
         "M 31",
         "NGC 869",
@@ -413,6 +429,7 @@ LISTS = {
         "/list_icons/backyard-astro.jpg",
         "https://astrobackyard.com/learn-astrophotography/",
         Color.RED,
+        ListType.PUBLIC_LIST,
     ): [
         "Andromeda Galaxy",
         "Orion Nebula",
@@ -433,6 +450,7 @@ LISTS = {
         "/list_icons/reddit.jpg",
         "https://www.reddit.com/r/astrophotography",
         Color.ORANGE,
+        ListType.PUBLIC_LIST,
     ): [
         "Andromeda Galaxy",
         "Triangulum Galaxy",
@@ -494,18 +512,24 @@ async def main(args):
 
     if not args.dry:
         public_lists = await prisma.list.find_many(
-            where={"publicTemplate": True, "type": ListType.CURATED_LIST}
+            where={
+                "publicTemplate": True,
+                "type": {"in": [ListType.CURATED_LIST, ListType.PUBLIC_LIST]},
+            }
         )
         await prisma.spaceobjectsonlists.delete_many(
             where={"listId": {"in": [l.id for l in public_lists]}}
         )
         await prisma.list.delete_many(
-            where={"publicTemplate": True, "type": ListType.CURATED_LIST}
+            where={
+                "publicTemplate": True,
+                "type": {"in": [ListType.CURATED_LIST, ListType.PUBLIC_LIST]},
+            }
         )
 
     cache = Cache()
 
-    for (title, img, credit, color), obj_names in LISTS.items():
+    for (title, img, credit, color, list_type), obj_names in LISTS.items():
         print("Building", title, "list...")
         obj_ids = await asyncio.gather(
             *[resolve_object_cached(cache, prisma, obj_name) for obj_name in obj_names]
@@ -520,29 +544,12 @@ async def main(args):
                     "credit": credit,
                     "imgURL": img,
                     "publicTemplate": True,
-                    "type": ListType.CURATED_LIST,
+                    "type": list_type,
                     "objects": {
                         "create": [{"spaceObjectId": objId} for objId in obj_ids]
                     },
                 },
             )
-
-    lists = await prisma.list.find_many(
-        where={"publicTemplate": True},
-        include={
-            "objects": {
-                "include": {
-                    "SpaceObject": True,
-                }
-            },
-        },
-    )
-    with open("../app/data/lists.js", "w") as f:
-        f.write(
-            "export const LISTS = "
-            + json.dumps([methods_web._list_to_dict(list) for list in lists], indent=2)
-            + ";\n\n"
-        )
 
 
 if __name__ == "__main__":

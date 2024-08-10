@@ -39,6 +39,8 @@ def get_commons() -> Tuple:
 @method_api()
 def get_orbit_calculations(
     objects: List,
+    start_ts: int,
+    end_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -47,11 +49,10 @@ def get_orbit_calculations(
     send_js: Callable,
 ) -> Dict:
     zone = pytz.timezone(timezone)
-    most_recent_noon, next_noon = space_util.get_todays_noons(timezone)
 
     ts, eph = get_commons()
-    t0 = ts.from_datetime(most_recent_noon)
-    t1 = ts.from_datetime(next_noon)
+    t0 = space_util.ts_from_timestamp(ts, start_ts, zone)
+    t1 = space_util.ts_from_timestamp(ts, end_ts, zone)
 
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     earth = eph["earth"]
@@ -116,6 +117,8 @@ def get_orbit_calculations(
 @method_api()
 def get_longterm_orbit_calculations(
     object: List,
+    first_period_start_ts: int,
+    first_period_end_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -129,6 +132,8 @@ def get_longterm_orbit_calculations(
 
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     earth = eph["earth"]
+    sun = eph["sun"]
+    moon = eph["moon"]
     loc_place = earth + loc
 
     obj = space_util.space_object_to_observables(ts, eph, object)
@@ -141,9 +146,13 @@ def get_longterm_orbit_calculations(
 
     alt_at.step_days = 0.1
 
-    resp = []
-
-    start_noon, start_next_noon = space_util.get_todays_noons(timezone)
+    start_noon = space_util.dt_from_timestamp(
+        first_period_start_ts, pytz.timezone(timezone)
+    )
+    start_next_noon = space_util.dt_from_timestamp(
+        first_period_end_ts, pytz.timezone(timezone)
+    )
+    periods = []
     for i in range(start_days, start_days + offset_days):
         most_recent_noon = space_util.round_datetime_to_hour(
             start_noon + dt.timedelta(days=i)
@@ -151,7 +160,10 @@ def get_longterm_orbit_calculations(
         next_noon = space_util.round_datetime_to_hour(
             start_next_noon + dt.timedelta(days=i), round_up=True
         )
+        periods.append((i, most_recent_noon, next_noon))
 
+    resp = []
+    for i, most_recent_noon, next_noon in periods:
         day_info = {
             "i": i,
             "start": int(most_recent_noon.timestamp() * 1000),
@@ -188,81 +200,63 @@ def get_longterm_orbit_calculations(
         day_info["ts_at_min_alt"] = int(min_alt_ts.utc_datetime().timestamp() * 1000)
         day_info["satellite_passes"] = []
 
-        if object["type"] == "EARTH_SATELLITE":
-            pass_t, pass_events = obj.satellite.find_events(
-                loc, n0, n1, altitude_degrees=10.0
+        day_info["moon_illumination_pct"] = None
+        if object["id"] == "944241943867162625":
+            t_mid = ts.from_datetime(
+                most_recent_noon + (next_noon - most_recent_noon) / 2
             )
-            pass_sunlit = obj.satellite.at(pass_t).is_sunlit(eph)
-            cur_start = None
-            cur_culm = None
-            for pass_ti, event, sunlit_flag in zip(pass_t, pass_events, pass_sunlit):
-                if event == 0:
-                    cur_start = (pass_ti, sunlit_flag == 1)
-                elif event == 1 and cur_start is not None:
-                    cur_culm = (pass_ti, sunlit_flag == 1)
-                elif event == 2 and cur_culm is not None and cur_start is not None:
-                    day_info["satellite_passes"].append(
-                        {
-                            "ts_start": int(
-                                cur_start[0].utc_datetime().timestamp() * 1000
-                            ),
-                            "ts_culminate": int(
-                                cur_culm[0].utc_datetime().timestamp() * 1000
-                            ),
-                            "ts_end": int(pass_ti.utc_datetime().timestamp() * 1000),
-                            "alt_start": round(alt_at(cur_start[0]), 2),
-                            "alt_culminate": round(alt_at(cur_culm[0]), 2),
-                            "alt_end": round(alt_at(pass_ti), 2),
-                            "az_start": round(az_at(cur_start[0]), 2),
-                            "az_culminate": round(az_at(cur_culm[0]), 2),
-                            "az_end": round(az_at(pass_ti), 2),
-                            "sunlit": any(
-                                [cur_start[1], cur_culm[1], sunlit_flag == 1]
-                            ),
-                        }
-                    )
-                    cur_start = None
-                    cur_culm = None
+            earth_pos = earth.at(t_mid)
+            moon_apparent = earth_pos.observe(moon).apparent()
+            percent = 100.0 * moon_apparent.fraction_illuminated(sun)
+            day_info["moon_illumination_pct"] = round(percent, 2)
 
+        # if object["type"] == "EARTH_SATELLITE":
+        #     pass_t, pass_events = obj.satellite.find_events(
+        #         loc, n0, n1, altitude_degrees=10.0
+        #     )
+        #     pass_sunlit = obj.satellite.at(pass_t).is_sunlit(eph)
+        #     cur_start = None
+        #     cur_culm = None
+        #     for pass_ti, event, sunlit_flag in zip(pass_t, pass_events, pass_sunlit):
+        #         if event == 0:
+        #             cur_start = (pass_ti, sunlit_flag == 1)
+        #         elif event == 1 and cur_start is not None:
+        #             cur_culm = (pass_ti, sunlit_flag == 1)
+        #         elif event == 2 and cur_culm is not None and cur_start is not None:
+        #             day_info["satellite_passes"].append(
+        #                 {
+        #                     "ts_start": int(
+        #                         cur_start[0].utc_datetime().timestamp() * 1000
+        #                     ),
+        #                     "ts_culminate": int(
+        #                         cur_culm[0].utc_datetime().timestamp() * 1000
+        #                     ),
+        #                     "ts_end": int(pass_ti.utc_datetime().timestamp() * 1000),
+        #                     "alt_start": round(alt_at(cur_start[0]), 2),
+        #                     "alt_culminate": round(alt_at(cur_culm[0]), 2),
+        #                     "alt_end": round(alt_at(pass_ti), 2),
+        #                     "az_start": round(az_at(cur_start[0]), 2),
+        #                     "az_culminate": round(az_at(cur_culm[0]), 2),
+        #                     "az_end": round(az_at(pass_ti), 2),
+        #                     "sunlit": any(
+        #                         [cur_start[1], cur_culm[1], sunlit_flag == 1]
+        #                     ),
+        #                 }
+        #             )
+        #             cur_start = None
+        #             cur_culm = None
         resp.append(day_info)
-        if i % 10 == 0:
+        resp.sort(key=lambda x: x["i"])
+        if len(resp) % 10 == 0:
             send_js(resp)
 
     return resp
 
 
 @method_api()
-def get_current_positions(
-    objects: List,
-    timezone: str,
-    lat: float,
-    lon: float,
-    elevation: float,
-    send_js: Callable,
-):
-    ts, eph = get_commons()
-    earth = eph["earth"]
-    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
-    loc_place = earth + loc
-    t_now = ts.now()
-    loc_place_time = loc_place.at(t_now)
-    resp = {}
-    for object in objects:
-        obj = space_util.space_object_to_observables(ts, eph, object)
-        apparent_pos = loc_place_time.observe(obj).apparent()
-        alt_az = apparent_pos.altaz()
-        resp[object["id"]] = {
-            "id": object["id"],
-            "name": object["name"],
-            "alt": round(alt_az[0].degrees, 2),
-            "az": round(alt_az[1].degrees, 2),
-        }
-    return resp
-
-
-@method_api()
-def get_current_orbit_calculations(
-    object: Dict,
+def get_position_at_time(
+    objects: List[Dict],
+    start_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -275,33 +269,36 @@ def get_current_orbit_calculations(
     loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
     loc_place = earth + loc
 
-    t_now = ts.now()
+    t_now = space_util.ts_from_timestamp(ts, start_ts, pytz.timezone(timezone))
 
-    obj = space_util.space_object_to_observables(ts, eph, object)
+    obj_id_to_pos = {}
 
-    apparent_pos = loc_place.at(t_now).observe(obj).apparent()
+    for object in objects:
+        obj = space_util.space_object_to_observables(ts, eph, object)
+        apparent_pos = loc_place.at(t_now).observe(obj).apparent()
+        ra, dec, _ = apparent_pos.radec()
+        alt_az = apparent_pos.altaz()
+        pos_radec = position_of_radec(ra.hours, dec.degrees, t=t_now, center=399)
+        subpoint = wgs84.subpoint(pos_radec)
+        pos = {
+            "time": int(t_now.utc_datetime().timestamp() * 1000),
+            "alt": round(alt_az[0].degrees, 2),
+            "az": round(alt_az[1].degrees, 2),
+            "ra": ra.hours,
+            "dec": dec.degrees,
+            "lat": subpoint.latitude.degrees,
+            "lon": subpoint.longitude.degrees,
+        }
+        obj_id_to_pos[object["id"]] = pos
 
-    ra, dec, _ = apparent_pos.radec()
-
-    alt_az = apparent_pos.altaz()
-
-    pos_radec = position_of_radec(ra.hours, dec.degrees, t=t_now, center=399)
-    subpoint = wgs84.subpoint(pos_radec)
-
-    return {
-        "time": int(t_now.utc_datetime().timestamp() * 1000),
-        "alt": round(alt_az[0].degrees, 2),
-        "az": round(alt_az[1].degrees, 2),
-        "ra": ra.hours,
-        "dec": dec.degrees,
-        "lat": subpoint.latitude.degrees,
-        "lon": subpoint.longitude.degrees,
-    }
+    return obj_id_to_pos
 
 
 @method_api()
 def get_week_info_with_weather_data(
     weather_data: Dict,
+    start_ts: int,
+    end_ts: int,
     timezone: str,
     lat: float,
     lon: float,
@@ -328,7 +325,8 @@ def get_week_info_with_weather_data(
 
     resp = []
 
-    start_noon, start_next_noon = space_util.get_todays_noons(timezone)
+    start_noon = space_util.dt_from_timestamp(start_ts, zone)
+    start_next_noon = space_util.dt_from_timestamp(end_ts, zone)
     for i in range(0, 7):
         most_recent_noon = space_util.round_datetime_to_hour(
             start_noon + dt.timedelta(days=i)
@@ -375,6 +373,64 @@ def get_week_info_with_weather_data(
         resp.append(date_info)
 
     return resp
+
+
+@method_api()
+def get_events_sky_darkness(
+    start_ts: int,
+    end_ts: int,
+    timezone: str,
+    lat: float,
+    lon: float,
+    elevation: float,
+    send_js: Callable,
+) -> Dict:
+
+    ts, eph = get_commons()
+    loc = wgs84.latlon(float(lat), float(lon), elevation_m=float(elevation))
+
+    t0 = space_util.ts_from_timestamp(ts, start_ts, pytz.timezone(timezone))
+    t1 = space_util.ts_from_timestamp(ts, end_ts, pytz.timezone(timezone))
+
+    f = almanac.dark_twilight_day(eph, loc)
+    times, _ = almanac.find_discrete(t0, t1, f)
+
+    timestamps = [int(t.utc_datetime().timestamp() * 1000) for t in times]
+    timestamps.sort()
+
+    if len(timestamps) != 8:
+        return []
+
+    titles = [
+        "Sunset",
+        "Nautical Twilight",
+        "Astronomical Twilight",
+        "Night",
+        "Astronomical Twilight",
+        "Nautical Twilight",
+        "Civil Twilight",
+        "Sunrise",
+    ]
+    descriptions = [
+        "The moment when the upper limb of the Sun disappears below the horizon.",
+        "The period after civil twilight in the evening or before civil twilight in the morning, when the Sun is between 6 and 12 degrees below the horizon. The horizon is still visible at sea, allowing sailors to take reliable star sightings.",
+        "The period after nautical twilight in the evening or before nautical twilight in the morning, when the Sun is between 12 and 18 degrees below the horizon. The sky is dark enough for astronomers to observe celestial objects without interference from sunlight.",
+        "The period when the Sun is more than 18 degrees below the horizon. The sky is completely dark, ideal for observing faint celestial objects.",
+        "The period before nautical twilight in the morning or after nautical twilight in the evening, when the Sun is between 18 and 12 degrees below the horizon. The sky begins to brighten slightly but is still dark enough for most astronomical observations.",
+        "The period before civil twilight in the morning or after civil twilight in the evening, when the Sun is between 12 and 6 degrees below the horizon. The horizon becomes visible again.",
+        "The period after sunset in the evening or before sunrise in the morning, when the Sun is between 6 degrees below the horizon and the horizon. There is enough light for most outdoor activities.",
+        "The moment when the upper limb of the Sun appears above the horizon.",
+    ]
+
+    events = [
+        {
+            "title": titles[i],
+            "tooltip": descriptions[i],
+            "ts": timestamps[i],
+        }
+        for i in range(8)
+    ]
+    return events
 
 
 def call(send_js: Callable, method_name: str, kwargs: Dict) -> str:

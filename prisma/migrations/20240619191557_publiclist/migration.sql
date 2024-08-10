@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ListType" ADD VALUE 'PUBLIC_LIST';

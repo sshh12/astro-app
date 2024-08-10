@@ -1,0 +1,28 @@
+html,
+body {
+  background-color: #1e293b;
+}
+
+.leaflet-div-icon {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.leaflet-control-attribution {
+  display: none;
+  /* render issues, included in acknowledgements */
+}
+
+.obj-overlap-popup p {
+  margin: inherit;
+}
+
+.obj-overlap-popup .leaflet-popup-content {
+  padding: 0;
+  margin: 0;
+  width: 200px;
+}
+
+.obj-overlap-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+}
