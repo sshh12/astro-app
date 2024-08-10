@@ -60,7 +60,7 @@ async def _prompt_to_object_names(prompt: str, user_text: str) -> List[str]:
                         "planet_names": {
                             "type": "array",
                             "items": {"type": "string"},
-                            "description": "The names of planets you recommend. E.g. Mars, Venus, Jupiter. Empty list if none applicable.",
+                            "description": "The names of planets you recommend. E.g. Mars, Venus, Jupiter, Moon. Empty list if none applicable.",
                         },
                     },
                     "additionalProperties": False,
