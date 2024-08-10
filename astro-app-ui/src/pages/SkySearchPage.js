@@ -22,6 +22,8 @@ import Textarea from "@mui/joy/Textarea";
 import Button from "@mui/joy/Button";
 import SkyObjectsList from "../components/SkyObjectsList";
 import { useStorage } from "../providers/storage";
+import { Info } from "@mui/icons-material";
+import { Tooltip } from "@mui/joy";
 
 const cleanSearchTerm = (term) => {
   if (term.startsWith("NAME ")) {
@@ -71,7 +73,12 @@ function SearchParamsCard({ loading }) {
         </Box>
         <Box>
           <Typography level="body-sm" sx={{ pb: 1 }}>
-            <b>By Description</b>
+            <b>
+              By Description{" "}
+              <Tooltip title="Limited to DSOs and Planets. Produced via Generative AI and may be inaccurate.">
+                <Info sx={{ fontSize: "1rem" }} />
+              </Tooltip>
+            </b>
           </Typography>
           <Textarea
             minRows={2}
@@ -188,7 +195,7 @@ function SearchResults({ setLoading }) {
       sx={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-        gap: { xs: 0.5, sm: 2 },
+        gap: { xs: 1, sm: 2 },
         marginTop: 3,
       }}
     >

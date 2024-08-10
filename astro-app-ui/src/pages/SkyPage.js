@@ -83,7 +83,7 @@ export default function SkyPage() {
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: { xs: 0.5, sm: 2 },
+              gap: { xs: 1, sm: 2 },
             }}
           >
             <SkySummarySheet

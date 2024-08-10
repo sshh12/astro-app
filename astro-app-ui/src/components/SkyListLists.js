@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListSubheader from "@mui/joy/ListSubheader";
@@ -24,6 +24,9 @@ import { idxToColorHex } from "../constants/colors";
 import { CURATED_LISTS, PUBLIC_LISTS } from "../constants/lists";
 import Toggler from "./Toggler";
 import { Divider } from "@mui/joy";
+
+const REC_PROMPT =
+  "Show me the best objects to observe tonight based on my location and equipment.";
 
 function RichListSideBarItem({ list, idx }) {
   return list.fake ? (
@@ -59,6 +62,52 @@ function RichListSideBarItem({ list, idx }) {
   );
 }
 
+function useBgColor() {
+  const [hue, setHue] = useState(getCurrentHue());
+
+  function getCurrentHue() {
+    const date = new Date();
+    const seconds = date.getSeconds() + date.getMilliseconds() / 1000;
+    return (seconds * 16) % 360;
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHue(getCurrentHue());
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return `hsl(${hue}, 100%, 50%)`;
+}
+
+function MagicRichListSideBarItem() {
+  const bgColor = useBgColor();
+  return (
+    <Link
+      to={{ pathname: "/sky/search", search: `?d=${REC_PROMPT}` }}
+      style={{ textDecoration: "none" }}
+    >
+      <ListItem>
+        <ListItemButton>
+          <ListItemDecorator>
+            <Box
+              sx={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "99px",
+                bgcolor: bgColor,
+              }}
+            />
+          </ListItemDecorator>
+          <ListItemContent>Recommendations</ListItemContent>
+        </ListItemButton>
+      </ListItem>
+    </Link>
+  );
+}
+
 export function ListSideBar({ lists }) {
   const lsts =
     (lists && lists.filter((lst) => lst.title !== "Favorites")) ||
@@ -76,6 +125,7 @@ export function ListSideBar({ lists }) {
             "& .JoyListItemButton-root": { p: "8px" },
           }}
         >
+          <MagicRichListSideBarItem />
           {lsts.map((lst, idx) => (
             <RichListSideBarItem list={lst} key={lst.id} idx={idx} />
           ))}
@@ -237,6 +287,35 @@ export function RichListListItem({
   );
 }
 
+export function MagicRichListListItem() {
+  const bgColor = useBgColor();
+  return (
+    <Link
+      to={{ pathname: "/sky/search", search: `?d=${REC_PROMPT}` }}
+      style={{ textDecoration: "none" }}
+    >
+      <ListItem>
+        <ListItemButton sx={{ minHeight: "40px" }}>
+          <ListItemDecorator>
+            <Box
+              sx={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "99px",
+                bgcolor: bgColor,
+              }}
+            />
+          </ListItemDecorator>
+          <ListItemContent>
+            <Typography fontSize={"0.9rem"}>Recommendations</Typography>
+          </ListItemContent>
+          <KeyboardArrowRight />
+        </ListItemButton>
+      </ListItem>
+    </Link>
+  );
+}
+
 export function ListMobileTab({ lists }) {
   const lsts =
     (lists && lists.filter((lst) => lst.title !== "Favorites")) ||
@@ -273,6 +352,7 @@ export function ListMobileTab({ lists }) {
           pl: 1,
         }}
       >
+        <MagicRichListListItem />
         {lsts.map((lst, idx) => (
           <RichListListItem list={lst} key={lst.id} idx={idx} />
         ))}

@@ -3,7 +3,9 @@ from prisma import models
 import context
 import openai
 import os
+import json
 import asyncio
+from pydantic import BaseModel
 
 from methods.base import method_web, clean_search_term
 from methods.encodings import user_to_text
@@ -27,10 +29,49 @@ async def _search_by_term(ctx: context.Context, term: str) -> List[models.SpaceO
     return objs
 
 
+class SearchOutput(BaseModel):
+    deep_sky_object_ids: List[str]
+    planet_names: List[str]
+    comet_ids: List[str]
+
+
 async def _prompt_to_object_names(prompt: str, user_text: str) -> List[str]:
     client = openai.AsyncClient(api_key=os.environ["OPENAI_API_KEY"])
-    resp = await client.chat.completions.create(
+    resp = await client.beta.chat.completions.parse(
         model="gpt-4o-mini",
+        temperature=0.1,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "search_output",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "analysis": {
+                            "type": "string",
+                            "description": "Brief analysis including what types of objects are best given the users location and equipment.'",
+                        },
+                        "deep_sky_object_catalog_ids": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "The catalog names of deep sky objects you recommend. E.g. NGC 1234, M 31, IC 343. Empty list if none applicable.",
+                        },
+                        "planet_names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "The names of planets you recommend. E.g. Mars, Venus, Jupiter. Empty list if none applicable.",
+                        },
+                    },
+                    "additionalProperties": False,
+                    "required": [
+                        "analysis",
+                        "deep_sky_object_catalog_ids",
+                        "planet_names",
+                    ],
+                },
+            },
+        },
         messages=[
             {
                 "role": "system",
@@ -39,28 +80,29 @@ You are an astronomy enthusiast who helps others find interesting objects in the
 
 Given a query of user preferences, respond with a brief analysis and then the names of objects (typically 3 - 20).
 
-You MUST format your result as a comma-separated list of catalog names OR planet names at the very end (e.g. "M31, M42, M45, Saturn").
+You MUST format your result as a json based on the specified schema.
 """.strip(),
             },
             {
                 "role": "user",
                 "content": f"""
-## My Question
-{prompt}
-
 ## About Me
 {user_text}
-
-## Task
-Respond with a comma-separated list of catalog names OR planet names at the very end (e.g. "M31, M42, M45, Saturn").
-""",
+                
+## My Question
+{prompt}
+""".strip(),
             },
         ],
     )
-    resp = resp.choices[0].message.content
-    print("SearchGPT", resp)
+    output = json.loads(resp.choices[0].message.content)
+    print("SearchGPT", output)
 
-    return list(set(resp.strip().split("\n")[-1].split(", ")))
+    items = []
+    for ids in output.values():
+        items.extend(ids)
+
+    return list(set(items))
 
 
 async def _search_by_prompt(

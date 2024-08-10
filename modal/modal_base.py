@@ -16,7 +16,7 @@ image_base = (
         "pillow==10.4.0",
         "astropy==6.1.2",
         "cachetools==5.4.0",
-        "openai==1.37.1",
+        "openai==1.40.3",
     )
     .run_commands(
         "prisma generate --schema /root/prisma/schema.prisma",

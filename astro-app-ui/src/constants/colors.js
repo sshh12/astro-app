@@ -29,7 +29,7 @@ function colorToHex(color) {
 
 function idxToColorHex(idx) {
   const colorOptions = Object.keys(COLORS).slice(5);
-  const colorIdx = idx % colorOptions.length;
+  const colorIdx = (idx + colorOptions.length) % colorOptions.length;
   const color = colorOptions[colorIdx];
   return colorToHex(color);
 }
