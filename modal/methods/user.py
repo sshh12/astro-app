@@ -7,7 +7,7 @@ import context
 import random
 import asyncio
 
-from methods.base import method_web
+from methods.base import method_web, random_color
 from methods.encodings import (
     user_to_dict,
     space_object_to_dict,
@@ -281,7 +281,7 @@ async def update_space_object_lists(
         )
     if new_list_title and new_list_title != FAVORITES:
         new_list = await ctx.prisma.list.create(
-            data={"title": new_list_title, "color": _random_color()}
+            data={"title": new_list_title, "color": random_color()}
         )
         await ctx.prisma.spaceobjectsonlists.create(
             data={"listId": new_list.id, "spaceObjectId": obj.id}

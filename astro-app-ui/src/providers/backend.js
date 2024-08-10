@@ -169,10 +169,12 @@ export function useBackendControl() {
     useDisplaySettings();
   const location = !!user ? user.location.find((v) => v.active) : null;
   const equipment = !!user ? user.equipment.find((v) => v.active) : null;
+  const lists = !!user ? user.lists : null;
   return {
     user,
     updateUser,
     location,
+    lists,
     equipment,
     showOnboarding,
     closeOnboarding,

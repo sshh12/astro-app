@@ -71,6 +71,9 @@ export default function SkyAltitudesChart({ objects, orbits, stale }) {
         time: orbits.time[i],
       };
       for (let obj of objects) {
+        if (!orbits.objects[obj.id]) {
+          continue;
+        }
         const alt = orbits.objects[obj.id].alt[i];
         row[obj.id] = alt > 0 ? alt : null;
       }

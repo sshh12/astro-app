@@ -31,6 +31,9 @@ import SkyLongTermAltChart from "../charts/SkyLongTermAltChart";
 import SkyMoonPhaseChart from "../charts/SkyMoonPhaseChart";
 import ObjectImage from "../components/SkyObjectImage";
 import { Tooltip } from "@mui/joy";
+import { RichListListItem } from "../components/SkyListLists";
+import Button from "@mui/joy/Button";
+import SkyObjectListsModal from "../components/SkyObjectListsModal";
 
 function DescriptionCard({ object }) {
   return (
@@ -50,6 +53,53 @@ function DescriptionCard({ object }) {
           <Typography level="body-sm">(content may be inaccurate)</Typography>
         </Tooltip>
       </Box>
+    </Card>
+  );
+}
+
+function ListsCard({ object }) {
+  const { lists } = useBackend();
+  const relatedLists = lists?.filter((lst) =>
+    lst.objects.map((o) => o.id).includes(object?.id)
+  );
+  const [editOpen, setEditOpen] = useState(false);
+  const hasList = !!relatedLists && relatedLists.length > 0;
+  return (
+    <Card sx={{ p: 0, gap: 0 }}>
+      <SkyObjectListsModal
+        object={object}
+        open={editOpen}
+        setOpen={setEditOpen}
+        lists={lists}
+      />
+      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography level="title-md">Lists</Typography>
+        </Stack>
+      </Box>
+      {hasList && (
+        <>
+          <Divider sx={{ mb: 0 }} />
+          <List
+            size="sm"
+            sx={{
+              "--ListItemDecorator-size": "20px",
+              "& .JoyListItemButton-root": { p: "8px" },
+              pl: 1,
+            }}
+          >
+            {relatedLists?.map((lst, idx) => (
+              <RichListListItem list={lst} key={lst.id} idx={idx} />
+            ))}
+          </List>
+        </>
+      )}
+      <Divider sx={{ mb: 0 }} />
+      <Stack direction={"row"} sx={{ padding: 1, justifyContent: "end" }}>
+        <Button onClick={() => setEditOpen(true)}>
+          {hasList ? "Edit" : "Add"}
+        </Button>
+      </Stack>
     </Card>
   );
 }
@@ -386,6 +436,7 @@ export default function SkyObjectPage() {
               }}
             >
               {object?.description && <DescriptionCard object={object} />}
+              <ListsCard object={object} />
               <LiveLocationCard object={object} location={location} />
               <LongTermPositionsCard
                 object={object}
