@@ -1,5 +1,10 @@
 {
   "display_override": ["window-controls-overlay"],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "short_name": "Astro App",
   "name": "Astro App",
   "description": "Astro App is a tool for exploring the night sky and tracking celestial events.",
@@ -34,6 +39,9 @@
       "purpose": "maskable"
     }
   ],
+  "scope": "https://astroapp.io",
+  "dir": "ltr",
+  "lang": "en",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#111827",

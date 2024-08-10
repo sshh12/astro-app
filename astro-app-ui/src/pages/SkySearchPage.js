@@ -75,7 +75,11 @@ function SearchParamsCard({ loading }) {
           <Typography level="body-sm" sx={{ pb: 1 }}>
             <b>
               By Description{" "}
-              <Tooltip title="Limited to DSOs and Planets. Produced via Generative AI and may be inaccurate.">
+              <Tooltip
+                title="Limited to DSOs and Planets. Produced via Generative AI and may be inaccurate."
+                enterTouchDelay={100}
+                enterDelay={100}
+              >
                 <Info sx={{ fontSize: "1rem" }} />
               </Tooltip>
             </b>
