@@ -412,14 +412,13 @@ function GOESImage({ wfo }) {
   );
 }
 
-function LiveWeatherCard({ location, wfo }) {
+function LiveWeatherCard({ wfo }) {
   return (
     <Card sx={{ p: 0, gap: 0 }}>
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+      <Box sx={{ mb: 2, pt: 2, px: 2 }}>
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Live Clouds</Typography>
         </Stack>
-        <Typography level="body-sm">GOES Satellite</Typography>
       </Box>
       <Divider sx={{ mb: 0 }} />
       <Box
@@ -440,7 +439,7 @@ export default function LocationWeatherPage() {
   const { wfo } = useWFO(location);
   return (
     <BaseLocationPage tabIdx={0}>
-      {wfo && <LiveWeatherCard location={location} wfo={wfo} />}
+      {wfo && <LiveWeatherCard wfo={wfo} />}
       <WeekForecastCard location={location} />
     </BaseLocationPage>
   );

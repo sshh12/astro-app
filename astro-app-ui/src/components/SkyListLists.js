@@ -68,7 +68,7 @@ function useBgColor() {
   function getCurrentHue() {
     const date = new Date();
     const seconds = date.getSeconds() + date.getMilliseconds() / 1000;
-    return (seconds * 16) % 360;
+    return (seconds * 22) % 360;
   }
 
   useEffect(() => {

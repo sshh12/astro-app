@@ -60,7 +60,7 @@ function SkyQualityCard({ location }) {
   }
   return (
     <Card sx={{ p: 0, gap: 0 }}>
-      <Box sx={{ pt: 2, px: 2 }}>
+      <Box sx={{ mb: 2, pt: 2, px: 2 }}>
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Sky Quality</Typography>
         </Stack>
