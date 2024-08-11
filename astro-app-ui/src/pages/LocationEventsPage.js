@@ -1,6 +1,4 @@
-import React from "react";
 import {
-  Typography,
   Box,
   Card,
   Divider,
@@ -9,17 +7,19 @@ import {
   StepIndicator,
   Stepper,
   Tooltip,
+  Typography,
 } from "@mui/joy";
-import { useBackend } from "../providers/backend";
-import BaseLocationPage from "../components/BaseLocationPage";
-import { useCachedPythonOutput } from "../providers/python";
 import Skeleton from "@mui/joy/Skeleton";
+import React from "react";
+import BaseLocationPage from "../components/BaseLocationPage";
+import { useBackend } from "../providers/backend";
+import { useCachedPythonOutput } from "../providers/python";
 import {
-  useCurrentObservingWindow,
-  renderTime,
   renderDate,
-  useTimestamp,
+  renderTime,
   renderTimeTill,
+  useCurrentObservingWindow,
+  useTimestamp,
 } from "../utils/date";
 
 function TonightEvents({ location }) {
@@ -71,7 +71,6 @@ function TonightEvents({ location }) {
                 enterTouchDelay={100}
                 enterDelay={100}
                 sx={{ maxWidth: "400px" }}
-                arrow
               >
                 {eventsStale ? (
                   <Skeleton>

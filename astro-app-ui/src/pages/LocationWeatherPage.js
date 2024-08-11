@@ -1,44 +1,44 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  Typography,
-  Box,
-  Card,
-  Divider,
-  ListDivider,
-  Stack,
-  Chip,
-  Dropdown,
-  MenuButton,
-  IconButton,
-  MenuItem,
-  Menu,
-  Button,
-  CardOverflow,
-  CardActions,
-  Skeleton,
-} from "@mui/joy";
-import { useBackend } from "../providers/backend";
-import BaseLocationPage from "../components/BaseLocationPage";
-import { ColorTabs } from "../components/ColorTabs";
-import { useCachedPythonOutput } from "../providers/python";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import {
-  twilightToColor,
-  getTwlightName,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardOverflow,
+  Chip,
+  Divider,
+  Dropdown,
+  IconButton,
+  ListDivider,
+  Menu,
+  MenuButton,
+  MenuItem,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/joy";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import BaseLocationPage from "../components/BaseLocationPage";
+import { ColorTabs } from "../components/ColorTabs";
+import { useBackend } from "../providers/backend";
+import { useCachedPythonOutput } from "../providers/python";
+import { useStorage } from "../providers/storage";
+import {
   cloudCoverToBadge,
-  precipitationToBadge,
-  visibilityToBadge,
+  getTwlightName,
   moonPctToIcon,
+  precipitationToBadge,
   summaryToBadge,
+  twilightToColor,
+  visibilityToBadge,
 } from "../utils/weather";
 import {
-  renderTime,
   idxContains,
+  renderTime,
   useCurrentObservingWindow,
+  useTimestamp,
 } from "./../utils/date";
-import { Link } from "react-router-dom";
-import { useTimestamp } from "./../utils/date";
-import { useStorage } from "../providers/storage";
 
 function useWeather(location) {
   const [meteoData, setMeteoData] = useState(null);
@@ -426,7 +426,7 @@ function LiveWeatherCard({ location, wfo }) {
         sx={{
           border: "3px solid",
           borderColor: "divider",
-          borderRadius: "0.1rem",
+          borderRadius: "0.2rem",
         }}
       >
         <GOESImage wfo={wfo} />

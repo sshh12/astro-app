@@ -1,26 +1,26 @@
-import React from "react";
-import Box from "@mui/joy/Box";
-import Card from "@mui/joy/Card";
-import Typography from "@mui/joy/Typography";
-import IconButton from "@mui/joy/IconButton";
-import Dropdown from "@mui/joy/Dropdown";
-import Menu from "@mui/joy/Menu";
-import MenuButton from "@mui/joy/MenuButton";
-import MenuItem from "@mui/joy/MenuItem";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SortIcon from "@mui/icons-material/Sort";
 import AspectRatio from "@mui/joy/AspectRatio";
+import Box from "@mui/joy/Box";
+import Card from "@mui/joy/Card";
+import CardContent from "@mui/joy/CardContent";
 import CardOverflow from "@mui/joy/CardOverflow";
-import Skeleton from "@mui/joy/Skeleton";
-import ObjectImage from "./SkyObjectImage";
 import Chip from "@mui/joy/Chip";
 import Divider from "@mui/joy/Divider";
+import Dropdown from "@mui/joy/Dropdown";
+import IconButton from "@mui/joy/IconButton";
+import Menu from "@mui/joy/Menu";
+import MenuButton from "@mui/joy/MenuButton";
+import MenuItem from "@mui/joy/MenuItem";
+import Skeleton from "@mui/joy/Skeleton";
 import Stack from "@mui/joy/Stack";
-import CardContent from "@mui/joy/CardContent";
+import Typography from "@mui/joy/Typography";
+import React from "react";
+import { Link } from "react-router-dom";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 import { OBJECT_FIELDS } from "../utils/object";
-import { Link } from "react-router-dom";
+import ObjectImage from "./SkyObjectImage";
 
 function SkyObjectCardSkeleton({ eqDetails }) {
   return (
@@ -133,11 +133,7 @@ export default function SkyObjectCard({
   return (
     <Card variant="outlined">
       <CardOverflow>
-        <AspectRatio
-          ratio={eqDetails.renderAspectRatio}
-          color="primary"
-          sx={{ borderRadius: 0 }}
-        >
+        <AspectRatio ratio={eqDetails.renderAspectRatio} color="primary">
           <Link
             to={{ pathname: `/sky/object/${object.id}` }}
             style={{ textDecoration: "none" }}

@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { CssVarsProvider } from "@mui/joy/styles";
-import CssBaseline from "@mui/joy/CssBaseline";
+import { Info } from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SearchIcon from "@mui/icons-material/Search";
+import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Layout from "../components/Layout";
+import Button from "@mui/joy/Button";
+import CssBaseline from "@mui/joy/CssBaseline";
+import Divider from "@mui/joy/Divider";
+import Input from "@mui/joy/Input";
+import Sheet from "@mui/joy/Sheet";
+import Stack from "@mui/joy/Stack";
+import { CssVarsProvider } from "@mui/joy/styles";
+import Textarea from "@mui/joy/Textarea";
+import Typography from "@mui/joy/Typography";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SubPageHeader } from "../components/Headers";
-import { theme } from "../theme/theme";
+import Layout from "../components/Layout";
+import { SideBarNav } from "../components/Sidebars";
+import SkyObjectsList from "../components/SkyObjectsList";
 import { useBackend, usePost } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
-import { useLocation, useNavigate } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { objectsToKey } from "../utils/object";
-import { useCurrentObservingWindow } from "../utils/date";
-import { SideBarNav } from "../components/Sidebars";
-import Sheet from "@mui/joy/Sheet";
-import Divider from "@mui/joy/Divider";
-import Typography from "@mui/joy/Typography";
-import Stack from "@mui/joy/Stack";
-import Input from "@mui/joy/Input";
-import SearchIcon from "@mui/icons-material/Search";
-import Textarea from "@mui/joy/Textarea";
-import Button from "@mui/joy/Button";
-import SkyObjectsList from "../components/SkyObjectsList";
 import { useStorage } from "../providers/storage";
-import { Info } from "@mui/icons-material";
-import { Tooltip } from "@mui/joy";
+import { theme } from "../theme/theme";
+import { useCurrentObservingWindow } from "../utils/date";
+import { objectsToKey } from "../utils/object";
 
 const cleanSearchTerm = (term) => {
   if (term.startsWith("NAME ")) {
@@ -76,7 +76,7 @@ function SearchParamsCard({ loading }) {
             <b>
               By Description{" "}
               <Tooltip
-                title="Limited to DSOs and Planets. Produced via Generative AI and may be inaccurate."
+                title="Limited to DSOs and Planets. Uses Generative AI and may be inaccurate."
                 enterTouchDelay={100}
                 enterDelay={100}
               >

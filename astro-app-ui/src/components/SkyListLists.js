@@ -1,29 +1,29 @@
-import { useState, useEffect } from "react";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import ListIcon from "@mui/icons-material/List";
+import { Divider } from "@mui/joy";
+import Accordion from "@mui/joy/Accordion";
+import AccordionDetails from "@mui/joy/AccordionDetails";
+import AccordionGroup from "@mui/joy/AccordionGroup";
+import AccordionSummary from "@mui/joy/AccordionSummary";
+import Avatar from "@mui/joy/Avatar";
+import AvatarGroup from "@mui/joy/AvatarGroup";
+import Box from "@mui/joy/Box";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
-import ListSubheader from "@mui/joy/ListSubheader";
 import ListItemButton from "@mui/joy/ListItemButton";
-import Box from "@mui/joy/Box";
-import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import ListItemContent from "@mui/joy/ListItemContent";
-import Skeleton from "@mui/joy/Skeleton";
-import { getImageURL } from "./SkyObjectImage";
+import ListItemDecorator from "@mui/joy/ListItemDecorator";
+import ListSubheader from "@mui/joy/ListSubheader";
 import Sheet from "@mui/joy/Sheet";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import Skeleton from "@mui/joy/Skeleton";
 import Typography from "@mui/joy/Typography";
-import AvatarGroup from "@mui/joy/AvatarGroup";
-import Avatar from "@mui/joy/Avatar";
-import AccordionGroup from "@mui/joy/AccordionGroup";
-import Accordion from "@mui/joy/Accordion";
-import AccordionSummary from "@mui/joy/AccordionSummary";
-import AccordionDetails from "@mui/joy/AccordionDetails";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ListIcon from "@mui/icons-material/List";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { idxToColorHex } from "../constants/colors";
-import { CURATED_LISTS, PUBLIC_LISTS } from "../constants/lists";
+import { CURATED_LISTS } from "../constants/lists";
+import { getImageURL } from "./SkyObjectImage";
 import Toggler from "./Toggler";
-import { Divider } from "@mui/joy";
 
 const REC_PROMPT =
   "Show me the best objects to observe tonight based on my location and equipment.";
@@ -157,40 +157,6 @@ export function ListSideBar({ lists }) {
                 list={lst}
                 key={lst.id}
                 idx={lsts.length + idx}
-              />
-            ))}
-          </List>
-        </Toggler>
-      </ListItem>
-      <ListItem nested>
-        <Toggler
-          renderToggle={({ open, setOpen }) => (
-            <ListItemButton
-              onClick={() => setOpen(!open)}
-              sx={{ marginTop: 0 }}
-            >
-              <ListIcon />
-              <ListItemContent>
-                <Typography level="body-sm">Public Lists</Typography>
-              </ListItemContent>
-              <KeyboardArrowDownIcon
-                sx={{ transform: open ? "rotate(180deg)" : "none" }}
-              />
-            </ListItemButton>
-          )}
-        >
-          <List
-            size="sm"
-            sx={{
-              "--ListItemDecorator-size": "20px",
-              "& .JoyListItemButton-root": { p: "8px" },
-            }}
-          >
-            {PUBLIC_LISTS.map((lst, idx) => (
-              <RichListSideBarItem
-                list={lst}
-                key={lst.id}
-                idx={lsts.length + CURATED_LISTS.length + idx}
               />
             ))}
           </List>
@@ -377,29 +343,6 @@ export function ListMobileTab({ lists }) {
                   list={lst}
                   key={lst.id}
                   idx={lsts.length + idx}
-                />
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion>
-          <AccordionSummary>
-            <Typography level="body-sm">Public Lists</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <List
-              size="sm"
-              sx={{
-                "--ListItemDecorator-size": "20px",
-                "& .JoyListItemButton-root": { p: "8px" },
-                pl: 1,
-              }}
-            >
-              {PUBLIC_LISTS.map((lst, idx) => (
-                <RichListListItem
-                  list={lst}
-                  key={lst.id}
-                  idx={lsts.length + CURATED_LISTS.length + idx}
                 />
               ))}
             </List>

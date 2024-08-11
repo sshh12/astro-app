@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useRef } from "react";
 import {
-  Typography,
   Box,
   Card,
   Divider,
-  ListDivider,
-  Stack,
-  ListItem,
   List,
+  ListDivider,
+  ListItem,
   ListItemContent,
+  Stack,
+  Typography,
 } from "@mui/joy";
-import { useBackend } from "../providers/backend";
+import React, { useEffect, useRef, useState } from "react";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import BaseLocationPage from "../components/BaseLocationPage";
+import { useBackend } from "../providers/backend";
 import { useStorage } from "../providers/storage";
 import {
-  fetchLPData,
-  getLPDetails,
-  getDeviceLocation,
   CURRENT_ICON,
+  fetchLPData,
+  getDeviceLocation,
+  getLPDetails,
 } from "../utils/pos";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
 function useLPData({ location }) {
   const { cacheStore } = useStorage();
@@ -60,11 +60,10 @@ function SkyQualityCard({ location }) {
   }
   return (
     <Card sx={{ p: 0, gap: 0 }}>
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+      <Box sx={{ pt: 2, px: 2 }}>
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Sky Quality</Typography>
         </Stack>
-        <Typography level="body-sm">At Active Location</Typography>
       </Box>
       <Divider />
       <List>
@@ -158,7 +157,7 @@ function LightPollutionMap({ location }) {
 function LightPollutionMapCard({ location }) {
   return (
     <Card sx={{ p: 0, gap: 0 }}>
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+      <Box sx={{ mb: 2, pt: 2, px: 2 }}>
         <Stack direction="row" justifyContent="space-between">
           <Typography level="title-md">Light Pollution</Typography>
         </Stack>

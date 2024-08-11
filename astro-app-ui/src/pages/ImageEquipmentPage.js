@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
 import {
-  Typography,
   Box,
   Card,
   Divider,
-  ListItem,
   List,
   ListDivider,
+  ListItem,
   ListItemContent,
-  Select,
   Option,
+  Select,
+  Typography,
 } from "@mui/joy";
-import { useBackend } from "../providers/backend";
+import React, { useEffect, useState } from "react";
 import BaseImagePage from "../components/BaseImagePage";
+import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 
 function EquipmentStatsCard() {
@@ -32,11 +32,8 @@ function EquipmentStatsCard() {
   const selectedDetails = eqSelected && equipmentToDetails(eqSelected);
   return (
     <Card sx={{ p: 0 }}>
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+      <Box sx={{ pt: 2, px: 2 }}>
         <Typography level="title-md">Equipment Details</Typography>
-        <Typography level="body-sm">
-          Useful stats to know about your equipment.
-        </Typography>
       </Box>
       <Divider />
       <Box
