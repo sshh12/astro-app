@@ -1,29 +1,29 @@
-import React, { useState } from "react";
-import { CssVarsProvider } from "@mui/joy/styles";
-import CssBaseline from "@mui/joy/CssBaseline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AspectRatio from "@mui/joy/AspectRatio";
 import Box from "@mui/joy/Box";
-import Layout from "../components/Layout";
+import Card from "@mui/joy/Card";
+import CssBaseline from "@mui/joy/CssBaseline";
+import Divider from "@mui/joy/Divider";
+import Sheet from "@mui/joy/Sheet";
+import Slider from "@mui/joy/Slider";
+import Stack from "@mui/joy/Stack";
+import { CssVarsProvider } from "@mui/joy/styles";
+import Tab from "@mui/joy/Tab";
+import TabList from "@mui/joy/TabList";
+import TabPanel from "@mui/joy/TabPanel";
+import Tabs from "@mui/joy/Tabs";
+import Typography from "@mui/joy/Typography";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import { SubPageHeader } from "../components/Headers";
-import { theme } from "../theme/theme";
+import Layout from "../components/Layout";
+import OverlayImage from "../components/OverlayImage";
+import { SideBarNav } from "../components/Sidebars";
 import { useBackend, useObjects } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
-import { useParams } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { objectsToKey } from "../utils/object";
+import { theme } from "../theme/theme";
 import { useCurrentObservingWindow } from "../utils/date";
-import { SideBarNav } from "../components/Sidebars";
-import Sheet from "@mui/joy/Sheet";
-import OverlayImage from "../components/OverlayImage";
-import Card from "@mui/joy/Card";
-import Divider from "@mui/joy/Divider";
-import AspectRatio from "@mui/joy/AspectRatio";
-import Slider from "@mui/joy/Slider";
-import Typography from "@mui/joy/Typography";
-import Stack from "@mui/joy/Stack";
-import Tabs from "@mui/joy/Tabs";
-import TabList from "@mui/joy/TabList";
-import Tab from "@mui/joy/Tab";
-import TabPanel from "@mui/joy/TabPanel";
+import { objectsToKey } from "../utils/object";
 
 function ImageLocationCard({ image }) {
   const [zoom, setZoom] = useState(0);
@@ -154,7 +154,7 @@ export default function ImageImagePage() {
         }}
       >
         <Layout.Header>
-          <SubPageHeader title={image?.title} backPath={"/image/capture"} />
+          <SubPageHeader title={image?.title} backPath={"/image/analyze"} />
         </Layout.Header>
         <Layout.SideNav>
           <SideBarNav
@@ -162,7 +162,7 @@ export default function ImageImagePage() {
             items={[
               {
                 text: "Captures",
-                pathname: "/image/capture",
+                pathname: "/image/analyze",
                 icon: ArrowBackIcon,
               },
             ]}

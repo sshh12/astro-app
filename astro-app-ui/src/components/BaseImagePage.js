@@ -1,16 +1,16 @@
-import React from "react";
-import { CssVarsProvider } from "@mui/joy/styles";
-import CssBaseline from "@mui/joy/CssBaseline";
+import { AccountTree, Calculate } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
-import Layout from "../components/Layout";
-import { TabHeader } from "../components/Headers";
-import { theme } from "../theme/theme";
+import CssBaseline from "@mui/joy/CssBaseline";
 import Stack from "@mui/joy/Stack";
+import { CssVarsProvider } from "@mui/joy/styles";
+import React from "react";
+import { TabHeader } from "../components/Headers";
+import Layout from "../components/Layout";
 import { SideBarNav } from "../components/Sidebars";
-import { Camera, Calculate } from "@mui/icons-material";
+import { theme } from "../theme/theme";
 
 const IMAGE_TABS = [
-  { label: "Capture", pathname: "/image/capture", icon: Camera },
+  { label: "Analyze", pathname: "/image/analyze", icon: AccountTree },
   { label: "Equipment", pathname: "/image/equipment", icon: Calculate },
 ];
 

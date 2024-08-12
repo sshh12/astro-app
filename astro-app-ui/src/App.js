@@ -1,15 +1,15 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import LoadingBackground from "./components/LoadingBackground";
-import { StorageContext, useStorageControl } from "./providers/storage";
 import { BackendContext, useBackendControl } from "./providers/backend";
 import { PythonContext, usePythonControl } from "./providers/python";
+import { StorageContext, useStorageControl } from "./providers/storage";
 
 const SkyPage = lazy(() => import("./pages/SkyPage"));
 const SkyListPage = lazy(() => import("./pages/SkyListPage"));
 const SkyObjectPage = lazy(() => import("./pages/SkyObjectPage"));
 const SkySearchPage = lazy(() => import("./pages/SkySearchPage"));
-const ImageCapturePage = lazy(() => import("./pages/ImageCapturePage"));
+const ImageAnalyzePage = lazy(() => import("./pages/ImageAnalyzePage"));
 const ImageEquipmentPage = lazy(() => import("./pages/ImageEquipmentPage"));
 const ImageImagePage = lazy(() => import("./pages/ImageImagePage"));
 const LocationWeatherPage = lazy(() => import("./pages/LocationWeatherPage"));
@@ -32,7 +32,7 @@ function App() {
           <Route path="/sky/list/:id" element={<SkyListPage />} />
           <Route path="/sky/object/:id" element={<SkyObjectPage />} />
           <Route path="/sky/search" element={<SkySearchPage />} />
-          <Route path="/image/capture" element={<ImageCapturePage />} />
+          <Route path="/image/analyze" element={<ImageAnalyzePage />} />
           <Route path="/image/images/:id" element={<ImageImagePage />} />
           <Route path="/image/equipment" element={<ImageEquipmentPage />} />
           <Route path="/location/weather" element={<LocationWeatherPage />} />

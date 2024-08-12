@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import Card from "@mui/joy/Card";
-import Box from "@mui/joy/Box";
-import Button from "@mui/joy/Button";
-import Typography from "@mui/joy/Typography";
-import ImageUploadCard from "../components/ImageUploadCard";
-import BaseImagePage from "../components/BaseImagePage";
-import Chip from "@mui/joy/Chip";
-import Stack from "@mui/joy/Stack";
-import Divider from "@mui/joy/Divider";
-import { Link } from "react-router-dom";
-import { useBackend, useObjects } from "../providers/backend";
-import { RichListListItem } from "../components/SkyListLists";
-import Tooltip from "@mui/joy/Tooltip";
-import IconButton from "@mui/joy/IconButton";
 import { Delete } from "@mui/icons-material";
 import { AspectRatio } from "@mui/joy";
+import Box from "@mui/joy/Box";
+import Button from "@mui/joy/Button";
+import Card from "@mui/joy/Card";
+import Chip from "@mui/joy/Chip";
+import Divider from "@mui/joy/Divider";
+import IconButton from "@mui/joy/IconButton";
+import Stack from "@mui/joy/Stack";
+import Tooltip from "@mui/joy/Tooltip";
+import Typography from "@mui/joy/Typography";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import BaseImagePage from "../components/BaseImagePage";
+import ImageUploadCard from "../components/ImageUploadCard";
+import { RichListListItem } from "../components/SkyListLists";
+import { useBackend, useObjects } from "../providers/backend";
 
 function commonAspectRatio(images) {
   if (!images) {
@@ -108,7 +108,7 @@ function ImageCard({ image, aspectRatio }) {
   );
 }
 
-export default function ImageCapturePage() {
+export default function ImageAnalyzePage() {
   const { user, updateUser } = useBackend();
   const [refreshLoading, setRefreshLoading] = useState(false);
   const images = user?.images || [];

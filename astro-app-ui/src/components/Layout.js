@@ -1,20 +1,20 @@
-import * as React from "react";
-import { grey } from "@mui/material/colors";
-import Box from "@mui/joy/Box";
-import Sheet from "@mui/joy/Sheet";
-import AutoAwesome from "@mui/icons-material/AutoAwesome";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import CameraIcon from "@mui/icons-material/Camera";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AutoAwesome from "@mui/icons-material/AutoAwesome";
+import CameraIcon from "@mui/icons-material/Camera";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
+import Sheet from "@mui/joy/Sheet";
 import Stack from "@mui/joy/Stack";
-import { useLocation, Link } from "react-router-dom";
+import { grey } from "@mui/material/colors";
+import * as React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const Tabs = [
   { label: "Sky", href: "/sky", icon: AutoAwesome, color: grey[200] },
   {
     label: "Image",
-    href: "/image/capture",
+    href: "/image/analyze",
     icon: CameraIcon,
     color: grey[200],
   },
