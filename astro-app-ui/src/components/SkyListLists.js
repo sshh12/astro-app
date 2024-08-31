@@ -297,19 +297,6 @@ export function ListMobileTab({ lists }) {
         gridColumn: "1/-1",
       }}
     >
-      <Typography
-        id="decorated-list-demo"
-        level="body-xs"
-        textTransform="uppercase"
-        fontWeight="lg"
-        mb={1}
-        sx={{
-          pt: 2,
-          pl: 2,
-        }}
-      >
-        Lists
-      </Typography>
       <List
         size="sm"
         sx={{

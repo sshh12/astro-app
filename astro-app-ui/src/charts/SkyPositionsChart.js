@@ -1,24 +1,23 @@
-import React, { useMemo } from "react";
+import Box from "@mui/joy/Box";
 import Card from "@mui/joy/Card";
-import Typography from "@mui/joy/Typography";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListItemButton from "@mui/joy/ListItemButton";
-import ListItemDecorator from "@mui/joy/ListItemDecorator";
-import Box from "@mui/joy/Box";
 import ListItemContent from "@mui/joy/ListItemContent";
-import { renderTime } from "../utils/date";
-import { renderAz } from "../utils/pos";
-import { colorToHex } from "../constants/colors";
+import ListItemDecorator from "@mui/joy/ListItemDecorator";
+import Typography from "@mui/joy/Typography";
+import React, { useMemo } from "react";
 import {
-  ResponsiveContainer,
-  Tooltip,
-  RadarChart,
   PolarGrid,
   PolarRadiusAxis,
   Radar,
-  Line,
+  RadarChart,
+  ResponsiveContainer,
+  Tooltip,
 } from "recharts";
+import { colorToHex } from "../constants/colors";
+import { renderTime } from "../utils/date";
+import { renderAz } from "../utils/pos";
 
 function HoverCard({ az, objects, tz }) {
   let objs = objects.filter((obj) => obj.alt > 0);
@@ -82,7 +81,7 @@ function interpolate(ary, n) {
 
 function buildRadialData(objects, orbits) {
   const gap = 1;
-  const interp = 10;
+  const interp = 1;
   const angleToRow = {};
   for (let i = 0; i < 360; i += gap) {
     angleToRow[i] = { az: i };
@@ -140,9 +139,9 @@ export default function SkyPositionsChart({ objects, orbits, stale }) {
             points={[]}
             name={obj.name}
             dataKey={obj.id}
-            stroke={stale ? "gray" : colorToHex(obj.color)}
             fill="none"
-            shape={<Line connectNulls={false} />}
+            stroke="none"
+            dot={{ fill: stale ? "gray" : colorToHex(obj.color), r: 1 }}
           />
         ))}
       </RadarChart>

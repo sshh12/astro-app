@@ -73,9 +73,7 @@ function TonightEvents({ location }) {
                 sx={{ maxWidth: "400px" }}
               >
                 {eventsStale ? (
-                  <Skeleton>
-                    <Typography level="title-sm">{event.title}</Typography>
-                  </Skeleton>
+                  <Skeleton variant="text"></Skeleton>
                 ) : (
                   <Typography level="title-sm">{event.title}</Typography>
                 )}
