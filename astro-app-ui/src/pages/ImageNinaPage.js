@@ -5,7 +5,6 @@ import {
   Divider,
   LinearProgress,
   List,
-  ListDivider,
   ListItem,
   Snackbar,
   Typography,
@@ -16,6 +15,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import BaseImagePage from "../components/BaseImagePage";
 import { useStorage } from "../providers/storage";
 import { listen, ninaPost, testConnection } from "../utils/nina";
+import { renderLatLon } from "../utils/pos";
 
 function NinaSetupCard({ connected, setConnected }) {
   const { settingsStore } = useStorage();
@@ -81,13 +81,50 @@ function NinaSetupCard({ connected, setConnected }) {
   );
 }
 
-function DeviceCard({
-  name,
-  basePath,
-  status,
-  connectionSettings,
-  DetailsCard,
-}) {
+const CONTROLS = {
+  camera: [],
+  mount: [
+    {
+      label: ({ status }) =>
+        renderLatLon(status.SiteLatitude, status.SiteLongitude),
+    },
+    {
+      label: ({ status }) => (status.AtPark ? "Parked" : "Not Parked"),
+      actions: ({ post }) => [
+        { label: "Unpark", action: () => post("/unpark") },
+        { label: "Park", action: () => post("/park") },
+      ],
+    },
+  ],
+  dome: [
+    {
+      label: ({ status }) => status.ShutterStatus,
+      actions: ({ post }) => [
+        { label: "Open", action: () => post("/open") },
+        { label: "Close", action: () => post("/close") },
+      ],
+    },
+    {
+      label: ({ status }) => `AZ ${status.Azimuth}°`,
+      numberInputs: ({ post }) => [
+        {
+          label: "Azimuth",
+          action: (value) => post("/rotate", { Azimuth: value }),
+        },
+      ],
+    },
+    {
+      label: ({ status }) => (status.AtPark ? "Parked" : "Not Parked"),
+      actions: ({ post }) => [{ label: "Park", action: () => post("/park") }],
+    },
+    {
+      label: ({ status }) => (status.AtHome ? "Home" : "Not Home"),
+      actions: ({ post }) => [{ label: "Home", action: () => post("/home") }],
+    },
+  ],
+};
+
+function DeviceCard({ name, basePath, status, connectionSettings, controls }) {
   const [loading, setLoading] = useState(false);
   const post = useCallback(
     (path, params = null) => {
@@ -101,6 +138,7 @@ function DeviceCard({
     },
     [connectionSettings, basePath]
   );
+  const controlProps = { status, post, loading };
   return (
     <Card sx={{ p: 0 }}>
       <Box sx={{ pt: 2, px: 2 }}>
@@ -109,7 +147,37 @@ function DeviceCard({
       <Divider />
       {status?.Connected ? (
         <Stack direction="column" spacing={1} sx={{ px: 2, pb: 2 }}>
-          <DetailsCard status={status} post={post} loading={loading} />
+          <List>
+            {controls?.map((control, idx) => (
+              <ListItem key={idx} sx={{ justifyContent: "space-between" }}>
+                {control.label(controlProps)}
+                <Stack direction="row" gap={1}>
+                  {control.numberInputs &&
+                    control
+                      .numberInputs(controlProps)
+                      .map((action, idx) => (
+                        <NumberButton
+                          key={idx}
+                          defaultVal={status.Azimuth}
+                          loading={loading}
+                          apply={(val) => action.action(val)}
+                        />
+                      ))}
+                  {control.actions &&
+                    control.actions(controlProps).map((action, idx) => (
+                      <Button
+                        key={idx}
+                        loading={loading}
+                        size="sm"
+                        onClick={() => action.action()}
+                      >
+                        {action.label}
+                      </Button>
+                    ))}
+                </Stack>
+              </ListItem>
+            ))}
+          </List>
           <Button color="danger" onClick={() => post("/disconnect")}>
             Disconnect
           </Button>
@@ -142,53 +210,6 @@ function NumberButton({ defaultVal, loading, apply }) {
   );
 }
 
-function DomeDetails({ status, post, loading }) {
-  return (
-    <List>
-      <ListItem sx={{ justifyContent: "space-between" }}>
-        {status.ShutterStatus}
-        <Stack direction="row" gap={1}>
-          <Button loading={loading} size="sm" onClick={() => post("/close")}>
-            Close
-          </Button>
-          <Button loading={loading} size="sm" onClick={() => post("/open")}>
-            Open
-          </Button>
-        </Stack>
-      </ListItem>
-      <ListDivider inset="gutter" />
-      <ListItem sx={{ justifyContent: "space-between" }}>
-        AZ {status.Azimuth}°
-        <Stack direction="row" gap={1}>
-          <NumberButton
-            loading={loading}
-            defaultVal={status.Azimuth}
-            apply={(val) => post("/rotate", { Azimuth: val })}
-          />
-        </Stack>
-      </ListItem>
-      <ListDivider inset="gutter" />
-      <ListItem sx={{ justifyContent: "space-between" }}>
-        {status.AtPark ? "Parked" : "Not Parked"}
-        <Stack direction="row" gap={1}>
-          <Button loading={loading} size="sm" onClick={() => post("/park")}>
-            Park
-          </Button>
-        </Stack>
-      </ListItem>
-      <ListDivider inset="gutter" />
-      <ListItem sx={{ justifyContent: "space-between" }}>
-        {status.AtHome ? "Home" : "Not Home"}
-        <Stack direction="row" gap={1}>
-          <Button loading={loading} size="sm" onClick={() => post("/home")}>
-            Home
-          </Button>
-        </Stack>
-      </ListItem>
-    </List>
-  );
-}
-
 export default function ImageNinaPage() {
   const [connected, setConnected] = useState(false);
   const [connectionSettings, setConnectionSettings] = useState(null);
@@ -197,7 +218,7 @@ export default function ImageNinaPage() {
   const [alert, setAlert] = useState(null);
 
   const [cameraStatus, setCameraStatus] = useState(null);
-  const [telescopeStatus, setTelescopeStatus] = useState(null);
+  const [mountStatus, setMountStatus] = useState(null);
   const [domeStatus, setDomeStatus] = useState(null);
 
   useEffect(() => {
@@ -221,10 +242,10 @@ export default function ImageNinaPage() {
                 if (data.Action !== "NONE") {
                   setAlert(`Camera: ${data.Action}`);
                 }
-              } else if (data.Type === "TelescopeStatus") {
-                setTelescopeStatus(data);
+              } else if (data.Type === "MountStatus") {
+                setMountStatus(data);
                 if (data.Action !== "NONE") {
-                  setAlert(`Telescope: ${data.Action}`);
+                  setAlert(`Mount: ${data.Action}`);
                 }
               } else if (data.Type === "DomeStatus") {
                 setDomeStatus(data);
@@ -248,14 +269,16 @@ export default function ImageNinaPage() {
           basePath="/api/v1/camera"
           connectionSettings={connectionSettings}
           status={cameraStatus}
+          controls={CONTROLS.camera}
         />
       )}
       {connected && socketConnected && (
         <DeviceCard
-          name="Telescope"
-          basePath="/api/v1/telescope"
+          name="Mount"
+          basePath="/api/v1/mount"
           connectionSettings={connectionSettings}
-          status={telescopeStatus}
+          status={mountStatus}
+          controls={CONTROLS.mount}
         />
       )}
       {connected && socketConnected && (
@@ -264,7 +287,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/dome"
           connectionSettings={connectionSettings}
           status={domeStatus}
-          DetailsCard={DomeDetails}
+          controls={CONTROLS.dome}
         />
       )}
       <Snackbar
