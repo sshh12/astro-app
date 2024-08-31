@@ -12,6 +12,7 @@ const SkySearchPage = lazy(() => import("./pages/SkySearchPage"));
 const ImageAnalyzePage = lazy(() => import("./pages/ImageAnalyzePage"));
 const ImageEquipmentPage = lazy(() => import("./pages/ImageEquipmentPage"));
 const ImageImagePage = lazy(() => import("./pages/ImageImagePage"));
+const ImageNinaPage = lazy(() => import("./pages/ImageNinaPage"));
 const LocationWeatherPage = lazy(() => import("./pages/LocationWeatherPage"));
 const LocationPollutionPage = lazy(() =>
   import("./pages/LocationPollutionPage")
@@ -35,6 +36,7 @@ function App() {
           <Route path="/image/analyze" element={<ImageAnalyzePage />} />
           <Route path="/image/images/:id" element={<ImageImagePage />} />
           <Route path="/image/equipment" element={<ImageEquipmentPage />} />
+          <Route path="/image/nina" element={<ImageNinaPage />} />
           <Route path="/location/weather" element={<LocationWeatherPage />} />
           <Route
             path="/location/pollution"

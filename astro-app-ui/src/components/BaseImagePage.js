@@ -1,4 +1,5 @@
 import { AccountTree, Calculate } from "@mui/icons-material";
+import SettingsRemoteIcon from "@mui/icons-material/SettingsRemote";
 import Box from "@mui/joy/Box";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Stack from "@mui/joy/Stack";
@@ -12,6 +13,7 @@ import { theme } from "../theme/theme";
 const IMAGE_TABS = [
   { label: "Analyze", pathname: "/image/analyze", icon: AccountTree },
   { label: "Equipment", pathname: "/image/equipment", icon: Calculate },
+  { label: "N.I.N.A.", pathname: "/image/nina", icon: SettingsRemoteIcon },
 ];
 
 export default function BaseImagePage({
