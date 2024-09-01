@@ -19,6 +19,7 @@ const LocationPollutionPage = lazy(() =>
 );
 const LocationEventsPage = lazy(() => import("./pages/LocationEventsPage"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Tutorial = lazy(() => import("./pages/Tutorial"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route path="/location/events" element={<LocationEventsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/tutorial" element={<Tutorial />} />
           <Route path={`*`} element={<Navigate to="/sky" replace />} />
         </Routes>
       </PythonContext.Provider>

@@ -1,4 +1,5 @@
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { AspectRatio, LinearProgress } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import CssBaseline from "@mui/joy/CssBaseline";
@@ -7,18 +8,47 @@ import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
 import { CssVarsProvider } from "@mui/joy/styles";
 import Typography from "@mui/joy/Typography";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ConfigureLocationCard from "../components/ConfigureLocationCard";
-import { useBackend } from "../providers/backend";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme/theme";
 
-export default function OnboardingPage() {
-  const { user, updateUser } = useBackend();
-  const { closeOnboarding } = useBackend();
-  const [loading, setLoading] = useState(false);
-  const [triggerLocationSubmitCallback, setTriggerLocationSubmit] =
-    useState(null);
+const STEPS = [
+  {
+    title: "Track the sky",
+    desc: "Collect your favorite objects to see where they'll be in the sky tonight. The 'altitude' of an object refers to how high it is in the sky (90° is straight up), while the 'azimuth' refers to its direction (e.g. North). Images are rendered to the same focal length of your equipment.",
+    screenshot: "/static/screenshots/sky.png",
+    background: "/static/hubble/spiral.avif",
+  },
+  {
+    title: "Find new objects",
+    desc: "Use AI-powered search to find objects personalized to your location and equipment. Just describe what you are interested in and let the app do the rest.",
+    screenshot: "/static/screenshots/search.png",
+    background: "/static/hubble/spiral.avif",
+  },
+  {
+    title: "Monitor stargazing conditions",
+    desc: "Track nightly weather conditions, light pollution, and events.",
+    screenshot: "/static/screenshots/weather.png",
+    background: "/static/hubble/spiral.avif",
+  },
+  {
+    title: "Analyze your astro images",
+    desc: "Upload images taken with your equipment or smartphone to identify objects in the sky.",
+    screenshot: "/static/screenshots/analyze.png",
+    background: "/static/hubble/spiral.avif",
+  },
+  {
+    title: "Telescope Remote Control (Experimental)",
+    desc: "For more advanced users that use N.I.N.A. you can control your telescope over the internet by installing the Astro App N.I.N.A. plugin.",
+    screenshot: "/static/screenshots/nina.png",
+    background: "/static/hubble/spiral.avif",
+  },
+];
+
+export default function TutorialPage() {
+  const location = useLocation();
+  const stepId = parseInt(new URLSearchParams(location.search).get("s")) || 0;
+  const step = STEPS[stepId];
   const navigate = useNavigate();
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
@@ -81,7 +111,7 @@ export default function OnboardingPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              width: 400,
+              width: { sx: "100%", md: "80%", lg: "600px" },
               maxWidth: "100%",
               mx: "auto",
               borderRadius: "sm",
@@ -98,55 +128,45 @@ export default function OnboardingPage() {
             <Stack gap={43} sx={{ mb: 1 }}>
               <Stack gap={1}>
                 <Typography component="h1" level="h3">
-                  Welcome to the stars...
+                  {step.title}
                 </Typography>
-                <Typography level="body-sm">
-                  Explore the night sky and track celestial events.
-                </Typography>
+                <Typography level="body-sm">{step.desc}</Typography>
               </Stack>
             </Stack>
             <Stack gap={2} sx={{ mt: { xs: 0, sm: 2 } }}>
-              <ConfigureLocationCard
-                showButton={false}
-                triggerSubmitAndCallback={triggerLocationSubmitCallback}
-                onSubmit={(v) => {
-                  updateUser("add_location", { location_details: v });
-                }}
-              />
+              <AspectRatio ratio={2048 / 1200}>
+                <img src={step.screenshot} alt={step.desc} />
+              </AspectRatio>
               <Stack gap={2} sx={{ mt: 2 }}>
                 <Button
-                  loading={loading || !user}
                   fullWidth
                   onClick={() => {
-                    setLoading(true);
-                    setTriggerLocationSubmit(() => {
-                      return () => {
-                        setLoading(false);
-                        closeOnboarding();
-                        navigate("/tutorial");
-                      };
-                    });
+                    if (stepId === STEPS.length - 1) {
+                      navigate("/sky");
+                    } else {
+                      navigate(`/tutorial?s=${stepId + 1}`);
+                    }
                   }}
                 >
-                  Play Tutorial
+                  Next
                 </Button>
                 <Button
                   variant="outlined"
                   fullWidth
-                  loading={loading || !user}
                   onClick={() => {
-                    setLoading(true);
-                    setTriggerLocationSubmit(() => {
-                      return () => {
-                        setLoading(false);
-                        closeOnboarding();
-                        navigate("/sky");
-                      };
-                    });
+                    if (stepId === 0) {
+                      navigate("/onboarding");
+                    } else {
+                      navigate(`/tutorial?s=${stepId - 1}`);
+                    }
                   }}
                 >
-                  Skip Tutorial
+                  Back
                 </Button>
+                <LinearProgress
+                  determinate
+                  value={((stepId + 1) / STEPS.length) * 100}
+                />
               </Stack>
             </Stack>
           </Box>
@@ -172,7 +192,7 @@ export default function OnboardingPage() {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: "url(/static/hubble/jupiter.avif)",
+          backgroundImage: `url(${step.background})`,
         })}
       />
     </CssVarsProvider>

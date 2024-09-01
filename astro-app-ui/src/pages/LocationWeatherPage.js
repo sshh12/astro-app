@@ -1,5 +1,6 @@
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import {
+  AspectRatio,
   Box,
   Button,
   Card,
@@ -374,38 +375,44 @@ function GOESImage({ wfo }) {
     <div>
       {wfo && supportsStatic && viewStatic && (
         <div onClick={() => setViewStatis(false)}>
-          <img
-            style={imgStyle}
-            onError={() => setSupportsStatic(false)}
-            onLoad={() => setLoading(false)}
-            alt={"clouds"}
-            crossOrigin="anonymous"
-            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
-          />
+          <AspectRatio ratio={1}>
+            <img
+              style={imgStyle}
+              onError={() => setSupportsStatic(false)}
+              onLoad={() => setLoading(false)}
+              alt={"clouds"}
+              crossOrigin="anonymous"
+              src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/600x600.jpg?${urlKey}`}
+            />
+          </AspectRatio>
         </div>
       )}
       {wfo && supportsGOES18 && !viewStatic && (
         <div onClick={() => setViewStatis(true)}>
-          <img
-            style={imgStyle}
-            onError={() => setSupportsGOES18(false)}
-            onLoad={() => setLoading(false)}
-            alt={"clouds"}
-            crossOrigin="anonymous"
-            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
-          />
+          <AspectRatio ratio={1}>
+            <img
+              style={imgStyle}
+              onError={() => setSupportsGOES18(false)}
+              onLoad={() => setLoading(false)}
+              alt={"clouds"}
+              crossOrigin="anonymous"
+              src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES18-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
+            />
+          </AspectRatio>
         </div>
       )}
       {wfo && supportsGOES16 && !viewStatic && (
         <div onClick={() => setViewStatis(true)}>
-          <img
-            style={imgStyle}
-            onError={() => setSupportsGOES16(false)}
-            onLoad={() => setLoading(false)}
-            alt={"clouds"}
-            crossOrigin="anonymous"
-            src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
-          />
+          <AspectRatio ratio={1}>
+            <img
+              style={imgStyle}
+              onError={() => setSupportsGOES16(false)}
+              onLoad={() => setLoading(false)}
+              alt={"clouds"}
+              crossOrigin="anonymous"
+              src={`https://cdn.star.nesdis.noaa.gov/WFO/${wfo.toLowerCase()}/DayNightCloudMicroCombo/GOES16-${wfo.toUpperCase()}-DayNightCloudMicroCombo-600x600.gif?${urlKey}`}
+            />
+          </AspectRatio>
         </div>
       )}
     </div>

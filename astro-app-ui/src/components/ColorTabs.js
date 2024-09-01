@@ -1,6 +1,6 @@
-import React from "react";
 import { Box, Stack, Tooltip } from "@mui/joy";
 import { grey } from "@mui/material/colors";
+import React from "react";
 
 export function ColorTabs({ tabs, outlineIdx }) {
   const renderTabs = tabs.map((t, i) => {
