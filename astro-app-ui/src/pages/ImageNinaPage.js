@@ -82,31 +82,30 @@ function NinaSetupCard({ connected, setConnected }) {
 }
 
 const CONTROLS = {
-  camera: [],
-  mount: [
+  camera: () => [],
+  mount: ({ status, post }) => [
     {
-      label: ({ status }) =>
-        renderLatLon(status.SiteLatitude, status.SiteLongitude),
+      label: renderLatLon(status.SiteLatitude, status.SiteLongitude),
     },
     {
-      label: ({ status }) => (status.AtPark ? "Parked" : "Not Parked"),
-      actions: ({ post }) => [
+      label: status.AtPark ? "Parked" : "Not Parked",
+      actions: [
         { label: "Unpark", action: () => post("/unpark") },
         { label: "Park", action: () => post("/park") },
       ],
     },
   ],
-  dome: [
+  dome: ({ status, post }) => [
     {
-      label: ({ status }) => status.ShutterStatus,
-      actions: ({ post }) => [
+      label: status.ShutterStatus,
+      actions: [
         { label: "Open", action: () => post("/open") },
         { label: "Close", action: () => post("/close") },
       ],
     },
     {
-      label: ({ status }) => `AZ ${status.Azimuth}°`,
-      numberInputs: ({ post }) => [
+      label: `AZ ${status.Azimuth}°`,
+      numberInputs: [
         {
           label: "Azimuth",
           action: (value) => post("/rotate", { Azimuth: value }),
@@ -114,17 +113,30 @@ const CONTROLS = {
       ],
     },
     {
-      label: ({ status }) => (status.AtPark ? "Parked" : "Not Parked"),
-      actions: ({ post }) => [{ label: "Park", action: () => post("/park") }],
+      label: status.AtPark ? "Parked" : "Not Parked",
+      actions: [{ label: "Park", action: () => post("/park") }],
     },
     {
-      label: ({ status }) => (status.AtHome ? "Home" : "Not Home"),
-      actions: ({ post }) => [{ label: "Home", action: () => post("/home") }],
+      label: status.AtHome ? "Home" : "Not Home",
+      actions: [{ label: "Home", action: () => post("/home") }],
     },
   ],
+  filterWheel: () => [],
+  focuser: () => [],
+  flatDevice: () => [],
+  rotator: () => [],
+  switch: () => [],
+  weather: () => [],
+  safetyMonitor: () => [],
 };
 
-function DeviceCard({ name, basePath, status, connectionSettings, controls }) {
+function DeviceCard({
+  name,
+  basePath,
+  status,
+  connectionSettings,
+  controlsFunc,
+}) {
   const [loading, setLoading] = useState(false);
   const post = useCallback(
     (path, params = null) => {
@@ -138,7 +150,8 @@ function DeviceCard({ name, basePath, status, connectionSettings, controls }) {
     },
     [connectionSettings, basePath]
   );
-  const controlProps = { status, post, loading };
+  const controls =
+    status && status.Connected ? controlsFunc({ status, post }) : [];
   return (
     <Card sx={{ p: 0 }}>
       <Box sx={{ pt: 2, px: 2 }}>
@@ -150,21 +163,19 @@ function DeviceCard({ name, basePath, status, connectionSettings, controls }) {
           <List>
             {controls?.map((control, idx) => (
               <ListItem key={idx} sx={{ justifyContent: "space-between" }}>
-                {control.label(controlProps)}
+                {control.label}
                 <Stack direction="row" gap={1}>
                   {control.numberInputs &&
-                    control
-                      .numberInputs(controlProps)
-                      .map((action, idx) => (
-                        <NumberButton
-                          key={idx}
-                          defaultVal={status.Azimuth}
-                          loading={loading}
-                          apply={(val) => action.action(val)}
-                        />
-                      ))}
+                    control.numberInputs.map((action, idx) => (
+                      <NumberButton
+                        key={idx}
+                        defaultVal={status.Azimuth}
+                        loading={loading}
+                        apply={(val) => action.action(val)}
+                      />
+                    ))}
                   {control.actions &&
-                    control.actions(controlProps).map((action, idx) => (
+                    control.actions.map((action, idx) => (
                       <Button
                         key={idx}
                         loading={loading}
@@ -311,7 +322,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/camera"
           connectionSettings={connectionSettings}
           status={cameraStatus}
-          controls={CONTROLS.camera}
+          controlsFunc={CONTROLS.camera}
         />
       )}
       {connected && socketConnected && (
@@ -320,7 +331,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/mount"
           connectionSettings={connectionSettings}
           status={mountStatus}
-          controls={CONTROLS.mount}
+          controlsFunc={CONTROLS.mount}
         />
       )}
       {connected && socketConnected && (
@@ -329,7 +340,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/dome"
           connectionSettings={connectionSettings}
           status={domeStatus}
-          controls={CONTROLS.dome}
+          controlsFunc={CONTROLS.dome}
         />
       )}
       {connected && socketConnected && (
@@ -338,7 +349,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/filterwheel"
           connectionSettings={connectionSettings}
           status={filterWheelStatus}
-          controls={[]}
+          controlsFunc={CONTROLS.filterWheel}
         />
       )}
       {connected && socketConnected && (
@@ -347,7 +358,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/focuser"
           connectionSettings={connectionSettings}
           status={focuserStatus}
-          controls={[]}
+          controlsFunc={CONTROLS.focuser}
         />
       )}
       {connected && socketConnected && (
@@ -356,7 +367,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/flatdevice"
           connectionSettings={connectionSettings}
           status={flatDeviceStatus}
-          controls={[]}
+          controlsFunc={CONTROLS.flatDevice}
         />
       )}
       {connected && socketConnected && (
@@ -365,7 +376,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/rotator"
           connectionSettings={connectionSettings}
           status={rotatorStatus}
-          controls={[]}
+          controlsFunc={CONTROLS.rotator}
         />
       )}
       {connected && socketConnected && (
@@ -374,7 +385,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/switch"
           connectionSettings={connectionSettings}
           status={switchStatus}
-          controls={[]}
+          controlsFunc={CONTROLS.switch}
         />
       )}
       {connected && socketConnected && (
@@ -383,7 +394,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/weather"
           connectionSettings={connectionSettings}
           status={weatherStatus}
-          controls={[]}
+          controls={CONTROLS.weather}
         />
       )}
       {connected && socketConnected && (
@@ -392,7 +403,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/safetymonitor"
           connectionSettings={connectionSettings}
           status={safetyMonitorStatus}
-          controls={[]}
+          controls={CONTROLS.safetyMonitor}
         />
       )}
       <Snackbar
