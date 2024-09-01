@@ -220,6 +220,13 @@ export default function ImageNinaPage() {
   const [cameraStatus, setCameraStatus] = useState(null);
   const [mountStatus, setMountStatus] = useState(null);
   const [domeStatus, setDomeStatus] = useState(null);
+  const [filterWheelStatus, setFilterWheelStatus] = useState(null);
+  const [focuserStatus, setFocuserStatus] = useState(null);
+  const [flatDeviceStatus, setFlatDeviceStatus] = useState(null);
+  const [rotatorStatus, setRotatorStatus] = useState(null);
+  const [switchStatus, setSwitchStatus] = useState(null);
+  const [weatherStatus, setWeatherStatus] = useState(null);
+  const [safetyMonitorStatus, setSafetyMonitorStatus] = useState(null);
 
   useEffect(() => {
     if (connected && settingsStore) {
@@ -251,6 +258,41 @@ export default function ImageNinaPage() {
                 setDomeStatus(data);
                 if (data.Action !== "NONE") {
                   setAlert(`Dome: ${data.Action}`);
+                }
+              } else if (data.Type === "FilterWheelStatus") {
+                setFilterWheelStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Filter Wheel: ${data.Action}`);
+                }
+              } else if (data.Type === "FocuserStatus") {
+                setFocuserStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Focuser: ${data.Action}`);
+                }
+              } else if (data.Type === "FlatDeviceStatus") {
+                setFlatDeviceStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Flat Device: ${data.Action}`);
+                }
+              } else if (data.Type === "RotatorStatus") {
+                setRotatorStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Rotator: ${data.Action}`);
+                }
+              } else if (data.Type === "SwitchStatus") {
+                setSwitchStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Switch: ${data.Action}`);
+                }
+              } else if (data.Type === "WeatherStatus") {
+                setWeatherStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Weather: ${data.Action}`);
+                }
+              } else if (data.Type === "SafetyMonitorStatus") {
+                setSafetyMonitorStatus(data);
+                if (data.Action !== "NONE") {
+                  setAlert(`Safety Monitor: ${data.Action}`);
                 }
               }
             }
@@ -288,6 +330,69 @@ export default function ImageNinaPage() {
           connectionSettings={connectionSettings}
           status={domeStatus}
           controls={CONTROLS.dome}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Filter Wheel"
+          basePath="/api/v1/filterwheel"
+          connectionSettings={connectionSettings}
+          status={filterWheelStatus}
+          controls={[]}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Focuser"
+          basePath="/api/v1/focuser"
+          connectionSettings={connectionSettings}
+          status={focuserStatus}
+          controls={[]}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Flat Device"
+          basePath="/api/v1/flatdevice"
+          connectionSettings={connectionSettings}
+          status={flatDeviceStatus}
+          controls={[]}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Rotator"
+          basePath="/api/v1/rotator"
+          connectionSettings={connectionSettings}
+          status={rotatorStatus}
+          controls={[]}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Switch"
+          basePath="/api/v1/switch"
+          connectionSettings={connectionSettings}
+          status={switchStatus}
+          controls={[]}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Weather"
+          basePath="/api/v1/weather"
+          connectionSettings={connectionSettings}
+          status={weatherStatus}
+          controls={[]}
+        />
+      )}
+      {connected && socketConnected && (
+        <DeviceCard
+          name="Safety Monitor"
+          basePath="/api/v1/safetymonitor"
+          connectionSettings={connectionSettings}
+          status={safetyMonitorStatus}
+          controls={[]}
         />
       )}
       <Snackbar
