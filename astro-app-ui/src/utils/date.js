@@ -1,10 +1,10 @@
-import React from "react";
 import { DateTime } from "luxon";
+import React from "react";
 import { TIMEZONES } from "../constants/timezones";
 
 export function renderTime(ts, tz) {
   const date = new Date(ts);
-  return date.toLocaleTimeString("en-US", {
+  return date.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
     timeZone: tz,
@@ -14,7 +14,7 @@ export function renderTime(ts, tz) {
 export function renderDate(ts, tz) {
   const date = new Date(ts);
   // render with year
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -24,7 +24,7 @@ export function renderDate(ts, tz) {
 
 export function renderTimeWithSeconds(ts, tz) {
   const date = new Date(ts);
-  return date.toLocaleTimeString("en-US", {
+  return date.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
