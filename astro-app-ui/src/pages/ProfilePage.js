@@ -1,21 +1,22 @@
-import React, { useState } from "react";
-import { CssVarsProvider } from "@mui/joy/styles";
-import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
-import Layout from "../components/Layout";
-import { Header } from "../components/Headers";
-import { theme } from "../theme/theme";
-import { useBackend } from "../providers/backend";
-import ConfigureLocationCard from "./../components/ConfigureLocationCard";
-import ConfigureEquipmentCard from "../components/ConfigureEquipmentCard";
-import Stack from "@mui/joy/Stack";
+import CssBaseline from "@mui/joy/CssBaseline";
 import Modal from "@mui/joy/Modal";
-import ModalDialog from "@mui/joy/ModalDialog";
 import ModalClose from "@mui/joy/ModalClose";
-import ProfileLocationCard from "../components/ProfileLocationCard";
-import ProfileEquipmentCard from "../components/ProfileEquipmentCard";
+import ModalDialog from "@mui/joy/ModalDialog";
+import Stack from "@mui/joy/Stack";
+import { CssVarsProvider } from "@mui/joy/styles";
+import React, { useState } from "react";
 import AcknowledgementsCard from "../components/AcknowledgementsCard";
+import ConfigureEquipmentCard from "../components/ConfigureEquipmentCard";
+import FeedbackCard from "../components/FeedbackCard";
+import { Header } from "../components/Headers";
+import Layout from "../components/Layout";
+import ProfileEquipmentCard from "../components/ProfileEquipmentCard";
+import ProfileLocationCard from "../components/ProfileLocationCard";
 import { SideBarNav } from "../components/Sidebars";
+import { useBackend } from "../providers/backend";
+import { theme } from "../theme/theme";
+import ConfigureLocationCard from "./../components/ConfigureLocationCard";
 
 export default function ProfilePage() {
   const { user, updateUser } = useBackend();
@@ -57,6 +58,7 @@ export default function ProfilePage() {
             >
               <ProfileLocationCard setOpen={setOpenLocationDialog} />
               <ProfileEquipmentCard setOpen={setOpenEquipmentDialog} />
+              <FeedbackCard />
               <AcknowledgementsCard />
             </Stack>
           </Box>

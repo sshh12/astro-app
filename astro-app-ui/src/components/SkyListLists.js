@@ -312,7 +312,7 @@ export function ListMobileTab({ lists }) {
       </List>
       <Divider />
       <AccordionGroup>
-        <Accordion>
+        <Accordion sx={{ px: 2, py: 0.5 }}>
           <AccordionSummary>
             <Typography level="body-sm">Curated Lists</Typography>
           </AccordionSummary>
