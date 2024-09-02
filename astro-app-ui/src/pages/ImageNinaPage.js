@@ -1,21 +1,18 @@
 import {
   Box,
-  Button,
   Card,
   Divider,
   LinearProgress,
-  List,
-  ListItem,
   Snackbar,
   Typography,
 } from "@mui/joy";
 import Input from "@mui/joy/Input";
 import Stack from "@mui/joy/Stack";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import BaseImagePage from "../components/BaseImagePage";
+import NinaDeviceCard, { CONTROLS } from "../components/NinaDeviceCard";
 import { useStorage } from "../providers/storage";
-import { listen, ninaPost, testConnection } from "../utils/nina";
-import { renderLatLon } from "../utils/pos";
+import { listen, testConnection } from "../utils/nina";
 
 function NinaSetupCard({ connected, setConnected }) {
   const { settingsStore } = useStorage();
@@ -78,146 +75,6 @@ function NinaSetupCard({ connected, setConnected }) {
         />
       </Stack>
     </Card>
-  );
-}
-
-const CONTROLS = {
-  camera: () => [],
-  mount: ({ status, post }) => [
-    {
-      label: renderLatLon(status.SiteLatitude, status.SiteLongitude),
-    },
-    {
-      label: status.AtPark ? "Parked" : "Not Parked",
-      actions: [
-        { label: "Unpark", action: () => post("/unpark") },
-        { label: "Park", action: () => post("/park") },
-      ],
-    },
-  ],
-  dome: ({ status, post }) => [
-    {
-      label: status.ShutterStatus,
-      actions: [
-        { label: "Open", action: () => post("/open") },
-        { label: "Close", action: () => post("/close") },
-      ],
-    },
-    {
-      label: `AZ ${status.Azimuth}°`,
-      numberInputs: [
-        {
-          label: "Azimuth",
-          action: (value) => post("/rotate", { Azimuth: value }),
-        },
-      ],
-    },
-    {
-      label: status.AtPark ? "Parked" : "Not Parked",
-      actions: [{ label: "Park", action: () => post("/park") }],
-    },
-    {
-      label: status.AtHome ? "Home" : "Not Home",
-      actions: [{ label: "Home", action: () => post("/home") }],
-    },
-  ],
-  filterWheel: () => [],
-  focuser: () => [],
-  flatDevice: () => [],
-  rotator: () => [],
-  switch: () => [],
-  weather: () => [],
-  safetyMonitor: () => [],
-};
-
-function DeviceCard({
-  name,
-  basePath,
-  status,
-  connectionSettings,
-  controlsFunc,
-}) {
-  const [loading, setLoading] = useState(false);
-  const post = useCallback(
-    (path, params = null) => {
-      setLoading(true);
-      return ninaPost(connectionSettings, basePath + path, params).then(
-        (resp) => {
-          setLoading(false);
-          return resp;
-        }
-      );
-    },
-    [connectionSettings, basePath]
-  );
-  const controls =
-    status && status.Connected ? controlsFunc({ status, post }) : [];
-  return (
-    <Card sx={{ p: 0 }}>
-      <Box sx={{ pt: 2, px: 2 }}>
-        <Typography level="title-md">{status?.Name || name}</Typography>
-      </Box>
-      <Divider />
-      {status?.Connected ? (
-        <Stack direction="column" spacing={1} sx={{ px: 2, pb: 2 }}>
-          <List>
-            {controls?.map((control, idx) => (
-              <ListItem key={idx} sx={{ justifyContent: "space-between" }}>
-                {control.label}
-                <Stack direction="row" gap={1}>
-                  {control.numberInputs &&
-                    control.numberInputs.map((action, idx) => (
-                      <NumberButton
-                        key={idx}
-                        defaultVal={status.Azimuth}
-                        loading={loading}
-                        apply={(val) => action.action(val)}
-                      />
-                    ))}
-                  {control.actions &&
-                    control.actions.map((action, idx) => (
-                      <Button
-                        key={idx}
-                        loading={loading}
-                        size="sm"
-                        onClick={() => action.action()}
-                      >
-                        {action.label}
-                      </Button>
-                    ))}
-                </Stack>
-              </ListItem>
-            ))}
-          </List>
-          <Button color="danger" onClick={() => post("/disconnect")}>
-            Disconnect
-          </Button>
-        </Stack>
-      ) : (
-        <Stack direction="column" spacing={1} sx={{ px: 2, pb: 2 }}>
-          <Button loading={loading} onClick={() => post("/connect")}>
-            Connect
-          </Button>
-        </Stack>
-      )}
-    </Card>
-  );
-}
-
-function NumberButton({ defaultVal, loading, apply }) {
-  const [value, setValue] = useState(defaultVal);
-  useEffect(() => {
-    setValue(defaultVal);
-  }, [defaultVal]);
-  return (
-    <Input
-      type="number"
-      size="sm"
-      value={value}
-      disabled={loading}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={() => apply(value)}
-    />
   );
 }
 
@@ -317,7 +174,7 @@ export default function ImageNinaPage() {
     <BaseImagePage tabIdx={2}>
       <NinaSetupCard connected={connected} setConnected={setConnected} />
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Camera"
           basePath="/api/v1/camera"
           connectionSettings={connectionSettings}
@@ -326,7 +183,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Mount"
           basePath="/api/v1/mount"
           connectionSettings={connectionSettings}
@@ -335,7 +192,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Dome"
           basePath="/api/v1/dome"
           connectionSettings={connectionSettings}
@@ -344,7 +201,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Filter Wheel"
           basePath="/api/v1/filterwheel"
           connectionSettings={connectionSettings}
@@ -353,7 +210,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Focuser"
           basePath="/api/v1/focuser"
           connectionSettings={connectionSettings}
@@ -362,7 +219,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Flat Device"
           basePath="/api/v1/flatdevice"
           connectionSettings={connectionSettings}
@@ -371,7 +228,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Rotator"
           basePath="/api/v1/rotator"
           connectionSettings={connectionSettings}
@@ -380,7 +237,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Switch"
           basePath="/api/v1/switch"
           connectionSettings={connectionSettings}
@@ -389,7 +246,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Weather"
           basePath="/api/v1/weather"
           connectionSettings={connectionSettings}
@@ -398,7 +255,7 @@ export default function ImageNinaPage() {
         />
       )}
       {connected && socketConnected && (
-        <DeviceCard
+        <NinaDeviceCard
           name="Safety Monitor"
           basePath="/api/v1/safetymonitor"
           connectionSettings={connectionSettings}

@@ -32,6 +32,18 @@ export function ninaPost({ host, password }, path, body) {
   }).then((resp) => resp.json());
 }
 
+export function ninaPatch({ host, password }, path, body) {
+  const encodedCredentials = btoa(`${userName}:${password}`);
+  return fetch(host + path, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${encodedCredentials}`,
+    },
+    body: JSON.stringify(body),
+  }).then((resp) => resp.json());
+}
+
 export function listen({ host, password }, onStatus, onEvent) {
   const origin = new URL(host).host;
   const uri = `ws://${origin}/events/v1`;
