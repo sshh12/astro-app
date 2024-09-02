@@ -251,7 +251,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/weather"
           connectionSettings={connectionSettings}
           status={weatherStatus}
-          controls={CONTROLS.weather}
+          controlsFunc={CONTROLS.weather}
         />
       )}
       {connected && socketConnected && (
@@ -260,7 +260,7 @@ export default function ImageNinaPage() {
           basePath="/api/v1/safetymonitor"
           connectionSettings={connectionSettings}
           status={safetyMonitorStatus}
-          controls={CONTROLS.safetyMonitor}
+          controlsFunc={CONTROLS.safetyMonitor}
         />
       )}
       <Snackbar

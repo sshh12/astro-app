@@ -9,7 +9,7 @@ import { ninaPatch, ninaPost } from "../utils/nina";
 import { renderAz, renderLatLon } from "../utils/pos";
 
 function round(val) {
-  return Math.round(val * 10) / 10;
+  return Math.round(val * 100) / 100;
 }
 
 function NumberButton({ defaultVal, loading, apply }) {
@@ -36,21 +36,37 @@ function NumberButton({ defaultVal, loading, apply }) {
 }
 
 export const CONTROLS = {
-  camera: () => [],
+  camera: ({ status }) => [
+    {
+      label: `Sensor: ${status.XSize} x ${status.YSize} (${
+        status.SensorType
+      }, ${round(status.PixelSize)}µm)`,
+    },
+    {
+      label: `Gain: ${status.Gain} (${status.Offset})`,
+    },
+    {
+      label: `Temperature: ${status.Temperature}° C`,
+    },
+  ],
   mount: ({ status, post }) => [
     {
+      label: `Sidereal: ${status.SiderealTime}`,
+    },
+    {
       label:
+        "Location: " +
         renderLatLon(status.SiteLatitude, status.SiteLongitude) +
         ` @ ${round(status.SiteElevation)}m`,
     },
     {
-      label: `AZ ${renderAz(round(status.Azimuth))} / ALT ${round(
+      label: `Pointing: AZ ${renderAz(round(status.Azimuth))} / ALT ${round(
         status.Altitude
       )}° (${status.SideOfPier})`,
       numberInputs: [],
     },
     {
-      label: `Tracking ${status.TrackingMode}`,
+      label: `Tracking: ${status.TrackingMode}`,
     },
     {
       label: status.AtPark ? "Parked" : "Not Parked",
@@ -145,7 +161,7 @@ export const CONTROLS = {
     },
   ],
   focuser: ({ status, patch }) => [
-    { label: `${round(status.Temperature)}° C` },
+    { label: `Temperature: ${round(status.Temperature)}° C` },
     {
       label: `Position: ${status.Position}`,
       numberInputs: [
@@ -157,11 +173,38 @@ export const CONTROLS = {
       ],
     },
   ],
-  flatDevice: () => [],
-  rotator: () => [],
-  switch: () => [],
-  weather: () => [],
-  safetyMonitor: () => [],
+  flatDevice: ({ status }) => [
+    { label: `Cover State: ${status.CoverState}` },
+    {
+      label: `Light: ${
+        status.LightOn ? "On at " + status.Brightness : "Off"
+      } (${status.MinBrightness} - ${status.MaxBrightness})`,
+    },
+  ],
+  rotator: ({ status }) => [
+    { label: `Mechanical Position: ${status.MechanicalPosition}°` },
+  ],
+  switch: ({ status }) => [
+    ...status?.Gauges.map((gauge) => ({
+      label: `${gauge.Name}: ${gauge.Value}`,
+    })),
+  ],
+  weather: ({ status }) => [
+    { label: `Temperature: ${round(status.Temperature)}° C` },
+    { label: `Humidity: ${round(status.Humidity)}%` },
+    { label: `Dew Point: ${round(status.DewPoint)}° C` },
+    { label: `Wind Speed: ${round(status.WindSpeed)} km/h` },
+    { label: `Wind Direction: ${renderAz(round(status.WindDirection))}` },
+    { label: `Pressure: ${round(status.Pressure)} hPa` },
+    { label: `Rain Rate: ${round(status.RainRate)} mm/h` },
+    { label: `Cloud Cover: ${round(status.CloudCover)}%` },
+    { label: `Sky Brightness: ${round(status.SkyBrightness)} lx` },
+    { label: `Sky Quality: ${round(status.SkyQuality)} mag/arcsec^2` },
+    { label: `Star FWHM: ${round(status.StarFWHM)}` },
+  ],
+  safetyMonitor: ({ status }) => [
+    { label: `Safe: ${status.IsSafe ? "Yes" : "No"}` },
+  ],
 };
 
 export default function NinaDeviceCard({
@@ -238,7 +281,13 @@ export default function NinaDeviceCard({
               </div>
             ))}
           </List>
-          <Button color="danger" onClick={() => post("/disconnect")}>
+          <Button
+            color="danger"
+            onClick={() => {
+              setLoading(true);
+              post("/disconnect").then(() => setLoading(false));
+            }}
+          >
             Disconnect
           </Button>
         </Stack>
