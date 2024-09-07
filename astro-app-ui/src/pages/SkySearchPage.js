@@ -22,14 +22,7 @@ import { useCachedPythonOutput } from "../providers/python";
 import { useStorage } from "../providers/storage";
 import { theme } from "../theme/theme";
 import { useCurrentObservingWindow } from "../utils/date";
-import { objectsToKey } from "../utils/object";
-
-const cleanSearchTerm = (term) => {
-  if (term.startsWith("NAME ")) {
-    term = term.slice(5);
-  }
-  return term.replace(/[^\w0-9]+/g, "").toLowerCase();
-};
+import { cleanSearchTerm, objectsToKey } from "../utils/object";
 
 function SearchParamsCard({ loading }) {
   const location = useLocation();

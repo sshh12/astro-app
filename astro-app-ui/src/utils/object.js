@@ -1,12 +1,12 @@
-import NorthEastIcon from "@mui/icons-material/NorthEast";
-import SouthEastIcon from "@mui/icons-material/SouthEast";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
-import Brightness6Icon from "@mui/icons-material/Brightness6";
 import Brightness5Icon from "@mui/icons-material/Brightness5";
+import Brightness6Icon from "@mui/icons-material/Brightness6";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import DensityLargeIcon from "@mui/icons-material/DensityLarge";
 import DensityMediumIcon from "@mui/icons-material/DensityMedium";
 import DensitySmallIcon from "@mui/icons-material/DensitySmall";
+import NorthEastIcon from "@mui/icons-material/NorthEast";
+import SouthEastIcon from "@mui/icons-material/SouthEast";
 
 export function objectsToKey(objects) {
   if (objects) {
@@ -185,3 +185,10 @@ export const OBJECT_FIELDS = [
     badge: ({ obj }) => obj.sizeMajor && objSizeToBadge(obj.sizeMajor),
   },
 ];
+
+export const cleanSearchTerm = (term) => {
+  if (term.startsWith("NAME ")) {
+    term = term.slice(5);
+  }
+  return term.replace(/[^\w0-9]+/g, "").toLowerCase();
+};

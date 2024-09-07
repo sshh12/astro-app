@@ -16,7 +16,9 @@ import ModalClose from "@mui/joy/ModalClose";
 import ModalDialog from "@mui/joy/ModalDialog";
 import Stack from "@mui/joy/Stack";
 import React, { useCallback, useEffect, useState } from "react";
+import { useStorage } from "../providers/storage";
 import { ninaPatch, ninaPost } from "../utils/nina";
+import { cleanSearchTerm } from "../utils/object";
 import { renderAz, renderLatLon } from "../utils/pos";
 
 function round(val) {
@@ -67,7 +69,7 @@ function SelectAction({ defaultVal, label, loading, apply, options }) {
 
 function NumberAction({ defaultVal, label, loading, min, max, apply }) {
   const [value, setValue] = useState(defaultVal);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     setValue(defaultVal);
   }, [defaultVal]);
@@ -116,10 +118,104 @@ function ButtonAction({ apply, label, loading }) {
   );
 }
 
+function RaDecAction({ defaultVal, label, loading, apply }) {
+  const [value, setValue] = useState(defaultVal);
+  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [matches, setMatches] = useState([]);
+  const { objectStore } = useStorage();
+  useEffect(() => {
+    setValue(defaultVal);
+  }, [defaultVal]);
+  const valid =
+    !!value.ra &&
+    !!value.dec &&
+    value.ra >= 0 &&
+    value.ra <= 24 &&
+    value.dec >= -90 &&
+    value.dec <= 90;
+
+  useEffect(() => {
+    (async () => {
+      const cleanTerm = cleanSearchTerm(searchTerm);
+      const matches = [];
+      if (cleanTerm && objectStore) {
+        await objectStore.iterate((val) => {
+          if (!!val.ra && val.searchKey.includes(cleanTerm)) {
+            matches.push(val);
+          }
+        });
+      }
+      setMatches(matches.slice(0, 5));
+    })();
+  }, [searchTerm, objectStore]);
+
+  return (
+    <>
+      <Button loading={loading} size="sm" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog>
+          <ModalClose />
+          <Typography>{label}</Typography>
+          <Input
+            type="text"
+            size="sm"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {matches.map((match, idx) => (
+            <Button
+              key={idx}
+              onClick={() => {
+                setOpen(false);
+                apply({ ra: match.ra, dec: match.dec });
+              }}
+            >
+              Go to {match.name}
+            </Button>
+          ))}
+          <Divider />
+          <Input
+            type="number"
+            size="sm"
+            value={value.ra}
+            disabled={loading}
+            error={!valid}
+            onChange={(e) => setValue({ ...value, ra: e.target.value })}
+          />
+          <Input
+            type="number"
+            size="sm"
+            value={value.dec}
+            disabled={loading}
+            error={!valid}
+            onChange={(e) => setValue({ ...value, dec: e.target.value })}
+          />
+          <Button
+            loading={loading}
+            size="sm"
+            disabled={!valid}
+            onClick={() => {
+              setOpen(false);
+              apply({ ra: value.ra, dec: value.dec });
+            }}
+          >
+            Go to RA/DEC
+          </Button>
+        </ModalDialog>
+      </Modal>
+    </>
+  );
+}
+
 const ACTION_TYPES = {
   button: ButtonAction,
   select: SelectAction,
   number: NumberAction,
+  radec: RaDecAction,
 };
 
 export const CONTROLS = {
@@ -136,7 +232,7 @@ export const CONTROLS = {
       label: `Temperature: ${status.Temperature}° C`,
     },
   ],
-  mount: ({ status, post }) => [
+  mount: ({ status, post, patch }) => [
     {
       label: `Sidereal: ${status.SiderealTime}`,
     },
@@ -152,7 +248,33 @@ export const CONTROLS = {
       )}° (${status.SideOfPier})`,
     },
     {
+      label: `Pointing: RA ${round(status.RightAscension)} / DEC ${round(
+        status.Declination
+      )}`,
+      actions: [
+        {
+          label: "Slew RA/DEC",
+          type: "radec",
+          defaultVal: { ra: status.RightAscension, dec: status.Declination },
+          apply: ({ ra, dec }) =>
+            post("/slew", { RightAscension: ra, Declination: dec }),
+        },
+      ],
+    },
+    {
       label: `Tracking: ${status.TrackingMode}`,
+      actions: [
+        {
+          label: "Change Tracking",
+          type: "select",
+          options: status.TrackingModes.map((mode) => ({
+            value: mode,
+            label: mode,
+          })),
+          defaultVal: status.TrackingMode,
+          apply: (value) => patch("/trackingmode", { TrackingMode: value }),
+        },
+      ],
     },
     {
       label: status.AtPark ? "Parked" : "Not Parked",
@@ -359,7 +481,11 @@ export default function NinaDeviceCard({
                         const ActionElem =
                           ACTION_TYPES[action.type || "button"];
                         return (
-                          <ActionElem key={idx} {...action} loading={loading} />
+                          <ActionElem
+                            key={action?.defaultValue || idx}
+                            {...action}
+                            loading={loading}
+                          />
                         );
                       })}
                   </Stack>
