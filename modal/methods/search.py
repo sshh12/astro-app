@@ -15,20 +15,6 @@ from methods.encodings import (
 )
 
 
-async def _search_by_term(ctx: context.Context, term: str) -> List[models.SpaceObject]:
-    term = clean_search_term(term)
-    objs = await ctx.prisma.spaceobject.find_many(
-        where={"searchKey": {"contains": term}}
-    )
-    try:
-        obj = await query_and_import_simbad(ctx.prisma, term)
-        objs.append(obj)
-    except Exception as e:
-        print(e)
-    objs = list({obj.id: obj for obj in objs}.values())[:10]
-    return objs
-
-
 class SearchOutput(BaseModel):
     deep_sky_object_ids: List[str]
     planet_names: List[str]
@@ -38,8 +24,8 @@ class SearchOutput(BaseModel):
 async def _prompt_to_object_names(prompt: str, user_text: str) -> List[str]:
     client = openai.AsyncClient(api_key=os.environ["OPENAI_API_KEY"])
     resp = await client.beta.chat.completions.parse(
-        model="gpt-4o-mini",
-        temperature=0.1,
+        model="gpt-4o-2024-08-06",
+        temperature=0.0,
         response_format={
             "type": "json_schema",
             "json_schema": {
@@ -78,7 +64,9 @@ async def _prompt_to_object_names(prompt: str, user_text: str) -> List[str]:
                 "content": """
 You are an astronomy enthusiast who helps others find interesting objects in the sky.
 
-Given a query of user preferences, respond with a brief analysis and then the names of objects (typically 3 - 20).
+Given a query of user preferences, respond with a brief analysis and then the names of objects (typically 3 - 20). 
+
+If the user explicitly asks for an object, return only that object (in the correct format).
 
 You MUST format your result as a json based on the specified schema.
 
@@ -124,13 +112,9 @@ async def _search_by_prompt(
 
 
 @method_web()
-async def search(ctx: context.Context, term: str, prompt: str) -> Dict:
-    print("search/", repr(term), repr(prompt))
-    objs = None
-    if term:
-        objs = await _search_by_term(ctx, term)
-    elif prompt:
-        objs = await _search_by_prompt(ctx, prompt)
+async def search(ctx: context.Context, prompt: str) -> Dict:
+    print("search/", repr(prompt), repr(prompt))
+    objs = await _search_by_prompt(ctx, prompt)
     if objs is not None:
         return {"objects": [space_object_to_dict(obj) for obj in objs]}
     else:

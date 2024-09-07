@@ -78,15 +78,17 @@ function TonightEvents({ location }) {
                   <Typography level="title-sm">{event.title}</Typography>
                 )}
               </Tooltip>
-              <Typography level="body-xs">
-                {renderDate(event.ts, location?.timezone)}{" "}
-                {renderTime(event.ts, location?.timezone)}
-                {eventIdxNow === idx &&
-                  ` (now ${renderTime(ts, location?.timezone)})`}
-                {eventIdxNow > 0 &&
-                  eventIdxNow < idx &&
-                  ` (in ${renderTimeTill(ts, event.ts)})`}
-              </Typography>
+              {!eventsStale && (
+                <Typography level="body-xs">
+                  {renderDate(event.ts, location?.timezone)}{" "}
+                  {renderTime(event.ts, location?.timezone)}
+                  {eventIdxNow === idx &&
+                    ` (now ${renderTime(ts, location?.timezone)})`}
+                  {event.ts > ts &&
+                    eventIdxNow < idx &&
+                    ` (in ${renderTimeTill(ts, event.ts)})`}
+                </Typography>
+              )}
             </div>{" "}
           </Step>
         ))}

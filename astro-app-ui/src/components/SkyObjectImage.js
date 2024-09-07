@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 
@@ -84,7 +84,9 @@ function SkySurveyImage({ object, hips, width, height, style, fov = 1.0 }) {
 }
 
 function ImageWithBackgound({ src, width, height, alt, fill, scale, style }) {
-  const [resizedImageDataUrl, setResizedImageDataUrl] = useState("");
+  const [resizedImageDataUrl, setResizedImageDataUrl] = useState(
+    "/static/no-image.jpg"
+  );
 
   useEffect(() => {
     const canvas = document.createElement("canvas");

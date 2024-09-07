@@ -6,7 +6,6 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Divider from "@mui/joy/Divider";
-import Input from "@mui/joy/Input";
 import Sheet from "@mui/joy/Sheet";
 import Stack from "@mui/joy/Stack";
 import { CssVarsProvider } from "@mui/joy/styles";
@@ -35,46 +34,22 @@ const cleanSearchTerm = (term) => {
 function SearchParamsCard({ loading }) {
   const location = useLocation();
   const q = new URLSearchParams(location.search).get("q");
-  const d = new URLSearchParams(location.search).get("d");
   const navigate = useNavigate();
-
-  const [nameInput, setNameInput] = useState(q || "");
-  const [descInput, setDescInput] = useState(d || "");
+  const [descInput, setDescInput] = useState(q || "");
   return (
     <Sheet
       sx={{ p: 0, maxWidth: "400px", borderRadius: "sm" }}
       variant="outlined"
     >
-      <Box sx={{ mb: 1, pt: 2, px: 2 }}>
+      <Box sx={{ mb: 2, pt: 2, px: 2 }}>
         <Typography level="title-md">Find Objects</Typography>
-        <Typography level="body-sm">
-          Get objects by name or description.
-        </Typography>
       </Box>
       <Divider />
       <Stack sx={{ padding: 2 }} gap={2}>
         <Box>
           <Typography level="body-sm" sx={{ pb: 1 }}>
-            <b>By Name</b>
-          </Typography>
-          <Input
-            placeholder={"M 31"}
-            value={nameInput}
-            onChange={(e) => {
-              setNameInput(e.target.value);
-              setDescInput("");
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                navigate(`/sky/search?q=${nameInput}&d=${descInput}`);
-              }
-            }}
-          />
-        </Box>
-        <Box>
-          <Typography level="body-sm" sx={{ pb: 1 }}>
             <b>
-              By Description{" "}
+              Name or Description{" "}
               <Tooltip
                 title="Limited to DSOs and Planets. Uses Generative AI and may be inaccurate."
                 enterTouchDelay={100}
@@ -87,10 +62,9 @@ function SearchParamsCard({ loading }) {
           <Textarea
             minRows={2}
             value={descInput}
-            placeholder="Show me colorful galaxies based on my equipment specs..."
+            placeholder="NGC 1234, Show me colorful galaxies based on my equipment specs..."
             onChange={(e) => {
               setDescInput(e.target.value);
-              setNameInput("");
             }}
           />
         </Box>
@@ -100,7 +74,7 @@ function SearchParamsCard({ loading }) {
           endDecorator={<SearchIcon />}
           color="primary"
           size="sm"
-          onClick={() => navigate(`/sky/search?q=${nameInput}&d=${descInput}`)}
+          onClick={() => navigate(`/sky/search?q=${descInput}`)}
           loading={loading}
         >
           Search
@@ -126,8 +100,7 @@ function SearchResults({ setLoading }) {
   const { location } = useBackend();
   const { post } = usePost();
   const q = new URLSearchParams(navLocation.search).get("q");
-  const d = new URLSearchParams(navLocation.search).get("d");
-  const anySearch = q || d;
+  const anySearch = !!q;
   const { objectStore } = useStorage();
   const [localObjects, setLocalObjects] = useState([]);
   const [remoteObjects, setRemoteObjects] = useState([]);
@@ -147,7 +120,7 @@ function SearchResults({ setLoading }) {
       });
       setLocalObjects(matches);
     })();
-  }, [q, d, objectStore]);
+  }, [q, objectStore]);
 
   useEffect(() => {
     if (!post || !anySearch) {
@@ -158,7 +131,7 @@ function SearchResults({ setLoading }) {
     (async () => {
       setLoading(true);
       try {
-        const resp = await post("search", { term: q, prompt: d });
+        const resp = await post("search", { prompt: q });
         setRemoteObjects(resp.objects);
         setLoading(false);
       } catch (e) {
@@ -168,7 +141,7 @@ function SearchResults({ setLoading }) {
         return;
       }
     })();
-  }, [anySearch, post, q, d, setLoading]);
+  }, [anySearch, post, q, setLoading]);
 
   const listObjects = dedupObjs([...localObjects, ...remoteObjects]);
 
@@ -187,10 +160,10 @@ function SearchResults({ setLoading }) {
         resolution_mins: 10,
       },
     {
-      cacheKey: `searchOrbits_${q}_${d}_${startTs}_${endTs}_${
+      cacheKey: `searchOrbits_${q}_${startTs}_${endTs}_${
         location?.id
       }_${objectsToKey(listObjects)}`,
-      staleCacheKey: `searchOrbits_${q}_${d}`,
+      staleCacheKey: `searchOrbits_${q}`,
     }
   );
 

@@ -125,7 +125,7 @@ export default function ImageAnalyzePage() {
           loading={refreshLoading}
           color="primary"
         >
-          Refresh Analysis
+          Refresh Image Analysis
         </Button>
       </Stack>
       <Divider />
