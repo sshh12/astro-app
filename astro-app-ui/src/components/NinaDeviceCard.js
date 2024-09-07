@@ -178,6 +178,7 @@ function RaDecAction({ defaultVal, label, loading, apply }) {
             </Button>
           ))}
           <Divider />
+          <Typography level="body-sm">Right Ascension</Typography>
           <Input
             type="number"
             size="sm"
@@ -186,6 +187,7 @@ function RaDecAction({ defaultVal, label, loading, apply }) {
             error={!valid}
             onChange={(e) => setValue({ ...value, ra: e.target.value })}
           />
+          <Typography level="body-sm">Declination</Typography>
           <Input
             type="number"
             size="sm"
@@ -211,15 +213,55 @@ function RaDecAction({ defaultVal, label, loading, apply }) {
   );
 }
 
+function CaptureAction({ label, loading, apply }) {
+  const [exposure, setExposure] = useState(1);
+  const [open, setOpen] = useState(false);
+  const valid = exposure > 0 && exposure < 1000;
+  return (
+    <>
+      <Button loading={loading} size="sm" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog>
+          <ModalClose />
+          <Typography>{label}</Typography>
+          <Typography level="body-sm">Exposure Time (s)</Typography>
+          <Input
+            type="number"
+            size="sm"
+            value={exposure}
+            disabled={loading}
+            error={!valid}
+            onChange={(e) => setExposure(e.target.value)}
+          />
+          <Button
+            loading={loading}
+            size="sm"
+            disabled={!valid}
+            onClick={() => {
+              setOpen(false);
+              apply({ exposureTime: parseFloat(exposure) });
+            }}
+          >
+            Capture
+          </Button>
+        </ModalDialog>
+      </Modal>
+    </>
+  );
+}
+
 const ACTION_TYPES = {
   button: ButtonAction,
   select: SelectAction,
   number: NumberAction,
   radec: RaDecAction,
+  capture: CaptureAction,
 };
 
 export const CONTROLS = {
-  camera: ({ status }) => [
+  camera: ({ status, post }) => [
     {
       label: `Sensor: ${status.XSize} x ${status.YSize} (${
         status.SensorType
@@ -228,8 +270,23 @@ export const CONTROLS = {
     {
       label: `Gain: ${status.Gain} (${status.Offset})`,
     },
+    ...(status.Temperature !== null
+      ? [
+          {
+            label: `Temperature: ${status.Temperature}° C`,
+          },
+        ]
+      : []),
     {
-      label: `Temperature: ${status.Temperature}° C`,
+      label: "Camera",
+      actions: [
+        {
+          label: "Capture",
+          type: "capture",
+          apply: ({ exposureTime }) =>
+            post("/capture", { ExposureTime: exposureTime }),
+        },
+      ],
     },
   ],
   mount: ({ status, post, patch }) => [
