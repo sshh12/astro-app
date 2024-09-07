@@ -1,8 +1,19 @@
-import { Box, Card, Divider, ListDivider, Typography } from "@mui/joy";
+import {
+  Box,
+  Card,
+  Divider,
+  Input,
+  ListDivider,
+  Option,
+  Select,
+  Typography,
+} from "@mui/joy";
 import Button from "@mui/joy/Button";
-import Input from "@mui/joy/Input";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
+import Modal from "@mui/joy/Modal";
+import ModalClose from "@mui/joy/ModalClose";
+import ModalDialog from "@mui/joy/ModalDialog";
 import Stack from "@mui/joy/Stack";
 import React, { useCallback, useEffect, useState } from "react";
 import { ninaPatch, ninaPost } from "../utils/nina";
@@ -12,28 +23,104 @@ function round(val) {
   return Math.round(val * 100) / 100;
 }
 
-function NumberButton({ defaultVal, loading, apply }) {
+function SelectAction({ defaultVal, label, loading, apply, options }) {
   const [value, setValue] = useState(defaultVal);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     setValue(defaultVal);
   }, [defaultVal]);
   return (
-    <Input
-      type="number"
-      size="sm"
-      value={value}
-      disabled={loading}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={() => {
-        if (/^\d+$/.test(value)) {
-          apply(value);
-        } else {
-          setValue(defaultVal);
-        }
-      }}
-    />
+    <>
+      <Button loading={loading} size="sm" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog>
+          <ModalClose />
+          <Typography>{label}</Typography>
+          <Select
+            defaultValue={defaultVal}
+            value={value}
+            onChange={(e, v) => setValue(v)}
+          >
+            {options.map((option, idx) => (
+              <Option key={idx} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
+          </Select>
+          <Button
+            loading={loading}
+            size="sm"
+            onClick={() => {
+              setOpen(false);
+              apply(value);
+            }}
+          >
+            Apply
+          </Button>
+        </ModalDialog>
+      </Modal>
+    </>
   );
 }
+
+function NumberAction({ defaultVal, label, loading, min, max, apply }) {
+  const [value, setValue] = useState(defaultVal);
+  const [open, setOpen] = useState(true);
+  useEffect(() => {
+    setValue(defaultVal);
+  }, [defaultVal]);
+  const valid = value >= min && value <= max;
+  return (
+    <>
+      <Button loading={loading} size="sm" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog>
+          <ModalClose />
+          <Typography>{label}</Typography>
+          <Input
+            type="number"
+            size="sm"
+            min={min}
+            max={max}
+            value={value}
+            disabled={loading}
+            error={!valid}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          <Button
+            loading={loading}
+            size="sm"
+            disabled={!valid}
+            onClick={() => {
+              setOpen(false);
+              apply(parseFloat(value));
+            }}
+          >
+            Apply
+          </Button>
+        </ModalDialog>
+      </Modal>
+    </>
+  );
+}
+
+function ButtonAction({ apply, label, loading }) {
+  return (
+    <Button loading={loading} size="sm" onClick={() => apply()}>
+      {label}
+    </Button>
+  );
+}
+
+const ACTION_TYPES = {
+  button: ButtonAction,
+  select: SelectAction,
+  number: NumberAction,
+};
 
 export const CONTROLS = {
   camera: ({ status }) => [
@@ -63,7 +150,6 @@ export const CONTROLS = {
       label: `Pointing: AZ ${renderAz(round(status.Azimuth))} / ALT ${round(
         status.Altitude
       )}° (${status.SideOfPier})`,
-      numberInputs: [],
     },
     {
       label: `Tracking: ${status.TrackingMode}`,
@@ -72,10 +158,10 @@ export const CONTROLS = {
       label: status.AtPark ? "Parked" : "Not Parked",
       actions: [
         ...(!status.AtPark
-          ? [{ label: "Park", action: () => post("/park") }]
+          ? [{ label: "Park", apply: () => post("/park") }]
           : []),
         ...(status.AtPark
-          ? [{ label: "Unpark", action: () => post("/unpark") }]
+          ? [{ label: "Unpark", apply: () => post("/unpark") }]
           : []),
       ],
     },
@@ -85,25 +171,24 @@ export const CONTROLS = {
       label: status.ShutterStatus,
       actions: [
         ...(status.ShutterStatus !== "ShutterOpen"
-          ? [{ label: "Open", action: () => post("/open") }]
+          ? [{ label: "Open", apply: () => post("/open") }]
           : []),
         ...(status.ShutterStatus !== "ShutterClosed"
-          ? [{ label: "Close", action: () => post("/close") }]
+          ? [{ label: "Close", apply: () => post("/close") }]
           : []),
       ],
     },
     {
       label: `AZ ${renderAz(round(status.Azimuth))}`,
-      numberInputs: [
-        ...(!status.IsFollowingScope
-          ? [
-              {
-                label: "Azimuth",
-                default: round(status.Azimuth),
-                action: (value) => post("/rotate", { Azimuth: value }),
-              },
-            ]
-          : []),
+      actions: [
+        {
+          label: "Rotate",
+          type: "number",
+          defaultVal: round(status.Azimuth),
+          min: 0,
+          max: 359,
+          apply: (value) => post("/rotate", { Azimuth: value }),
+        },
       ],
     },
     {
@@ -113,11 +198,11 @@ export const CONTROLS = {
           ? [
               {
                 label: "Enable Following",
-                action: () => patch("/following", { Enabled: true }),
+                apply: () => patch("/following", { Enabled: true }),
               },
               {
                 label: "Sync",
-                action: () => post("/sync"),
+                apply: () => post("/sync"),
               },
             ]
           : []),
@@ -125,7 +210,7 @@ export const CONTROLS = {
           ? [
               {
                 label: "Disable Following",
-                action: () => patch("/following", { Enabled: false }),
+                apply: () => patch("/following", { Enabled: false }),
               },
             ]
           : []),
@@ -135,7 +220,7 @@ export const CONTROLS = {
       label: status.AtPark ? "Parked" : "Not Parked",
       actions: [
         ...(!status.AtPark
-          ? [{ label: "Park", action: () => post("/park") }]
+          ? [{ label: "Park", apply: () => post("/park") }]
           : []),
       ],
     },
@@ -143,7 +228,7 @@ export const CONTROLS = {
       label: status.AtHome ? "Homed" : "Not Home",
       actions: [
         ...(!status.AtHome
-          ? [{ label: "Home", action: () => post("/home") }]
+          ? [{ label: "Home", apply: () => post("/home") }]
           : []),
       ],
     },
@@ -151,11 +236,22 @@ export const CONTROLS = {
   filterWheel: ({ status, patch }) => [
     {
       label: `Filter: ${status.SelectedFilter.Name} (${status.SelectedFilter.Position})`,
-      numberInputs: [
+      actions: [
         {
-          label: "Filter Position",
-          default: status.SelectedFilter.Position,
-          action: (value) => patch("/filter", { Position: value }),
+          label: "Change Filter",
+          type: "select",
+          options: [
+            { label: "Filter 0", value: 0 },
+            { label: "Filter 1", value: 1 },
+            { label: "Filter 2", value: 2 },
+            { label: "Filter 3", value: 3 },
+            { label: "Filter 4", value: 4 },
+            { label: "Filter 5", value: 5 },
+            { label: "Filter 6", value: 6 },
+            { label: "Filter 7", value: 7 },
+          ],
+          defaultVal: status.SelectedFilter.Position,
+          apply: (value) => patch("/filter", { Position: value }),
         },
       ],
     },
@@ -164,11 +260,14 @@ export const CONTROLS = {
     { label: `Temperature: ${round(status.Temperature)}° C` },
     {
       label: `Position: ${status.Position}`,
-      numberInputs: [
+      actions: [
         {
-          label: "Position",
-          default: status.Position,
-          action: (value) => patch("/position", { Position: value }),
+          label: "Move",
+          type: "number",
+          defaultVal: status.Position,
+          min: 0,
+          max: 50000,
+          apply: (value) => patch("/position", { Position: value }),
         },
       ],
     },
@@ -255,26 +354,14 @@ export default function NinaDeviceCard({
                 <ListItem sx={{ justifyContent: "space-between" }}>
                   {control.label}
                   <Stack direction="row" gap={1}>
-                    {control.numberInputs &&
-                      control.numberInputs.map((action, idx) => (
-                        <NumberButton
-                          key={idx}
-                          defaultVal={action.default}
-                          loading={loading}
-                          apply={(val) => action.action(val)}
-                        />
-                      ))}
                     {control.actions &&
-                      control.actions.map((action, idx) => (
-                        <Button
-                          key={idx}
-                          loading={loading}
-                          size="sm"
-                          onClick={() => action.action()}
-                        >
-                          {action.label}
-                        </Button>
-                      ))}
+                      control.actions.map((action, idx) => {
+                        const ActionElem =
+                          ACTION_TYPES[action.type || "button"];
+                        return (
+                          <ActionElem key={idx} {...action} loading={loading} />
+                        );
+                      })}
                   </Stack>
                 </ListItem>
                 <ListDivider />
