@@ -1,6 +1,9 @@
 import {
   Box,
+  Button,
   Card,
+  CardActions,
+  CardOverflow,
   Divider,
   LinearProgress,
   Snackbar,
@@ -74,6 +77,45 @@ function NinaSetupCard({ connected, setConnected }) {
           }}
         />
       </Stack>
+    </Card>
+  );
+}
+
+function NinaGuideCard() {
+  return (
+    <Card sx={{ p: 0 }}>
+      <Box sx={{ pt: 2, px: 2 }}>
+        <Typography level="title-md">Quick Start</Typography>
+      </Box>
+      <Divider />
+      <Box sx={{ px: 2, pb: 1 }}>
+        <Typography level="body">
+          N.I.N.A (Nighttime Imaging 'N' Astronomy) is a free, open-source
+          astrophotography software that is designed to be used with a wide
+          range of astronomy equipment. It is a powerful tool that can be used
+          to control your camera, mount, focuser, filter wheel, flat device,
+          rotator, switch, weather station, and safety monitor. <br />
+          <br /> For users already familiar with N.I.N.A, you can install the
+          Astro HTTP API plugin to control your equipment from this UI.
+        </Typography>
+      </Box>
+      <Divider />
+      <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
+        <CardActions sx={{ alignSelf: "flex-end" }}>
+          <Button
+            size="sm"
+            variant="solid"
+            onClick={() =>
+              window.open(
+                "https://github.com/sshh12/astro-app-nina-api",
+                "_blank"
+              )
+            }
+          >
+            See Quick Start Guide
+          </Button>
+        </CardActions>
+      </CardOverflow>
     </Card>
   );
 }
@@ -173,6 +215,7 @@ export default function ImageNinaPage() {
   return (
     <BaseImagePage tabIdx={2}>
       <NinaSetupCard connected={connected} setConnected={setConnected} />
+      {!connected && <NinaGuideCard />}
       {connected && socketConnected && (
         <NinaDeviceCard
           name="Camera"
