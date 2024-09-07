@@ -45,11 +45,10 @@ export function ninaPatch({ host, password }, path, body) {
 }
 
 export function listen({ host, password }, onStatus, onEvent) {
-  const origin = new URL(host).host;
-  // check if https
+  const serverHost = new URL(host).host;
   const isSecure = host.startsWith("https");
   const proto = isSecure ? "wss" : "ws";
-  const uri = `${proto}://${origin}/events/v1`;
+  const uri = `${proto}://${serverHost}/events/v1`;
   const socket = new WebSocket(uri);
 
   socket.addEventListener("open", (event) => {
