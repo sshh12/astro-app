@@ -80,7 +80,7 @@ function NinaSetupCard({ connected, setConnected }) {
           onChange={(e) => setPassword(e.target.value)}
           disabled={connected}
         />
-        {attempted && (
+        {(attempted || !connected) && (
           <>
             <LinearProgress
               determinate
@@ -96,9 +96,14 @@ function NinaSetupCard({ connected, setConnected }) {
                 {connectionError}
               </Typography>
             )}
-            {connectionSuccess && (
+            {connectionSuccess && connected && (
               <Typography level="body-sm" color="success">
                 Successfully connected to NINA server
+              </Typography>
+            )}
+            {connectionSuccess && !connected && (
+              <Typography level="body-sm" color="danger">
+                Connection lost to NINA server
               </Typography>
             )}
           </>
