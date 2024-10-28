@@ -3,9 +3,23 @@ const userName = "user";
 export async function testConnection({ host, password }) {
   try {
     const resp = await ninaGet({ host, password }, "/api/v1/camera");
-    return resp.Type === "CameraStatus";
+    if (resp.Type === "CameraStatus") {
+      return {
+        success: true,
+        error: null
+      };
+    }
+    return {
+      success: false,
+      error: "Invalid response from NINA server"
+    };
   } catch (error) {
-    return false;
+    return {
+      success: false,
+      error: error.message === "Failed to fetch" 
+        ? "Failed to connect to the NINA server, is it running?"
+        : error.message || "Could not connect to NINA server"
+    };
   }
 }
 

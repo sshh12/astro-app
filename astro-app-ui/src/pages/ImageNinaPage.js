@@ -21,6 +21,9 @@ function NinaSetupCard({ connected, setConnected }) {
   const { settingsStore } = useStorage();
   const [host, setHost] = useState("");
   const [password, setPassword] = useState("");
+  const [attempted, setAttempted] = useState(false);
+  const [connectionError, setConnectionError] = useState(null);
+  const [connectionSuccess, setConnectionSuccess] = useState(false);
 
   useEffect(() => {
     if (settingsStore) {
@@ -33,19 +36,27 @@ function NinaSetupCard({ connected, setConnected }) {
     }
   }, [settingsStore]);
 
-  useEffect(() => {
-    if (!settingsStore | !host | !password) {
+  const handleConnect = async () => {
+    if (!settingsStore || !host || !password) {
       return;
     }
-    const fetchNina = async () => {
-      const connected = await testConnection({ host: host, password });
-      setConnected(connected);
-      if (connected) {
-        settingsStore.setItem("nina", { host, password });
-      }
-    };
-    fetchNina();
-  }, [host, password, settingsStore, setConnected]);
+    setAttempted(true);
+    setConnectionSuccess(false);
+    const result = await testConnection({ host: host, password });
+    setConnected(result.success);
+    setConnectionError(result.error);
+    setConnectionSuccess(result.success);
+    if (result.success) {
+      settingsStore.setItem("nina", { host, password });
+    }
+  };
+
+  const handleDisconnect = () => {
+    setConnected(false);
+    setConnectionSuccess(false);
+    setAttempted(false);
+    setConnectionError(null);
+  };
 
   return (
     <Card sx={{ p: 0 }}>
@@ -59,6 +70,7 @@ function NinaSetupCard({ connected, setConnected }) {
           placeholder="http://localhost:5100"
           value={host}
           onChange={(e) => setHost(e.target.value)}
+          disabled={connected}
         />
         <Input
           type="password"
@@ -66,17 +78,50 @@ function NinaSetupCard({ connected, setConnected }) {
           placeholder="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={connected}
         />
-        <LinearProgress
-          determinate
-          size="sm"
-          value={100}
-          sx={{
-            bgcolor: "background.level3",
-            color: connected ? "hsl(100 80% 40%)" : "hsl(10 80% 40%)",
-          }}
-        />
+        {attempted && (
+          <>
+            <LinearProgress
+              determinate
+              size="sm"
+              value={100}
+              sx={{
+                bgcolor: "background.level3",
+                color: connected ? "hsl(100 80% 40%)" : "hsl(10 80% 40%)",
+              }}
+            />
+            {connectionError && (
+              <Typography level="body-sm" color="danger">
+                {connectionError}
+              </Typography>
+            )}
+            {connectionSuccess && (
+              <Typography level="body-sm" color="success">
+                Successfully connected to NINA server
+              </Typography>
+            )}
+          </>
+        )}
       </Stack>
+      <Divider />
+      <CardOverflow sx={{ paddingRight: 2, paddingBottom: 2 }}>
+        <CardActions sx={{ alignSelf: "flex-end" }}>
+          {!connected ? (
+            <Button variant="solid" onClick={handleConnect}>
+              Connect
+            </Button>
+          ) : (
+            <Button 
+              variant="soft" 
+              color="danger" 
+              onClick={handleDisconnect}
+            >
+              Disconnect
+            </Button>
+          )}
+        </CardActions>
+      </CardOverflow>
     </Card>
   );
 }
