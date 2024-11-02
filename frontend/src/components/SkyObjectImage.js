@@ -135,7 +135,7 @@ export default function ObjectImage({
   equipment = null,
   source = "CDS/P/DSS2/color",
 }) {
-  const { equipment: existingEquipment } = useBackend();
+  const existingEquipment = null;
   let { width, height, fov } = equipmentToDetails(
     equipment || existingEquipment
   );

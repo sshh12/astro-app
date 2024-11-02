@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 
 export const PythonContext = React.createContext({});
 
+const cacheStore = null;
 const NUM_WORKERS =
   (navigator.hardwareConcurrency &&
     Math.min(navigator.hardwareConcurrency, 5)) ||

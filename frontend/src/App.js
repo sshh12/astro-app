@@ -6,11 +6,11 @@ import { routes } from "./routes";
 
 function AppProviders({ children }) {
   const pythonControl = usePythonControl();
-  
+
   return (
-      <PythonContext.Provider value={pythonControl}>
-        {children}
-      </PythonContext.Provider>
+    <PythonContext.Provider value={pythonControl}>
+      {children}
+    </PythonContext.Provider>
   );
 }
 
@@ -38,8 +38,8 @@ function App() {
 function AppWrapper() {
   return (
     <AppProviders>
-        <App />
-      </AppProviders>
+      <App />
+    </AppProviders>
   );
 }
 

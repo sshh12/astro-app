@@ -6,7 +6,7 @@ import { objectsToKey } from "../utils/object";
 import { getImageURL } from "./SkyObjectImage";
 
 export default function VirtualSky({ objects }) {
-  const { location } = useBackend();
+  const location = null;
   const id = useId().replaceAll(":", "");
   const planetariumRef = useRef(null);
 
