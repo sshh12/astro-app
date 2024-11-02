@@ -1,6 +1,14 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "display_override": ["window-controls-overlay"],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "short_name": "Astro App",
+  "name": "Astro App",
+  "description": "Astro App is a tool for exploring the night sky and tracking celestial events.",
+  "orientation": "any",
   "icons": [
     {
       "src": "favicon.ico",
@@ -15,11 +23,29 @@
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192_mask.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo512_mask.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
+  "scope": "https://astroapp.io",
+  "dir": "ltr",
+  "lang": "en",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#111827",
+  "background_color": "#111827",
+  "id": "astro_app",
+  "categories": ["education", "photo", "weather"]
 }

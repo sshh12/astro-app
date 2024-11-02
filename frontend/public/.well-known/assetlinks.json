@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.astroapp.twa",
+      "sha256_cert_fingerprints": [
+        "92:DD:DC:45:21:42:82:FB:D0:C4:64:EB:B6:DD:1E:03:CD:3D:04:73:5B:57:37:14:89:9A:2F:F6:0A:9C:09:FA"
+      ]
+    }
+  }
+]
