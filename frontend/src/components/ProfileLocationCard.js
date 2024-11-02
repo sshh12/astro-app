@@ -1,22 +1,21 @@
-import React from "react";
+import { Delete, Home, LocationOn } from "@mui/icons-material";
 import {
-  Typography,
   Box,
+  Button,
   Card,
+  CardActions,
+  CardOverflow,
   Divider,
-  Stack,
-  ListItem,
-  ListItemDecorator,
+  IconButton,
   List,
   ListDivider,
-  CardOverflow,
-  CardActions,
-  Button,
-  IconButton,
+  ListItem,
+  ListItemDecorator,
+  Stack,
   Tooltip,
+  Typography,
 } from "@mui/joy";
-import { useBackend } from "../providers/backend";
-import { Delete, Home, LocationOn } from "@mui/icons-material";
+import React from "react";
 
 export default function ProfileLocationCard({ setOpen }) {
   const { user, updateUser } = useBackend();

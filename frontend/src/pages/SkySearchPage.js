@@ -17,12 +17,10 @@ import { SubPageHeader } from "../components/Headers";
 import Layout from "../components/Layout";
 import { SideBarNav } from "../components/Sidebars";
 import SkyObjectsList from "../components/SkyObjectsList";
-import { useBackend, usePost } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
-import { useStorage } from "../providers/storage";
 import { theme } from "../theme/theme";
 import { useCurrentObservingWindow } from "../utils/date";
-import { cleanSearchTerm, objectsToKey } from "../utils/object";
+import { objectsToKey } from "../utils/object";
 
 function SearchParamsCard({ loading }) {
   const location = useLocation();
@@ -94,26 +92,9 @@ function SearchResults({ setLoading }) {
   const { post } = usePost();
   const q = new URLSearchParams(navLocation.search).get("q");
   const anySearch = !!q;
-  const { objectStore } = useStorage();
   const [localObjects, setLocalObjects] = useState([]);
   const [remoteObjects, setRemoteObjects] = useState([]);
 
-  useEffect(() => {
-    if (!objectStore || !q) {
-      setLocalObjects([]);
-      return;
-    }
-    const cleanTerm = cleanSearchTerm(q);
-    (async () => {
-      const matches = [];
-      await objectStore.iterate((val) => {
-        if (val.searchKey.includes(cleanTerm)) {
-          matches.push(val);
-        }
-      });
-      setLocalObjects(matches);
-    })();
-  }, [q, objectStore]);
 
   useEffect(() => {
     if (!post || !anySearch) {

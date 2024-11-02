@@ -1,11 +1,10 @@
 import React, { useMemo, useState } from "react";
-import SkyObjectCard from "./SkyObjectCard";
 import { OBJECT_FIELDS } from "../utils/object";
-import { useBackend } from "../providers/backend";
+import SkyObjectCard from "./SkyObjectCard";
 import SkyObjectDisplayModal from "./SkyObjectDisplayModal";
 
 export default function SkyObjectsList({ objects, orbits }) {
-  const { displaySettings } = useBackend();
+  const displaySettings = null;
   const [displayModalOpen, setDisplayModalOpen] = useState(false);
 
   const objs = useMemo(() => {

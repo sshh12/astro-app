@@ -22,9 +22,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import BaseLocationPage from "../components/BaseLocationPage";
 import { ColorTabs } from "../components/ColorTabs";
-import { useBackend } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
-import { useStorage } from "../providers/storage";
 import {
   cloudCoverToBadge,
   getTwlightName,
@@ -85,7 +83,6 @@ function useWeather(location) {
 }
 
 function useWFO(location) {
-  const { cacheStore } = useStorage();
   const [wfo, setWFO] = useState(null);
   const cacheKey = location ? `wfo_${location.lat}_${location.lon}` : null;
   useEffect(() => {

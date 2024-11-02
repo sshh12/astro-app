@@ -1,10 +1,9 @@
 import { useEffect, useId, useRef } from "react";
-import { useBackend } from "./../providers/backend";
 import { colorToHex } from "../constants/colors";
-import { getImageURL } from "./SkyObjectImage";
+import { useCachedPythonOutput } from "../providers/python";
 import { useTimestamp } from "../utils/date";
 import { objectsToKey } from "../utils/object";
-import { useCachedPythonOutput } from "../providers/python";
+import { getImageURL } from "./SkyObjectImage";
 
 export default function VirtualSky({ objects }) {
   const { location } = useBackend();

@@ -21,7 +21,6 @@ import Typography from "@mui/joy/Typography";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { idxToColorHex } from "../constants/colors";
-import { CURATED_LISTS } from "../constants/lists";
 import { getImageURL } from "./SkyObjectImage";
 import Toggler from "./Toggler";
 
@@ -152,7 +151,7 @@ export function ListSideBar({ lists }) {
               "& .JoyListItemButton-root": { p: "8px" },
             }}
           >
-            {CURATED_LISTS.map((lst, idx) => (
+            {[].map((lst, idx) => (
               <RichListSideBarItem
                 list={lst}
                 key={lst.id}
@@ -325,7 +324,7 @@ export function ListMobileTab({ lists }) {
                 pl: 1,
               }}
             >
-              {CURATED_LISTS.map((lst, idx) => (
+              {[].map((lst, idx) => (
                 <RichListListItem
                   list={lst}
                   key={lst.id}

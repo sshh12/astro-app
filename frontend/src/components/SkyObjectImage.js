@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 
 const HIPS2FITS_URL =

@@ -12,7 +12,6 @@ import {
 } from "@mui/joy";
 import React, { useEffect, useState } from "react";
 import BaseImagePage from "../components/BaseImagePage";
-import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 
 function EquipmentStatsCard() {

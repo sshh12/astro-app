@@ -10,7 +10,6 @@ import Typography from "@mui/joy/Typography";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfigureLocationCard from "../components/ConfigureLocationCard";
-import { useBackend } from "../providers/backend";
 import { theme } from "../theme/theme";
 
 export default function OnboardingPage() {

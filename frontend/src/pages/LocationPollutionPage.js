@@ -12,8 +12,6 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import BaseLocationPage from "../components/BaseLocationPage";
-import { useBackend } from "../providers/backend";
-import { useStorage } from "../providers/storage";
 import {
   CURRENT_ICON,
   fetchLPData,
@@ -22,7 +20,6 @@ import {
 } from "../utils/pos";
 
 function useLPData({ location }) {
-  const { cacheStore } = useStorage();
   const [lpData, setLPData] = useState(null);
   const [lpDetails, setLPDetails] = useState(null);
   useEffect(() => {

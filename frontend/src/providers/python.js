@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
-import { useStorage } from "./storage";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 
 export const PythonContext = React.createContext({});
 
@@ -115,7 +114,6 @@ export function usePython() {
 
 export function useCachedPythonOutput(func, args, cacheSettings) {
   const { cacheKey, staleCacheKey } = cacheSettings;
-  const { cacheStore } = useStorage();
   const [stale, setStale] = useState(true);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);

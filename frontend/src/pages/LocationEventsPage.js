@@ -12,7 +12,6 @@ import {
 import Skeleton from "@mui/joy/Skeleton";
 import React from "react";
 import BaseLocationPage from "../components/BaseLocationPage";
-import { useBackend } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
 import {
   renderDate,

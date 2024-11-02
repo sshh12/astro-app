@@ -14,7 +14,6 @@ import Layout from "../components/Layout";
 import ProfileEquipmentCard from "../components/ProfileEquipmentCard";
 import ProfileLocationCard from "../components/ProfileLocationCard";
 import { SideBarNav } from "../components/Sidebars";
-import { useBackend } from "../providers/backend";
 import { theme } from "../theme/theme";
 import ConfigureLocationCard from "./../components/ConfigureLocationCard";
 

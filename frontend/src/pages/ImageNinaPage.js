@@ -14,11 +14,9 @@ import Stack from "@mui/joy/Stack";
 import React, { useEffect, useState } from "react";
 import BaseImagePage from "../components/BaseImagePage";
 import NinaDeviceCard, { CONTROLS } from "../components/NinaDeviceCard";
-import { useStorage } from "../providers/storage";
 import { listen, testConnection } from "../utils/nina";
 
 function NinaSetupCard({ connected, setConnected }) {
-  const { settingsStore } = useStorage();
   const [host, setHost] = useState("");
   const [password, setPassword] = useState("");
   const [attempted, setAttempted] = useState(false);
@@ -174,7 +172,6 @@ export default function ImageNinaPage() {
   const [connected, setConnected] = useState(false);
   const [connectionSettings, setConnectionSettings] = useState(null);
   const [socketConnected, setSocketConnected] = useState(false);
-  const { settingsStore } = useStorage();
   const [alert, setAlert] = useState(null);
 
   const [cameraStatus, setCameraStatus] = useState(null);

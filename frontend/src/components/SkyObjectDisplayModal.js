@@ -1,20 +1,20 @@
-import Modal from "@mui/joy/Modal";
-import ModalDialog from "@mui/joy/ModalDialog";
-import ModalClose from "@mui/joy/ModalClose";
-import Typography from "@mui/joy/Typography";
-import Select from "@mui/joy/Select";
-import Option from "@mui/joy/Option";
-import FormControl from "@mui/joy/FormControl";
-import FormLabel from "@mui/joy/FormLabel";
-import ButtonGroup from "@mui/joy/ButtonGroup";
-import IconButton from "@mui/joy/Button";
-import { OBJECT_FIELDS } from "../utils/object";
-import { useBackend } from "../providers/backend";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import IconButton from "@mui/joy/Button";
+import ButtonGroup from "@mui/joy/ButtonGroup";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
+import Modal from "@mui/joy/Modal";
+import ModalClose from "@mui/joy/ModalClose";
+import ModalDialog from "@mui/joy/ModalDialog";
+import Option from "@mui/joy/Option";
+import Select from "@mui/joy/Select";
+import Typography from "@mui/joy/Typography";
+import { OBJECT_FIELDS } from "../utils/object";
 
 export default function SkyObjectDisplayModal({ open, setOpen }) {
-  const { displaySettings, setDisplaySettings } = useBackend();
+  const displaySettings = null;
+  const setDisplaySettings = null;
   if (!displaySettings) return <></>;
   return (
     <Modal open={open} onClose={() => setOpen(false)}>

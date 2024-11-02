@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
-import Typography from "@mui/joy/Typography";
 import {
-  Sheet,
   Box,
   Button,
-  Modal,
-  ModalDialog,
-  ModalClose,
-  Stack,
   LinearProgress,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Sheet,
+  Stack,
 } from "@mui/joy";
-import { usePost, useBackend, fetchWithProgress } from "../providers/backend";
+import Typography from "@mui/joy/Typography";
+import React, { useEffect, useState } from "react";
 
 const VALID_FILE_TYPES = ["image/jpeg", "image/png"];
 

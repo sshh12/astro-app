@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
-import Modal from "@mui/joy/Modal";
-import ModalDialog from "@mui/joy/ModalDialog";
-import ModalClose from "@mui/joy/ModalClose";
-import Typography from "@mui/joy/Typography";
-import Checkbox from "@mui/joy/Checkbox";
 import Button from "@mui/joy/Button";
-import { useBackend } from "../providers/backend";
+import Checkbox from "@mui/joy/Checkbox";
+import Input from "@mui/joy/Input";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListItemContent from "@mui/joy/ListItemContent";
+import Modal from "@mui/joy/Modal";
+import ModalClose from "@mui/joy/ModalClose";
+import ModalDialog from "@mui/joy/ModalDialog";
 import Stack from "@mui/joy/Stack";
-import Input from "@mui/joy/Input";
+import Typography from "@mui/joy/Typography";
+import React, { useEffect, useState } from "react";
 
 export default function SkyObjectListsModal({ open, setOpen, object, lists }) {
   const [loading, setLoading] = useState(false);

@@ -17,7 +17,6 @@ import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useBackend } from "../providers/backend";
 import { equipmentToDetails } from "../utils/equipment";
 import { OBJECT_FIELDS } from "../utils/object";
 import ObjectImage from "./SkyObjectImage";
@@ -119,7 +118,8 @@ export default function SkyObjectCard({
   orbits,
   setDisplayModalOpen = null,
 }) {
-  const { equipment, displaySettings } = useBackend();
+  const equipment = null;
+  const displaySettings = null;
   const eqDetails = equipmentToDetails(equipment);
   if (!object || !displaySettings) {
     return <SkyObjectCardSkeleton eqDetails={eqDetails} />;

@@ -16,9 +16,7 @@ import ModalClose from "@mui/joy/ModalClose";
 import ModalDialog from "@mui/joy/ModalDialog";
 import Stack from "@mui/joy/Stack";
 import React, { useCallback, useEffect, useState } from "react";
-import { useStorage } from "../providers/storage";
 import { ninaPatch, ninaPost } from "../utils/nina";
-import { cleanSearchTerm } from "../utils/object";
 import { renderAz, renderLatLon } from "../utils/pos";
 
 function round(val) {
@@ -123,7 +121,6 @@ function RaDecAction({ defaultVal, label, loading, apply }) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [matches, setMatches] = useState([]);
-  const { objectStore } = useStorage();
   useEffect(() => {
     setValue(defaultVal);
   }, [defaultVal]);
@@ -134,21 +131,6 @@ function RaDecAction({ defaultVal, label, loading, apply }) {
     value.ra <= 24 &&
     value.dec >= -90 &&
     value.dec <= 90;
-
-  useEffect(() => {
-    (async () => {
-      const cleanTerm = cleanSearchTerm(searchTerm);
-      const matches = [];
-      if (cleanTerm && objectStore) {
-        await objectStore.iterate((val) => {
-          if (!!val.ra && val.searchKey.includes(cleanTerm)) {
-            matches.push(val);
-          }
-        });
-      }
-      setMatches(matches.slice(0, 5));
-    })();
-  }, [searchTerm, objectStore]);
 
   return (
     <>

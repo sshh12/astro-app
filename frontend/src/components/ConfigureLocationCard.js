@@ -1,21 +1,20 @@
-import React, { useEffect, useState, useCallback } from "react";
+import AccessTimeFilledRoundedIcon from "@mui/icons-material/AccessTimeFilledRounded";
+import LandscapeIcon from "@mui/icons-material/Landscape";
 import {
-  Typography,
-  Stack,
-  Input,
   FormControl,
   FormLabel,
-  Select,
+  Input,
   Option,
+  Select,
+  Stack,
+  Typography,
 } from "@mui/joy";
-import ConfigureTabsCard, { ConfigureTabPanel } from "./ConfigureTabsCard";
-import AccessTimeFilledRoundedIcon from "@mui/icons-material/AccessTimeFilledRounded";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
-import { getDeviceLocation, geocodeLocationToName } from "../utils/pos";
-import LandscapeIcon from "@mui/icons-material/Landscape";
+import React, { useCallback, useEffect, useState } from "react";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import { TIMEZONES } from "../constants/timezones";
-import { usePost } from "../providers/backend";
 import { getSystemTimeZone } from "../utils/date";
+import { geocodeLocationToName, getDeviceLocation } from "../utils/pos";
+import ConfigureTabsCard, { ConfigureTabPanel } from "./ConfigureTabsCard";
 
 function parseFloatSafe(v, defaultValue) {
   if (!v) {

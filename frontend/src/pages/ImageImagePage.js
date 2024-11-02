@@ -19,7 +19,6 @@ import { SubPageHeader } from "../components/Headers";
 import Layout from "../components/Layout";
 import OverlayImage from "../components/OverlayImage";
 import { SideBarNav } from "../components/Sidebars";
-import { useBackend, useObjects } from "../providers/backend";
 import { useCachedPythonOutput } from "../providers/python";
 import { theme } from "../theme/theme";
 import { useCurrentObservingWindow } from "../utils/date";

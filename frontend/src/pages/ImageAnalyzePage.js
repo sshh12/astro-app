@@ -14,7 +14,6 @@ import { Link } from "react-router-dom";
 import BaseImagePage from "../components/BaseImagePage";
 import ImageUploadCard from "../components/ImageUploadCard";
 import { RichListListItem } from "../components/SkyListLists";
-import { useBackend, useObjects } from "../providers/backend";
 
 function commonAspectRatio(images) {
   if (!images) {
