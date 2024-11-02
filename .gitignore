@@ -47,3 +47,4 @@ __pycache__
 *.cache.json
 python-astro-app/build/
 python-astro-app/dist/
+ignore-*
