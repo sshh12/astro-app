@@ -32,11 +32,10 @@ const Tabs = [
   },
 ];
 
-function locationToTab(location) {
-  return Tabs.find((tab) =>
-    location.pathname.startsWith("/" + tab.href.split("/")[1])
-  );
-}
+const locationToTab = (location) => 
+  Tabs.find((tab) => location.pathname.startsWith(`/${tab.href.split("/")[1]}`));
+
+const mergeSx = (props) => [...(Array.isArray(props.sx) ? props.sx : [props.sx])];
 
 function Root(props) {
   return (
@@ -53,7 +52,7 @@ function Root(props) {
           gridTemplateRows: "64px 1fr",
           minHeight: "100vh",
         },
-        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+        ...mergeSx(props),
       ]}
     />
   );
@@ -80,7 +79,7 @@ function Header(props) {
           top: 0,
           zIndex: 1100,
         },
-        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+        ...mergeSx(props),
       ]}
     />
   );
@@ -103,7 +102,7 @@ function SideNav(props) {
             sm: "initial",
           },
         },
-        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+        ...mergeSx(props),
       ]}
     />
   );
@@ -124,7 +123,7 @@ function SidePane(props) {
             md: "initial",
           },
         },
-        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+        ...mergeSx(props),
       ]}
     />
   );
@@ -145,7 +144,7 @@ function SideDrawer(props) {
       {...other}
       sx={[
         { position: "fixed", zIndex: 1200, width: "100%", height: "100%" },
-        ...(Array.isArray(other.sx) ? other.sx : [other.sx]),
+        ...mergeSx(other),
       ]}
     >
       <Box
@@ -176,6 +175,7 @@ function SideDrawer(props) {
 
 function MobileTabs() {
   const location = useLocation();
+  
   return (
     <Stack
       id="tab-bar"
@@ -183,53 +183,46 @@ function MobileTabs() {
       justifyContent="space-around"
       sx={{
         display: { xs: "flex", sm: "none" },
-        zIndex: "999",
+        zIndex: 999,
         bottom: 0,
         position: "fixed",
         width: "100dvw",
+        padding: "var(--joy-spacing)",
         paddingLeft: 1,
         paddingRight: 1,
         backgroundColor: "background.body",
         borderTop: "1px solid",
         borderColor: "divider",
-        paddingBottom: "calc(1 * var(--joy-spacing))",
-        paddingTop: "calc(1 * var(--joy-spacing))",
       }}
     >
-      {Tabs.map((tab) => (
-        <Link
-          to={tab.href}
-          style={{
-            textDecoration: "none",
-            flexDirection: "column",
-            flex: 1,
-          }}
-          key={tab.label}
-        >
-          <Button
-            variant="plain"
-            color="neutral"
-            size="sm"
-            sx={{
-              height: "3rem",
-              width: "100%",
+      {Tabs.map((tab) => {
+        const isSelected = locationToTab(location).label === tab.label;
+        
+        return (
+          <Link
+            key={tab.label}
+            to={tab.href}
+            style={{
+              textDecoration: "none",
+              flexDirection: "column",
+              flex: 1,
             }}
-            startDecorator={
-              <tab.icon
-                sx={{
-                  color:
-                    locationToTab(location).label === tab.label
-                      ? tab.color
-                      : undefined,
-                }}
-              />
-            }
-            aria-pressed={locationToTab(location).label === tab.label}
           >
-            {tab.label}
-          </Button>
-        </Link>
-      ))}
+            <Button
+              variant="plain"
+              color="neutral"
+              size="sm"
+              sx={{ height: "3rem", width: "100%" }}
+              startDecorator={
+                <tab.icon sx={{ color: isSelected ? tab.color : undefined }} />
+              }
+              aria-pressed={isSelected}
+            >
+              {tab.label}
+            </Button>
+          </Link>
+        );
+      })}
     </Stack>
   );
 }
