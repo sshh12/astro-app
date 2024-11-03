@@ -12,6 +12,8 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.7",
+    "dexie": "^4.0.9",
     "localforage": "^1.10.0",
     "luxon": "^3.4.4",
     "pako": "^2.1.0",

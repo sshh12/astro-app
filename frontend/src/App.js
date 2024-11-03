@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import LoadingBackground from "./components/LoadingBackground";
-import { PythonContext, usePythonControl } from "./providers/python";
+import { PythonContext, usePythonControl } from "./contexts/python";
+import { UserProvider } from "./contexts/user";
 import { routes } from "./routes";
 
 function AppProviders({ children }) {
@@ -9,7 +10,7 @@ function AppProviders({ children }) {
 
   return (
     <PythonContext.Provider value={pythonControl}>
-      {children}
+      <UserProvider>{children}</UserProvider>
     </PythonContext.Provider>
   );
 }

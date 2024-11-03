@@ -161,7 +161,7 @@ export default function ConfigureLocationCard({
   triggerSubmitAndCallback = null,
   showButton = true,
 }) {
-  const { post } = usePost();
+  const post = null;
   const [loading, setLoading] = useState(false);
   const [editValues, setEditValues] = useState({
     name: "",

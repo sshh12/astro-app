@@ -8,6 +8,7 @@ import Layout from "../components/Layout";
 import { ListMobileTab, ListSideBar } from "../components/SkyListLists";
 import SkyObjectsList from "../components/SkyObjectsList";
 import SkySummarySheet from "../components/SkySummarySheet";
+import { useUser } from "../contexts/user";
 import { theme } from "../theme/theme";
 import {
   renderTimeWithSeconds,
@@ -15,12 +16,22 @@ import {
   useTimestamp,
 } from "../utils/date";
 
+function SkyHeader({ user }) {
+  const { ts } = useTimestamp();
+  return (
+    <Header
+      title="Sky"
+      subtitle={renderTimeWithSeconds(ts, user?.timezone)}
+      enableSearch={true}
+    />
+  );
+}
+
 export default function SkyPage() {
   const navigate = useNavigate();
-  const user = null;
+  const { user } = useUser();
   const location = null;
   const showOnboarding = false;
-  const { ts } = useTimestamp();
 
   React.useEffect(() => {
     if (showOnboarding) {
@@ -28,9 +39,7 @@ export default function SkyPage() {
     }
   }, [navigate, showOnboarding]);
 
-  const favoriteObjects = user
-    ? user.lists.find((lst) => lst.title === "Favorites").objects
-    : null;
+  const favoriteObjects = null;
 
   const [startTs, endTs] = useCurrentObservingWindow(location?.timezone);
 
@@ -50,11 +59,7 @@ export default function SkyPage() {
         }}
       >
         <Layout.Header>
-          <Header
-            title="Sky"
-            subtitle={renderTimeWithSeconds(ts, user?.timezone)}
-            enableSearch={true}
-          />
+          <SkyHeader user={user} />
         </Layout.Header>
         <Layout.SideNav>
           <ListSideBar lists={user?.lists} />

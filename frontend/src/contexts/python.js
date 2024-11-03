@@ -74,7 +74,7 @@ function asyncRun(script, onSendJs) {
 export function usePythonControl() {
   useEffect(() => {
     if (window.Worker && !window.pyinit) {
-      _initWorkers();
+      // _initWorkers();
     }
     return () => {};
   }, []);

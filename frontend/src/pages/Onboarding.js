@@ -10,15 +10,42 @@ import Typography from "@mui/joy/Typography";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfigureLocationCard from "../components/ConfigureLocationCard";
+import { useUser } from "../contexts/user";
 import { theme } from "../theme/theme";
 
 export default function OnboardingPage() {
-  const { user, updateUser } = useBackend();
-  const { closeOnboarding } = useBackend();
+  const { user, setOnboarded, addLocation } = useUser();
   const [loading, setLoading] = useState(false);
   const [triggerLocationSubmitCallback, setTriggerLocationSubmit] =
     useState(null);
   const navigate = useNavigate();
+
+  const handlePlayTutorial = () => {
+    setLoading(true);
+    setTriggerLocationSubmit(() => {
+      return () => {
+        setLoading(false);
+        setOnboarded();
+        navigate("/tutorial");
+      };
+    });
+  };
+
+  const handleSkipTutorial = () => {
+    setLoading(true);
+    setTriggerLocationSubmit(() => {
+      return () => {
+        setLoading(false);
+        setOnboarded();
+        navigate("/sky");
+      };
+    });
+  };
+
+  const handleSubmitLocation = (location) => {
+    addLocation(location);
+  };
+
   return (
     <CssVarsProvider theme={theme} defaultMode="dark" disableTransitionOnChange>
       <CssBaseline />
@@ -108,24 +135,13 @@ export default function OnboardingPage() {
               <ConfigureLocationCard
                 showButton={false}
                 triggerSubmitAndCallback={triggerLocationSubmitCallback}
-                onSubmit={(v) => {
-                  updateUser("add_location", { location_details: v });
-                }}
+                onSubmit={handleSubmitLocation}
               />
               <Stack gap={2} sx={{ mt: 2 }}>
                 <Button
                   loading={loading || !user}
                   fullWidth
-                  onClick={() => {
-                    setLoading(true);
-                    setTriggerLocationSubmit(() => {
-                      return () => {
-                        setLoading(false);
-                        closeOnboarding();
-                        navigate("/tutorial");
-                      };
-                    });
-                  }}
+                  onClick={handlePlayTutorial}
                 >
                   Play Tutorial
                 </Button>
@@ -133,16 +149,7 @@ export default function OnboardingPage() {
                   variant="outlined"
                   fullWidth
                   loading={loading || !user}
-                  onClick={() => {
-                    setLoading(true);
-                    setTriggerLocationSubmit(() => {
-                      return () => {
-                        setLoading(false);
-                        closeOnboarding();
-                        navigate("/sky");
-                      };
-                    });
-                  }}
+                  onClick={handleSkipTutorial}
                 >
                   Skip Tutorial
                 </Button>

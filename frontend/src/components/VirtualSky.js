@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef } from "react";
 import { colorToHex } from "../constants/colors";
-import { useCachedPythonOutput } from "../providers/python";
+import { useCachedPythonOutput } from "../contexts/python";
 import { useTimestamp } from "../utils/date";
 import { objectsToKey } from "../utils/object";
 import { getImageURL } from "./SkyObjectImage";

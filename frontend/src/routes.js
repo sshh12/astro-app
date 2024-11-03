@@ -1,9 +1,9 @@
-import { lazy } from 'react';
+import { lazy } from "react";
 
 export const routes = {
   sky: {
-    path: '/sky',
-    Component: lazy(() => import('./pages/SkyPage')),
+    path: "/sky",
+    Component: lazy(() => import("./pages/SkyPage")),
   },
   // skyList: {
   //   path: '/sky/list/:id',
@@ -49,12 +49,12 @@ export const routes = {
   //   path: '/profile',
   //   Component: lazy(() => import('./pages/ProfilePage')),
   // },
-  // onboarding: {
-  //   path: '/onboarding',
-  //   Component: lazy(() => import('./pages/Onboarding')),
-  // },
+  onboarding: {
+    path: "/onboarding",
+    Component: lazy(() => import("./pages/Onboarding")),
+  },
   // tutorial: {
   //   path: '/tutorial',
   //   Component: lazy(() => import('./pages/Tutorial')),
   // },
-}; 
+};

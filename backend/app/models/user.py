@@ -1,13 +1,19 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import BigInteger, Column, String, DateTime, ARRAY
+from sqlalchemy.orm import relationship
+from datetime import datetime, timezone
 from app.database import Base
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)
+    id = Column(BigInteger, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    api_keys = Column(ARRAY(String), default=list)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    # Relationships
+    lists = relationship("ListsOnUsers", back_populates="user")
+    equipment = relationship("Equipment", back_populates="user")
+    location = relationship("Location", back_populates="user")
+    images = relationship("Image", back_populates="user")
